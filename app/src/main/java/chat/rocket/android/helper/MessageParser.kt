@@ -1,6 +1,7 @@
 package chat.rocket.android.helper
 
 import android.app.Application
+import android.app.PendingIntent
 import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
@@ -175,6 +176,20 @@ class MessageParser @Inject constructor(val context: Application, private val co
                             with (view) {
                                 val tabsbuilder = CustomTabsIntent.Builder()
                                 tabsbuilder.setToolbarColor(ResourcesCompat.getColor(context.resources, R.color.colorPrimary, context.theme))
+
+                                // Add action button for add to favorites
+                                //Generally you do not want to decode bitmaps in the UI thread. Decoding it in the
+                                //UI thread to keep the example short.
+                                val actionLabel = "Action Label"
+                                val icon = BitmapFactory.decodeResource(resources,
+                                        android.R.drawable.ic_input_add)
+                                val pendingIntent = createPendingIntent(context, ActionBroadcastReceiver.ACTION_ACTION_BUTTON)
+                                tabsbuilder.setActionButton(icon, actionLabel, pendingIntent)
+
+                                // Add menu item for add to favorites
+                                val menuItemTitle = "Add Web Channel"
+                                val menuItemPendingIntent = createPendingIntent(context, ActionBroadcastReceiver.ACTION_MENU_ITEM)
+                                tabsbuilder.addMenuItem(menuItemTitle, menuItemPendingIntent)
                                 val customTabsIntent = tabsbuilder.build()
                                 customTabsIntent.launchUrl(context, getUri(link))
                             }
@@ -192,6 +207,14 @@ class MessageParser @Inject constructor(val context: Application, private val co
                 return Uri.parse("http://$link")
             }
             return uri
+        }
+
+        private fun createPendingIntent(context: Context, actionSourceId: Int): PendingIntent {
+            val actionIntent = Intent(
+                    context, ActionBroadcastReceiver::class.java)
+            actionIntent.putExtra(ActionBroadcastReceiver.KEY_ACTION_SOURCE, actionSourceId)
+            return PendingIntent.getBroadcast(
+                    context, actionSourceId, actionIntent, 0)
         }
     }
 

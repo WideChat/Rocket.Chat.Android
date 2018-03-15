@@ -75,6 +75,7 @@
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
+        <receiver android:name=".helper.ActionBroadcastReceiver" />
 
         <service
             android:name=".push.FirebaseTokenService"
