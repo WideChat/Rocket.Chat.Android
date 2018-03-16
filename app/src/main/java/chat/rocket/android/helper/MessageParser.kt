@@ -169,6 +169,7 @@ class MessageParser @Inject constructor(val context: Application, private val co
 
             while (matcher.find()) {
                 val link = matcher.group(0)
+                Timber.d(link)
                 // skip usernames
                 if (!link.startsWith("@") && link !in consumed) {
                     builder.setSpan(object : ClickableSpan() {
