@@ -4,8 +4,11 @@ import DrawableHelper
 import android.content.Context
 import android.content.Intent
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.Fragment
+import android.support.v4.content.res.ResourcesCompat
 import android.support.v7.app.AppCompatActivity
 import chat.rocket.android.R
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
@@ -21,6 +24,14 @@ import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.app_bar_chat_room.*
 import javax.inject.Inject
 import timber.log.Timber
+import android.view.View
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
+
+
+
+
 
 
 fun Context.chatRoomIntent(chatRoomId: String,
@@ -65,6 +76,7 @@ class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_chat_room)
 
+
         // Workaround for when we are coming to the app via the recents app and the app was killed.
         managerFactory.create(serverInteractor.get()!!).connect()
 
@@ -80,6 +92,23 @@ class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
         isChatRoomReadOnly = intent.getBooleanExtra(INTENT_IS_CHAT_ROOM_READ_ONLY, true)
         requireNotNull(chatRoomType) { "no is_chat_room_read_only provided in Intent extras" }
 
+        // load web channel
+//        if (chatRoomType == "p") {
+////            val tabsbuilder = CustomTabsIntent.Builder()
+////            tabsbuilder.setToolbarColor(ResourcesCompat.getColor(view.context.resources, R.color.colorPrimary, view.context.theme))
+////            val customTabsIntent = tabsbuilder.build()
+////            customTabsIntent.launchUrl(view.context, Uri.parse(chatRoomName))
+//            val myWebView = findViewById<View>(R.id.myWebView) as WebView
+//
+//            myWebView.loadUrl("http://$chatRoomName")
+//
+//            myWebView.webViewClient = WebViewClient()
+//
+//            val webSettings = myWebView.settings
+//
+//            webSettings.javaScriptEnabled = true
+//        }
+
         setupToolbar()
 
         chatRoomLastSeen = intent.getLongExtra(INTENT_CHAT_ROOM_LAST_SEEN, -1)
@@ -90,6 +119,14 @@ class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
             newInstance(chatRoomId, chatRoomName, chatRoomType, isChatRoomReadOnly, chatRoomLastSeen,
                     isChatRoomSubscribed)
         }
+    }
+
+    private fun getUri(link: String): Uri {
+        val uri = Uri.parse(link)
+        if (uri.scheme == null) {
+            return Uri.parse("http://$link")
+        }
+        return uri
     }
 
     override fun onBackPressed() {
