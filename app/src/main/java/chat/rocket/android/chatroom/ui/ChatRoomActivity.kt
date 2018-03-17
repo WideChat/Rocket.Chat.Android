@@ -93,32 +93,31 @@ class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
         requireNotNull(chatRoomType) { "no is_chat_room_read_only provided in Intent extras" }
 
         // load web channel
-//        if (chatRoomType == "p") {
-////            val tabsbuilder = CustomTabsIntent.Builder()
-////            tabsbuilder.setToolbarColor(ResourcesCompat.getColor(view.context.resources, R.color.colorPrimary, view.context.theme))
-////            val customTabsIntent = tabsbuilder.build()
-////            customTabsIntent.launchUrl(view.context, Uri.parse(chatRoomName))
+//        if (chatRoomType == "web link") {
 //            val myWebView = findViewById<View>(R.id.myWebView) as WebView
-//
+
 //            myWebView.loadUrl("http://$chatRoomName")
-//
+
 //            myWebView.webViewClient = WebViewClient()
-//
+
 //            val webSettings = myWebView.settings
-//
+
 //            webSettings.javaScriptEnabled = true
-//        }
+         
+//            setupToolbar()
+//        } else 
 
-        setupToolbar()
+           setupToolbar()
 
-        chatRoomLastSeen = intent.getLongExtra(INTENT_CHAT_ROOM_LAST_SEEN, -1)
+           chatRoomLastSeen = intent.getLongExtra(INTENT_CHAT_ROOM_LAST_SEEN, -1)
 
-        isChatRoomSubscribed = intent.getBooleanExtra(INTENT_CHAT_IS_SUBSCRIBED, true)
+           isChatRoomSubscribed = intent.getBooleanExtra(INTENT_CHAT_IS_SUBSCRIBED, true)
 
-        addFragment("ChatRoomFragment", R.id.fragment_container) {
-            newInstance(chatRoomId, chatRoomName, chatRoomType, isChatRoomReadOnly, chatRoomLastSeen,
-                    isChatRoomSubscribed)
-        }
+           addFragment("ChatRoomFragment", R.id.fragment_container) {
+                newInstance(chatRoomId, chatRoomName, chatRoomType, isChatRoomReadOnly, chatRoomLastSeen,
+                        isChatRoomSubscribed)
+           }
+       //}
     }
 
     private fun getUri(link: String): Uri {
