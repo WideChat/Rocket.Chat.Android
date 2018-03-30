@@ -260,7 +260,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     val title = when (type) {
                         RoomType.CHANNEL.toString() -> resources.getString(R.string.header_channel)
                         RoomType.PRIVATE_GROUP.toString() -> resources.getString(R.string.header_private_groups)
-                        RoomType.DIRECT_MESSAGE.toString() -> resources.getString(R.string.header_direct_messages)
+                        //RoomType.DIRECT_MESSAGE.toString() -> resources.getString(R.string.header_direct_messages)
                         RoomType.LIVECHAT.toString() -> resources.getString(R.string.header_live_chats)
                         else -> resources.getString(R.string.header_unknown)
                     }

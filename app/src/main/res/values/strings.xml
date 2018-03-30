@@ -132,7 +132,7 @@
     <string name="header_private_groups">Private Rooms</string>
     <string name="header_direct_messages">Direct Messages</string>
     <string name="header_live_chats">Live Chats</string>
-    <string name="header_unknown">Unknown</string>
+    <string name="header_unknown"></string>
 
     <!-- Slash Commands -->
     <string name="Slash_Gimme_Description">Displays ༼ つ ◕_◕ ༽つ before your message</string>
