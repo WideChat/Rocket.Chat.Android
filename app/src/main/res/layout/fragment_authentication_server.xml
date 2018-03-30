@@ -12,6 +12,7 @@
         android:id="@+id/text_headline"
         style="@style/Authentication.Headline.TextView"
         android:layout_centerHorizontal="true"
+        android:textColor="@color/colorServerSignInText"
         android:text="@string/title_sign_in_your_server" />
 
     <EditText

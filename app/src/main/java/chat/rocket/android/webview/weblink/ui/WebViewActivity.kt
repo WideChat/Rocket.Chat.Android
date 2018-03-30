@@ -82,7 +82,7 @@ class WebViewActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         toolbar.title = truncateString(webPageTitle)
-        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+        toolbar.setNavigationIcon(R.drawable.ic_arrow_back_veranda_24dp)
         toolbar.setNavigationOnClickListener {
             finishActivity()
         }

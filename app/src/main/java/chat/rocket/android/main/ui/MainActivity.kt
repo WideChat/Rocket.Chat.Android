@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-        toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
+        toolbar.setNavigationIcon(R.drawable.ic_menu_veranda_24dp)
         toolbar.setNavigationOnClickListener {
             drawer_layout.openDrawer(Gravity.START)
         }
