@@ -193,7 +193,7 @@ object PushManager {
                     .setMessageNotification()
 
             //TODO: Get Site_Name PublicSetting from cache
-            val subText = "Rocket.Chat"
+            val subText = "Veranda"
             if (subText.isNotEmpty()) {
                 builder.setSubText(subText)
             }
@@ -282,7 +282,7 @@ object PushManager {
             }
 
             //TODO: Get Site_Name PublicSetting from cache
-            val subText = "Rocket.Chat"
+            val subText = "Veranda"
             if (subText.isNotEmpty()) {
                 builder.setSubText(subText)
             }
@@ -338,7 +338,7 @@ object PushManager {
                     .setMessageNotification()
 
             //TODO: Get Site_Name PublicSetting from cache
-            val subText = "Rocket.Chat"
+            val subText = "Veranda"
             if (subText.isNotEmpty()) {
                 builder.setSubText(subText)
             }
@@ -400,7 +400,7 @@ object PushManager {
             }
 
             //TODO: Get Site_Name PublicSetting from cache
-            val subText = "Rocket.Chat"
+            val subText = "Veranda"
             if (subText.isNotEmpty()) {
                 builder.setSubText(subText)
             }
