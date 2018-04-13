@@ -29,7 +29,7 @@ class WebLinksAdapter(private val context: Context,
     lateinit var webLinkDao: WebLinkDao
 
     init {
-        DaggerAppComponent.builder().application(RocketChatApplication.application).build().inject(this)
+        DaggerAppComponent.builder().application(RocketChatApplication()).build().inject(this)
     }
 
     var dataSet: MutableList<WebLinkEntity> = ArrayList()

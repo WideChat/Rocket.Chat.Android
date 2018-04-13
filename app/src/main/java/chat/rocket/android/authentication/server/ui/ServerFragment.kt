@@ -56,13 +56,17 @@ class ServerFragment : Fragment(), ServerView {
         enableUserInput(true)
     }
 
-    override fun showMessage(resId: Int) = showToast(resId)
+    override fun showMessage(resId: Int){
+        showToast(resId)
+    }
 
-    override fun showMessage(message: String) = showToast(message)
+    override fun showMessage(message: String) {
+        showToast(message)
+    }
 
-    override fun showGenericErrorMessage() = showMessage(getString(R.string.msg_generic_error))
-
-    override fun showNoInternetConnection() = showMessage(getString(R.string.msg_no_internet_connection))
+    override fun showGenericErrorMessage() {
+        showMessage(getString(R.string.msg_generic_error))
+    }
 
     private fun enableUserInput(value: Boolean) {
         button_connect.isEnabled = value

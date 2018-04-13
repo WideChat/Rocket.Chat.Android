@@ -15,4 +15,5 @@ interface WebLinksView {
      *  Shows no web links to display.
      */
     fun showNoWebLinksToDisplay()
+
 }

@@ -25,6 +25,7 @@ import chat.rocket.android.helper.ChatRoomsSortOrder
 import chat.rocket.android.helper.Constants
 import chat.rocket.android.helper.SharedPreferenceHelper
 import chat.rocket.android.room.weblink.WebLinkEntity
+import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.server.domain.SettingsRepository
 import chat.rocket.android.util.extensions.*
@@ -50,16 +51,12 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
-
 class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
-    @Inject
-    lateinit var presenter: ChatRoomsPresenter
-    @Inject
-    lateinit var serverInteractor: GetCurrentServerInteractor
-    @Inject
-    lateinit var settingsRepository: SettingsRepository
-    @Inject
-    lateinit var webLinksPresenter: WebLinksPresenter
+    @Inject lateinit var presenter: ChatRoomsPresenter
+    @Inject lateinit var serverInteractor: GetCurrentServerInteractor
+    @Inject lateinit var settingsRepository: SettingsRepository
+    @Inject lateinit var localRepository: LocalRepository
+    @Inject lateinit var webLinksPresenter: WebLinksPresenter
 
     private lateinit var preferences: SharedPreferences
     private var searchView: SearchView? = null
@@ -173,7 +170,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
     private fun invalidateQueryOnSearch() {
         searchView?.let {
-            if (!searchView!!.isIconified) {
+            if (!searchView!!.isIconified){
                 queryChatRoomsByName(searchView!!.query.toString())
             }
         }
@@ -184,15 +181,17 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
             listJob?.cancel()
             listJob = launch(UI) {
                 val adapter = recycler_view.adapter as SimpleSectionedRecyclerViewAdapter
-                // FIXME https://fabric.io/rocketchat3/android/apps/chat.rocket.android.dev/issues/5a90d4718cb3c2fa63b3f557?time=last-seven-days
-                // TODO - fix this bug to reenable DiffUtil
-                val diff = async(CommonPool) {
+
+                // FIXME https://fabric.io/rocketchat3/android/apps/chat.rocket.android/issues/5ac2916c36c7b235275ccccf
+                // TODO - fix this bug to re-enable DiffUtil
+                /*val diff = async(CommonPool) {
                     DiffUtil.calculateDiff(RoomsDiffCallback(adapter.baseAdapter.dataSet, newDataSet))
-                }.await()
+                }.await()*/
 
                 if (isActive) {
                     adapter.baseAdapter.updateRooms(newDataSet)
-                    diff.dispatchUpdatesTo(adapter)
+                    // TODO - fix crash to re-enable diff.dispatchUpdatesTo(adapter)
+                    adapter.notifyDataSetChanged()
 
                     //Set sections always after data set is updated
                     setSections()
@@ -205,11 +204,19 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
     override fun showLoading() = view_loading.setVisible(true)
 
-    override fun hideLoading() = view_loading.setVisible(false)
+    override fun hideLoading() {
+        if (view_loading != null) {
+            view_loading.setVisible(false)
+        }
+    }
 
-    override fun showMessage(resId: Int) = showToast(resId)
+    override fun showMessage(resId: Int) {
+        showToast(resId)
+    }
 
-    override fun showMessage(message: String) = showToast(message)
+    override fun showMessage(message: String) {
+        showToast(message)
+    }
 
     override fun showGenericErrorMessage() = showMessage(getString(R.string.msg_generic_error))
 
@@ -270,11 +277,12 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
             recycler_view.addItemDecoration(DividerItemDecoration(this,
                     resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_start),
                     resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
+
             recycler_view.itemAnimator = DefaultItemAnimator() as RecyclerView.ItemAnimator?
             // TODO - use a ViewModel Mapper instead of using settings on the adapter
 
             val baseAdapter = ChatRoomsAdapter(this,
-                    settingsRepository.get(serverInteractor.get()!!)) { chatRoom -> presenter.loadChatRoom(chatRoom) }
+                    settingsRepository.get(serverInteractor.get()!!), localRepository) { chatRoom -> presenter.loadChatRoom(chatRoom) }
 
             sectionedAdapter = SimpleSectionedRecyclerViewAdapter(this, R.layout.item_chatroom_header, R.id.text_chatroom_header, baseAdapter!!)
             recycler_view.adapter = sectionedAdapter

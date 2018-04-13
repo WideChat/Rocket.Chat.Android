@@ -49,6 +49,14 @@ class ChatRoomAdapter(
                 val view = parent.inflate(R.layout.message_url_preview)
                 UrlPreviewViewHolder(view, actionsListener, reactionListener)
             }
+            BaseViewModel.ViewType.MESSAGE_ATTACHMENT -> {
+                val view = parent.inflate(R.layout.item_message_attachment)
+                MessageAttachmentViewHolder(view, actionsListener, reactionListener)
+            }
+            BaseViewModel.ViewType.AUTHOR_ATTACHMENT -> {
+                val view = parent.inflate(R.layout.item_author_attachment)
+                AuthorAttachmentViewHolder(view, actionsListener, reactionListener)
+            }
             else -> {
                 throw InvalidParameterException("TODO - implement for ${viewType.toViewType()}")
             }
@@ -87,6 +95,8 @@ class ChatRoomAdapter(
             is AudioAttachmentViewHolder -> holder.bind(dataSet[position] as AudioAttachmentViewModel)
             is VideoAttachmentViewHolder -> holder.bind(dataSet[position] as VideoAttachmentViewModel)
             is UrlPreviewViewHolder -> holder.bind(dataSet[position] as UrlPreviewViewModel)
+            is MessageAttachmentViewHolder -> holder.bind(dataSet[position] as MessageAttachmentViewModel)
+            is AuthorAttachmentViewHolder -> holder.bind(dataSet[position] as AuthorAttachmentViewModel)
         }
     }
 
@@ -95,6 +105,7 @@ class ChatRoomAdapter(
         return when (model) {
             is MessageViewModel -> model.messageId.hashCode().toLong()
             is BaseFileAttachmentViewModel -> model.id
+            is AuthorAttachmentViewModel -> model.id
             else -> return position.toLong()
         }
     }
@@ -117,19 +128,22 @@ class ChatRoomAdapter(
 
     fun updateItem(message: BaseViewModel<*>) {
         var index = dataSet.indexOfLast { it.messageId == message.messageId }
-        val indexOfFirst = dataSet.indexOfFirst { it.messageId == message.messageId }
+        val indexOfNext = dataSet.indexOfFirst { it.messageId == message.messageId }
         Timber.d("index: $index")
         if (index > -1) {
             dataSet[index] = message
-            notifyItemChanged(index)
-            while (dataSet[index].nextDownStreamMessage != null) {
-                dataSet[index].nextDownStreamMessage!!.reactions = message.reactions
-                notifyItemChanged(--index)
+            dataSet.forEachIndexed { index, viewModel ->
+                if (viewModel.messageId == message.messageId) {
+                    if (viewModel.nextDownStreamMessage == null) {
+                        viewModel.reactions = message.reactions
+                    }
+                    notifyItemChanged(index)
+                }
             }
             // Delete message only if current is a system message update, i.e.: Message Removed
-            if (message.message.isSystemMessage() && indexOfFirst > -1 && indexOfFirst != index) {
-                dataSet.removeAt(indexOfFirst)
-                notifyItemRemoved(indexOfFirst)
+            if (message.message.isSystemMessage() && indexOfNext > -1 && indexOfNext != index) {
+                dataSet.removeAt(indexOfNext)
+                notifyItemRemoved(indexOfNext)
             }
         }
     }

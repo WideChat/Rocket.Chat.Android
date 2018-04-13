@@ -5,7 +5,7 @@ import android.preference.PreferenceManager
 import chat.rocket.android.app.RocketChatApplication
 
 object SharedPreferenceHelper {
-    private var sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(RocketChatApplication.application.applicationContext)
+    private var sharedPreferences: SharedPreferences = PreferenceManager.getDefaultSharedPreferences(RocketChatApplication.getAppContext())
     private var editor: SharedPreferences.Editor? = sharedPreferences.edit()
 
     //Add more methods for other types if needed
