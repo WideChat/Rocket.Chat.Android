@@ -3,7 +3,9 @@ package chat.rocket.android.dagger.module
 import chat.rocket.android.customtab.ActionBroadcastReceiver
 import chat.rocket.android.customtab.ActionBroadcastReceiverProvider
 import chat.rocket.android.push.FirebaseTokenService
+import chat.rocket.android.push.GcmListenerService
 import chat.rocket.android.push.di.FirebaseTokenServiceProvider
+import chat.rocket.android.push.di.GcmListenerServiceProvider
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -15,4 +17,7 @@ abstract class ServiceBuilder {
 
     @ContributesAndroidInjector(modules = [ActionBroadcastReceiverProvider::class])
     abstract fun bindActionBroadcastReceiver(): ActionBroadcastReceiver
+
+    @ContributesAndroidInjector(modules = [GcmListenerServiceProvider::class])
+    abstract fun bindGcmListenerService(): GcmListenerService
 }

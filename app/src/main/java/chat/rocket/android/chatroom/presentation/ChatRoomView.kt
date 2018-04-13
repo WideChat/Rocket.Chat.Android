@@ -92,8 +92,10 @@ interface ChatRoomView : LoadingView, MessageView {
 
     /**
      * Enables the send message button.
+     *
+     * @param sendFailed Whether the sent message has failed.
      */
-    fun enableSendMessageButton()
+    fun enableSendMessageButton(sendFailed: Boolean)
 
     /**
      * Clears the message composition.
@@ -103,7 +105,9 @@ interface ChatRoomView : LoadingView, MessageView {
     fun showInvalidFileSize(fileSize: Int, maxFileSize: Int)
 
     fun showConnectionState(state: State)
+
     fun populatePeopleSuggestions(members: List<PeopleSuggestionViewModel>)
+    
     fun populateRoomSuggestions(chatRooms: List<ChatRoomSuggestionViewModel>)
     /**
      * This user has joined the chat callback.
