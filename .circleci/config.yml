@@ -16,15 +16,15 @@ jobs:
       - run:
           name: Build Kotlin.SDK
           command: pushd app/ ; ./build-sdk.sh ; popd
-     # - save_cache:
-     #     paths:
-     #       - ~/.gradle
-     #     key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum "player/build.gradle" }}
-     # - save_cache:
-     #     paths:
-     #       - app/libs/
-     #       - ../Rocket.Chat.Kotlin.SDK/.last_commit_hash
-     #     key: kotlin-sdk-{{ .Revision }}
+      - save_cache:
+          paths:
+            - ~/.gradle
+          key: jars-{{ checksum "build.gradle" }}-{{ checksum  "app/build.gradle" }}-{{ checksum "player/build.gradle" }}
+      - save_cache:
+          paths:
+            - app/libs/
+            - ../Rocket.Chat.Kotlin.SDK/.last_commit_hash
+          key: kotlin-sdk-{{ .Revision }}
       - store_artifacts:
           path: app/libs/
           destination: libs
