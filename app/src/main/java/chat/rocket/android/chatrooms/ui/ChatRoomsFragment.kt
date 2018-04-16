@@ -298,19 +298,19 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     }
 
     private fun setupWebLinksRecyclerView() {
-        activity?.apply {
-            web_links_recycler_view.layoutManager = LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false)
-            web_links_recycler_view.addItemDecoration(DividerItemDecoration(this,
+        ui {
+            web_links_recycler_view.layoutManager = LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
+            web_links_recycler_view.addItemDecoration(DividerItemDecoration(it,
                     resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_start),
                     resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
             web_links_recycler_view.itemAnimator = DefaultItemAnimator()
 
-            web_links_recycler_view.adapter = WebLinksAdapter(this,
-                    { webLink ->
+            web_links_recycler_view.adapter = WebLinksAdapter(it,
+                { webLink ->
                         run {
-                            startActivity(this.webViewIntent(webLink.link, if (!webLink.title.isEmpty()) webLink.title else resources.getString(R.string.url_preview_title)))
+                            startActivity(it.webViewIntent(webLink.link, if (!webLink.title.isEmpty()) webLink.title else resources.getString(R.string.url_preview_title)))
                         }
-                    })
+            })
         }
     }
 
