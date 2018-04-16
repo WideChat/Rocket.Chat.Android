@@ -2,7 +2,10 @@ package chat.rocket.android.dagger.module
 
 import android.app.Application
 import android.app.NotificationManager
+import android.app.job.JobInfo
+import android.app.job.JobScheduler
 import android.arch.persistence.room.Room
+import android.content.ComponentName
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.systemService
@@ -11,7 +14,9 @@ import chat.rocket.android.R
 import chat.rocket.android.app.RocketChatDatabase
 import chat.rocket.android.authentication.infraestructure.SharedPreferencesMultiServerTokenRepository
 import chat.rocket.android.authentication.infraestructure.SharedPreferencesTokenRepository
+import chat.rocket.android.chatroom.service.MessageService
 import chat.rocket.android.dagger.qualifier.ForFresco
+import chat.rocket.android.dagger.qualifier.ForMessages
 import chat.rocket.android.helper.FrescoAuthInterceptor
 import chat.rocket.android.helper.MessageParser
 import chat.rocket.android.infrastructure.LocalRepository
@@ -19,20 +24,18 @@ import chat.rocket.android.infrastructure.SharedPrefsLocalRepository
 import chat.rocket.android.push.GroupedPush
 import chat.rocket.android.push.PushManager
 import chat.rocket.android.server.domain.*
-import chat.rocket.android.server.infraestructure.MemoryChatRoomsRepository
-import chat.rocket.android.server.infraestructure.MemoryMessagesRepository
-import chat.rocket.android.server.infraestructure.MemoryRoomRepository
-import chat.rocket.android.server.infraestructure.MemoryUsersRepository
-import chat.rocket.android.server.infraestructure.ServerDao
-import chat.rocket.android.server.infraestructure.SharedPreferencesAccountsRepository
-import chat.rocket.android.server.infraestructure.SharedPreferencesSettingsRepository
-import chat.rocket.android.server.infraestructure.SharedPrefsCurrentServerRepository
+import chat.rocket.android.server.infraestructure.*
 import chat.rocket.android.util.AppJsonAdapterFactory
 import chat.rocket.android.util.TimberLogger
 import chat.rocket.android.room.weblink.WebLinkDao
 import chat.rocket.common.internal.FallbackSealedClassJsonAdapter
+import chat.rocket.common.internal.ISO8601Date
+import chat.rocket.common.model.TimestampAdapter
+import chat.rocket.common.util.CalendarISO8601Converter
+import chat.rocket.common.util.Logger
 import chat.rocket.common.util.PlatformLogger
 import chat.rocket.core.RocketChatClient
+import chat.rocket.core.internal.AttachmentAdapterFactory
 import com.facebook.drawee.backends.pipeline.DraweeConfig
 import com.facebook.imagepipeline.backends.okhttp3.OkHttpImagePipelineConfigFactory
 import com.facebook.imagepipeline.core.ImagePipelineConfig
@@ -72,7 +75,7 @@ class AppModule {
     @Provides
     @Singleton
     fun provideRocketChatDatabase(context: Application): RocketChatDatabase {
-        return Room.databaseBuilder(context, RocketChatDatabase::class.java, "rocketchat-db").build()
+        return Room.databaseBuilder(context.applicationContext, RocketChatDatabase::class.java, "rocketchat-db").build()
     }
 
     @Provides
@@ -128,7 +131,7 @@ class AppModule {
     @Provides
     @ForFresco
     @Singleton
-    fun provideFrescoAuthIntercepter(tokenRepository: TokenRepository, currentServerInteractor: GetCurrentServerInteractor): Interceptor {
+    fun provideFrescoAuthInterceptor(tokenRepository: TokenRepository, currentServerInteractor: GetCurrentServerInteractor): Interceptor {
         return FrescoAuthInterceptor(tokenRepository, currentServerInteractor)
     }
 
@@ -173,9 +176,14 @@ class AppModule {
     }
 
     @Provides
-    fun provideSharedPreferences(context: Application): SharedPreferences {
-        return context.getSharedPreferences("rocket.chat", Context.MODE_PRIVATE)
-    }
+    fun provideSharedPreferences(context: Application) =
+        context.getSharedPreferences("rocket.chat", Context.MODE_PRIVATE)
+
+
+    @Provides
+    @ForMessages
+    fun provideMessagesSharedPreferences(context: Application) =
+            context.getSharedPreferences("messages", Context.MODE_PRIVATE)
 
     @Provides
     @Singleton
@@ -209,10 +217,16 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideMoshi(): Moshi {
+    fun provideMoshi(logger: PlatformLogger,
+                     currentServerInteractor: GetCurrentServerInteractor):
+            Moshi {
+        val url = currentServerInteractor.get() ?: ""
         return Moshi.Builder()
                 .add(FallbackSealedClassJsonAdapter.ADAPTER_FACTORY)
                 .add(AppJsonAdapterFactory.INSTANCE)
+                .add(AttachmentAdapterFactory(Logger(logger, url)))
+                .add(java.lang.Long::class.java, ISO8601Date::class.java, TimestampAdapter(CalendarISO8601Converter()))
+                .add(Long::class.java, ISO8601Date::class.java, TimestampAdapter(CalendarISO8601Converter()))
                 .build()
     }
 
@@ -224,8 +238,11 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideMessageRepository(): MessagesRepository {
-        return MemoryMessagesRepository()
+    fun provideMessageRepository(context: Application,
+                                 @ForMessages preferences: SharedPreferences,
+                                 moshi: Moshi,
+                                 currentServerInteractor: GetCurrentServerInteractor): MessagesRepository {
+        return SharedPreferencesMessagesRepository(preferences, moshi, currentServerInteractor)
     }
 
     @Provides
@@ -284,5 +301,23 @@ class AppModule {
             getAccountInteractor: GetAccountInteractor,
             getSettingsInteractor: GetSettingsInteractor): PushManager {
         return PushManager(groupedPushes, manager, moshi, getAccountInteractor, getSettingsInteractor, context)
+    }
+
+    @Provides
+    fun provideJobScheduler(context: Application): JobScheduler {
+        return context.getSystemService(Context.JOB_SCHEDULER_SERVICE) as JobScheduler
+    }
+
+    @Provides
+    fun provideSendMessageJob(context: Application): JobInfo {
+        return JobInfo.Builder(MessageService.RETRY_SEND_MESSAGE_ID,
+                ComponentName(context, MessageService::class.java))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .build()
+    }
+
+    @Provides
+    fun provideJobSchedulerInteractor(jobScheduler: JobScheduler, jobInfo: JobInfo): JobSchedulerInteractor {
+        return JobSchedulerInteractorImpl(jobScheduler, jobInfo)
     }
 }
