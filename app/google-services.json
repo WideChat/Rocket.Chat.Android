@@ -36,6 +36,37 @@
           "status": 2
         }
       }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:528542541788:android:05d0047069ea8c30",
+        "android_client_info": {
+          "package_name": "chat.veranda.android.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "528542541788-0dv75a3mndkcbj9iji7lemh8hjo5njt1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc2nC-kdBgnT1v8W2oz24TKvWAyij-h80"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
     }
   ],
   "configuration_version": "1"
