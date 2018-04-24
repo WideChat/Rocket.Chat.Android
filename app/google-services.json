@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1020987621558:android:16da2e50aff9f0c9",
         "android_client_info": {
-          "package_name": "chat.rocket.android"
+          "package_name": "chat.veranda.android"
         }
       },
       "oauth_client": [
@@ -41,7 +41,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:1020987621558:android:1551054db195f705",
         "android_client_info": {
-          "package_name": "chat.rocket.android.dev"
+          "package_name": "chat.veranda.android.dev"
         }
       },
       "oauth_client": [
