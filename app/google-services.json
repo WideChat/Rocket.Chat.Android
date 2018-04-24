@@ -1,27 +1,27 @@
 {
   "project_info": {
-    "project_number": "1020987621558",
-    "firebase_url": "https://rocketchatnative.firebaseio.com",
-    "project_id": "rocketchatnative",
-    "storage_bucket": "rocketchatnative.appspot.com"
+    "project_number": "528542541788",
+    "firebase_url": "https://veranda-1d914.firebaseio.com",
+    "project_id": "veranda-1d914",
+    "storage_bucket": "veranda-1d914.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1020987621558:android:16da2e50aff9f0c9",
+        "mobilesdk_app_id": "1:528542541788:android:3b5032d671a29f81",
         "android_client_info": {
-          "package_name": "chat.rocket.android"
+          "package_name": "chat.veranda.android"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1020987621558-trk61fjrahho0ujtjap095p1jmi48pfq.apps.googleusercontent.com",
+          "client_id": "528542541788-0dv75a3mndkcbj9iji7lemh8hjo5njt1.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDc7VYUdU6kRkoRTToiCn1rh-W0wJvhLWk"
+          "current_key": "AIzaSyDc2nC-kdBgnT1v8W2oz24TKvWAyij-h80"
         }
       ],
       "services": {
@@ -39,20 +39,20 @@
     },
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1020987621558:android:1551054db195f705",
+        "mobilesdk_app_id": "1:528542541788:android:05d0047069ea8c30",
         "android_client_info": {
-          "package_name": "chat.rocket.android.dev"
+          "package_name": "chat.veranda.android.dev"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1020987621558-trk61fjrahho0ujtjap095p1jmi48pfq.apps.googleusercontent.com",
+          "client_id": "528542541788-0dv75a3mndkcbj9iji7lemh8hjo5njt1.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDc7VYUdU6kRkoRTToiCn1rh-W0wJvhLWk"
+          "current_key": "AIzaSyDc2nC-kdBgnT1v8W2oz24TKvWAyij-h80"
         }
       ],
       "services": {
