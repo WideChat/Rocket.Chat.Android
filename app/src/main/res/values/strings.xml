@@ -20,6 +20,7 @@
     <string name="title_password">Change Password</string>
     <string name="title_update_profile">Update profile</string>
     <string name="title_about">About</string>
+    <string name="title_wallet">Wallet</string>
 
     <!-- Actions -->
     <string name="action_connect">Connect</string>

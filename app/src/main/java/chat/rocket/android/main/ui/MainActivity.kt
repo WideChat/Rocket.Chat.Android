@@ -209,6 +209,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
             R.id.action_settings -> {
                 presenter.toSettings()
             }
+            R.id.action_wallet -> {
+                presenter.toWallet()
+            }
             R.id.action_logout -> {
                 presenter.logout()
             }

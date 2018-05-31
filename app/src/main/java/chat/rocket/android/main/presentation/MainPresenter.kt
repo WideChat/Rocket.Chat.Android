@@ -57,6 +57,8 @@ class MainPresenter @Inject constructor(
 
     fun toSettings() = navigator.toSettings()
 
+    fun toWallet() = navigator.toWallet()
+
     fun loadCurrentInfo() {
         checkServerInfo(currentServer)
         launchUI(strategy) {
