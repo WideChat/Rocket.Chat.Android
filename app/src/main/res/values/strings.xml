@@ -21,6 +21,7 @@
     <string name="title_update_profile">Update profile</string>
     <string name="title_about">About</string>
     <string name="title_wallet">Wallet</string>
+    <string name="title_tokens">Your tokens...</string>
 
     <!-- Actions -->
     <string name="action_connect">Connect</string>
