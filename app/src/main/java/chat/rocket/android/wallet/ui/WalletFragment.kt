@@ -1,16 +1,22 @@
 package chat.rocket.android.wallet.ui
 
+import android.app.AlertDialog
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import chat.rocket.android.R
+import chat.rocket.android.R.id.button_sendToken
 import chat.rocket.android.main.ui.MainActivity
-
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.wallet.presentation.WalletView
 import kotlinx.android.synthetic.main.app_bar.*
+import kotlinx.android.synthetic.main.fragment_token_send.view.*
+import kotlinx.android.synthetic.main.fragment_wallet.*
+import kotlinx.android.synthetic.main.image_viewer.*
+import kotlinx.android.synthetic.main.image_viewer.view.*
+
 
 class WalletFragment : Fragment(), WalletView {
 
@@ -29,4 +35,40 @@ class WalletFragment : Fragment(), WalletView {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = container?.inflate(R.layout.fragment_wallet)
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        button_buy.setOnClickListener {
+
+        }
+
+        // Clicking send from wallet fragment shows "send" dialog
+        button_sendToken.setOnClickListener {
+
+            // Inflate with custom view
+            val sendDialogView = LayoutInflater.from(activity).inflate(R.layout.fragment_token_send, null)
+            val sendDialogBuilder = AlertDialog.Builder(activity)
+                    .setView(sendDialogView)
+                    .setTitle("SendTokens")
+
+            // show dialog
+            val sendAlertDialog = sendDialogBuilder.show()
+
+            // Nested click listener ... for click of "confirm"
+            sendDialogView.button_confirm.setOnClickListener{
+
+                // do things once we figure out backend
+                sendAlertDialog.dismiss()
+            }
+
+            // on click of "Cancel" close the window
+            sendDialogView.button_cancel.setOnClickListener{
+                sendAlertDialog.dismiss()
+            }
+        }
+
+
+    }
+
 }

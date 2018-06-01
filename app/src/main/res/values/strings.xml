@@ -210,4 +210,11 @@
     <string name="notif_action_reply_hint">REPLY</string>
     <string name="notif_error_sending">Reply has failed. Please try again.</string>
     <string name="notif_success_sending">Message sent to %1$s!</string>
+    <string name="title_transactions">Transactions</string>
+    <string name="button_send">SEND</string>
+    <string name="button_buy">BUY</string>
+    <string name="amount_label">Amount:</string>
+    <string name="confirm_send_label">Confirm</string>
+    <string name="cancel_send_label">Cancel</string>
+    <string name="hint_send_label">Send to:</string>
 </resources>
