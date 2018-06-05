@@ -7,18 +7,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import chat.rocket.android.R
-import chat.rocket.android.R.id.button_sendToken
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.inflate
+import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.presentation.WalletView
 import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
-import kotlinx.android.synthetic.main.image_viewer.*
-import kotlinx.android.synthetic.main.image_viewer.view.*
 
 
 class WalletFragment : Fragment(), WalletView {
+    private var dbInterface: WalletDBInterface? = null
 
     companion object {
         fun newInstance() = WalletFragment()
@@ -26,7 +25,7 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        dbInterface = WalletDBInterface()
         setupToolbar()
     }
 
