@@ -11,43 +11,45 @@ import kotlin.concurrent.thread
 class WalletDBInterface {
     private var dynamoDBMapper: DynamoDBMapper? = null
 
-    constructor() {
+    fun getBalance(userId: String): Double {
+        val walletItem = dynamoDBMapper?.load(WalletsDO::class.java, userId)
+        return if (walletItem === null) -1.0 else walletItem.balance
+    }
+
+    fun sendTokens(senderId: String, recipientId: String, amount: Double) {
+        thread(true) {
+            // Get sender and recipient wallets from the DB
+            val senderWallet = dynamoDBMapper?.load(WalletsDO::class.java, senderId)
+            val recipientWallet = dynamoDBMapper?.load(WalletsDO::class.java, recipientId)
+
+            if (senderWallet === null || recipientWallet === null) {
+                runOnUiThread {
+                    Timber.d("ERROR: Database does not contain user(s)")
+                }
+                return@thread
+            }
+
+            // Check that sender has enough tokens to send
+            if (amount > senderWallet.balance) {
+                runOnUiThread {
+                    Timber.d("ERROR: User $senderId does not have sufficient tokens.")
+                }
+                return@thread
+            }
+
+            // Save updated balances to the DB
+            senderWallet.balance -= amount
+            recipientWallet.balance += amount
+            dynamoDBMapper?.save(senderWallet)
+            dynamoDBMapper?.save(recipientWallet)
+        }
+    }
+
+    init {
         val client = AmazonDynamoDBClient(AWSMobileClient.getInstance().credentialsProvider)
         dynamoDBMapper = DynamoDBMapper.builder()
                 .dynamoDBClient(client)
                 .awsConfiguration(AWSMobileClient.getInstance().configuration)
                 .build()
-    }
-
-    fun getBalance(userId: String) {
-        thread(true) {
-            var walletItem = dynamoDBMapper?.load(WalletsDO::class.java, "test1")
-            runOnUiThread {
-                Timber.d(walletItem?.balance.toString())
-                Timber.d(walletItem?.userId)
-            }
-        }
-    }
-
-    fun sendTokens(senderId: String, recipientId: String, amount: Double) {
-        thread(true) {
-            // Check that sender has enough tokens to send
-            var senderWallet = dynamoDBMapper?.load(WalletsDO::class.java, senderId)
-            if (senderWallet !== null) {
-                runOnUiThread {
-                    Timber.d("Database does not contain user: $senderId")
-                }
-            }
-            if (amount > senderWallet.balance) {
-                runOnUiThread {
-                    Timber.d("User $senderId does not have sufficient tokens.")
-                }
-            }
-
-            // Get current balances of sender and recipient
-
-            // Save updated balances to the DB
-
-        }
     }
 }
