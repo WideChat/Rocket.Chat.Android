@@ -7,6 +7,7 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import timber.log.Timber
 import kotlin.concurrent.thread
+import java.util.UUID
 
 class WalletDBInterface {
     private var dynamoDBMapper: DynamoDBMapper? = null
@@ -18,6 +19,17 @@ class WalletDBInterface {
                 .awsConfiguration(AWSMobileClient.getInstance().configuration)
                 .build()
     }
+
+    fun createWallet(){
+        val walletItem = WalletsDO()
+        walletItem.userId = UUID.randomUUID().toString()
+        walletItem.balance = 1000.0
+
+        thread(start = true) {
+            dynamoDBMapper?.save(walletItem)
+        }
+    }
+
 
     fun getBalance(userId: String) {
         thread(true) {
@@ -33,12 +45,13 @@ class WalletDBInterface {
         thread(true) {
             // Check that sender has enough tokens to send
             var senderWallet = dynamoDBMapper?.load(WalletsDO::class.java, senderId)
-            if (senderWallet !== null) {
+            if (senderWallet == null) {
                 runOnUiThread {
                     Timber.d("Database does not contain user: $senderId")
                 }
+                return@thread
             }
-            if (amount > senderWallet.balance) {
+            if ( amount > senderWallet.balance) {
                 runOnUiThread {
                     Timber.d("User $senderId does not have sufficient tokens.")
                 }
