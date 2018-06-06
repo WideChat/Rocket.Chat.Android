@@ -34,8 +34,8 @@ class WalletFragment : Fragment(), WalletView {
         dbInterface = WalletDBInterface()
         setupToolbar()
         // Check if user has a wallet (in the database)
-        dbInterface?.getBalance(activity?.text_user_name?.textContent, {bal ->
-            if (bal != -1.0) {
+        dbInterface?.findWallet(activity?.text_user_name?.textContent, {wallet ->
+            if (wallet != null) {
                 // Show this user's existing wallet
                 showWallet()
             }
