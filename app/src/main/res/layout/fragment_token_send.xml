@@ -11,6 +11,7 @@
         android:layout_height="64dp">
 
         <android.support.design.widget.TextInputEditText
+            android:id="@+id/recipient"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/hint_send_label" />
@@ -21,6 +22,7 @@
         android:layout_height="64dp">
 
         <android.support.design.widget.TextInputEditText
+            android:id="@+id/amount"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/amount_label" />
