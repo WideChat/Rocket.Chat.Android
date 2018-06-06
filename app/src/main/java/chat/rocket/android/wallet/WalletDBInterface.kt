@@ -1,5 +1,6 @@
 package chat.rocket.android.wallet
 
+import chat.rocket.android.R.id.amount
 import chat.rocket.android.main.ui.WalletsDO
 import com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread
 import com.amazonaws.mobile.client.AWSMobileClient
@@ -31,7 +32,7 @@ class WalletDBInterface {
         }
     }
 
-    fun sendTokens(senderId: String, recipientId: String, amount: Double) {
+    fun sendTokens(senderId: String, recipientId: String, amount: Double, callback: (Double) -> Unit) {
         thread(true) {
 
             // Return if trying to send 0 tokens
@@ -61,12 +62,16 @@ class WalletDBInterface {
                 return@thread
             }
 
-
             // Save updated balances to the DB
             senderWallet.balance -= amount
             recipientWallet.balance += amount
             dynamoDBMapper?.save(senderWallet)
             dynamoDBMapper?.save(recipientWallet)
+
+            // Send updated balance to UI
+            runOnUiThread {
+                callback(senderWallet.balance)
+            }
         }
     }
 

@@ -75,10 +75,7 @@ class WalletFragment : Fragment(), WalletView {
                 val recipientId = sendDialogView.recipient.text.toString()
 
                 // update balances
-                dbInterface?.sendTokens(senderId, recipientId, amount)
-
-                //TODO
-                //showBalance()
+                dbInterface?.sendTokens(senderId, recipientId, amount, {bal -> textView_balance.textContent = bal.toString()})
 
                 sendAlertDialog.dismiss()
             }

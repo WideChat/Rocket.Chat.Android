@@ -32,7 +32,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="4dp"
-        android:text="1,000"
+        android:text="@string/balance_placeholder"
         android:textColor="@color/colorPrimaryText"
         android:textSize="70dp"
         app:layout_constraintBottom_toBottomOf="parent"
