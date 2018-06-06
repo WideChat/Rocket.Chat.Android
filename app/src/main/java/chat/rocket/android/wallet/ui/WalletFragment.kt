@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.inflate
+import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.presentation.WalletView
@@ -62,25 +63,29 @@ class WalletFragment : Fragment(), WalletView {
             // on click of "Confirm"
             sendDialogView.button_confirm.setOnClickListener{
 
-                //TODO null/empty checks for input fields
+                // empty checks for input fields
+                if (sendDialogView.amount.text.toString() == "" || sendDialogView.recipient.text.toString() == "") {
+                    sendAlertDialog.dismiss()
+                    showToast("Transaction failed!")
+                }
+                else {
+                    // get token amount
+                    val amount = sendDialogView.amount.text.toString().toDouble()
 
-                // get token amount
-                val amount = sendDialogView.amount.text.toString().toDouble()
+                    // get userId of sender
+                    val nullableSenderId = activity?.text_user_name?.textContent
+                    val senderId = nullableSenderId ?: ""
 
-                // get userId of sender
-                val nullableSenderId = activity?.text_user_name?.textContent
-                val senderId = nullableSenderId ?: ""
+                    // get userId of recipient
+                    val recipientId = sendDialogView.recipient.text.toString()
 
-                // get userId of recipient
-                val recipientId = sendDialogView.recipient.text.toString()
+                    // update balances
+                    dbInterface?.sendTokens(senderId, recipientId, amount)
 
-                // update balances
-                dbInterface?.sendTokens(senderId, recipientId, amount)
+                    showBalance()
 
-                //TODO
-                //showBalance()
-
-                sendAlertDialog.dismiss()
+                    sendAlertDialog.dismiss()
+                }
             }
 
             // on click of "Cancel" close the window
