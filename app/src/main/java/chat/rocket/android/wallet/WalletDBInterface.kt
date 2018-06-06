@@ -13,13 +13,23 @@ import java.util.UUID
 class WalletDBInterface {
     private var dynamoDBMapper: DynamoDBMapper? = null
 
-    fun createWallet(){
+    fun createWallet(userId: String?, callback: () -> Unit){
         val walletItem = WalletsDO()
-        walletItem.userId = UUID.randomUUID().toString()
-        walletItem.balance = 1000.0
+        walletItem.userId = userId
+        walletItem.balance = 200.0
 
         thread(start = true) {
             dynamoDBMapper?.save(walletItem)
+            runOnUiThread(callback)
+        }
+    }
+
+    fun deleteWallet(userId: String?, callback: () -> Unit) {
+        thread (true) {
+            val walletItem = WalletsDO()
+            walletItem.userId = userId
+            dynamoDBMapper?.delete(walletItem)
+            runOnUiThread(callback)
         }
     }
 

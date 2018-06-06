@@ -6,9 +6,11 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.inflate
+import chat.rocket.android.util.extensions.setVisible
 import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.wallet.WalletDBInterface
@@ -31,7 +33,13 @@ class WalletFragment : Fragment(), WalletView {
         super.onViewCreated(view, savedInstanceState)
         dbInterface = WalletDBInterface()
         setupToolbar()
-        showBalance()
+        // Check if user has a wallet (in the database)
+        dbInterface?.getBalance(activity?.text_user_name?.textContent, {bal ->
+            if (bal != -1.0) {
+                // Show this user's existing wallet
+                showWallet()
+            }
+        })
     }
 
     private fun setupToolbar() {
@@ -42,6 +50,20 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        button_create_wallet.setOnClickListener {
+            dbInterface?.createWallet(activity?.text_user_name?.textContent, {
+                showToast("Wallet Created!", Toast.LENGTH_LONG)
+                showWallet()
+            })
+        }
+
+        button_delete_wallet.setOnClickListener {
+            dbInterface?.deleteWallet(activity?.text_user_name?.textContent, {
+                showToast("Wallet Deleted!", Toast.LENGTH_LONG)
+                hideWallet()
+            })
+        }
 
         button_buy.setOnClickListener {
             showBalance()
@@ -66,7 +88,7 @@ class WalletFragment : Fragment(), WalletView {
                 // empty checks for input fields
                 if (sendDialogView.amount.text.toString() == "" || sendDialogView.recipient.text.toString() == "") {
                     sendAlertDialog.dismiss()
-                    showToast("Transaction failed!")
+                    showToast("Transaction failed!", Toast.LENGTH_LONG)
                 }
                 else {
                     // get token amount
@@ -80,8 +102,10 @@ class WalletFragment : Fragment(), WalletView {
                     val recipientId = sendDialogView.recipient.text.toString()
 
                     // update balances
-                    dbInterface?.sendTokens(senderId, recipientId, amount, {bal -> textView_balance.textContent = bal.toString()})
-
+                    dbInterface?.sendTokens(senderId, recipientId, amount, {bal ->
+                        textView_balance.textContent = bal.toString()
+                        showToast("Sent $amount tokens to $recipientId", Toast.LENGTH_LONG)
+                    })
                     sendAlertDialog.dismiss()
                 }
             }
@@ -95,6 +119,33 @@ class WalletFragment : Fragment(), WalletView {
 
     private fun showBalance() {
         dbInterface?.getBalance(activity?.text_user_name?.textContent, {bal -> textView_balance.textContent = bal.toString()})
+    }
+
+    private fun showBalance(bal: Double) {
+        textView_balance.textContent = bal.toString()
+    }
+
+    private fun showWallet() {
+        button_create_wallet.setVisible(false)
+        button_buy.setVisible(true)
+        button_sendToken.setVisible(true)
+        textView_transactions.setVisible(true)
+        textView_balance.setVisible(true)
+        textView_wallet_title.setVisible(true)
+        divider_wallet.setVisible(true)
+        button_delete_wallet.setVisible(true)
+        showBalance()
+    }
+
+    private fun hideWallet() {
+        button_create_wallet.setVisible(true)
+        button_buy.setVisible(false)
+        button_sendToken.setVisible(false)
+        textView_transactions.setVisible(false)
+        textView_balance.setVisible(false)
+        textView_wallet_title.setVisible(false)
+        divider_wallet.setVisible(false)
+        button_delete_wallet.setVisible(false)
     }
 
 }
