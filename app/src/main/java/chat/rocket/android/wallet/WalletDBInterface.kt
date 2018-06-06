@@ -23,6 +23,15 @@ class WalletDBInterface {
         }
     }
 
+    fun findWallet(userId: String?, callback: (WalletsDO?) -> Unit){
+        thread (true) {
+            val walletItem = dynamoDBMapper?.load(WalletsDO::class.java, userId)
+            runOnUiThread {
+                callback(walletItem)
+            }
+        }
+    }
+
     fun getBalance(userId: String?, callback: (Double) -> Unit) {
         thread (true) {
             val walletItem = dynamoDBMapper?.load(WalletsDO::class.java, userId)
