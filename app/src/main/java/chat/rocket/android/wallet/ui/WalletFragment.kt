@@ -9,11 +9,13 @@ import android.view.ViewGroup
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.inflate
+import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.presentation.WalletView
 import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
+import kotlinx.android.synthetic.main.nav_header.*
 
 
 class WalletFragment : Fragment(), WalletView {
@@ -27,6 +29,7 @@ class WalletFragment : Fragment(), WalletView {
         super.onViewCreated(view, savedInstanceState)
         dbInterface = WalletDBInterface()
         setupToolbar()
+        showBalance()
     }
 
     private fun setupToolbar() {
@@ -39,7 +42,7 @@ class WalletFragment : Fragment(), WalletView {
         super.onActivityCreated(savedInstanceState)
 
         button_buy.setOnClickListener {
-
+            showBalance()
         }
 
         // Clicking send from wallet fragment shows "send" dialog
@@ -66,8 +69,10 @@ class WalletFragment : Fragment(), WalletView {
                 sendAlertDialog.dismiss()
             }
         }
+    }
 
-
+    private fun showBalance() {
+        dbInterface?.getBalance(activity?.text_user_name?.textContent, {bal -> textView_balance.textContent = bal.toString()})
     }
 
 }

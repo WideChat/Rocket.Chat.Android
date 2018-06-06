@@ -22,9 +22,13 @@ class WalletDBInterface {
         }
     }
 
-    fun getBalance(userId: String): Double {
-        val walletItem = dynamoDBMapper?.load(WalletsDO::class.java, userId)
-        return if (walletItem === null) -1.0 else walletItem.balance
+    fun getBalance(userId: String?, callback: (Double) -> Unit) {
+        thread (true) {
+            val walletItem = dynamoDBMapper?.load(WalletsDO::class.java, userId)
+            runOnUiThread {
+                callback(walletItem?.balance ?: -1.0)
+            }
+        }
     }
 
     fun sendTokens(senderId: String, recipientId: String, amount: Double) {
