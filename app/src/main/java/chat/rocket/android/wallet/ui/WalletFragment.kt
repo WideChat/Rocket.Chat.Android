@@ -13,6 +13,7 @@ import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.presentation.WalletView
 import kotlinx.android.synthetic.main.app_bar.*
+import kotlinx.android.synthetic.main.fragment_token_send.*
 import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
 import kotlinx.android.synthetic.main.nav_header.*
@@ -43,6 +44,7 @@ class WalletFragment : Fragment(), WalletView {
 
         button_buy.setOnClickListener {
             showBalance()
+            //nothing for now TODO
         }
 
         // Clicking send from wallet fragment shows "send" dialog
@@ -57,10 +59,27 @@ class WalletFragment : Fragment(), WalletView {
             // show dialog
             val sendAlertDialog = sendDialogBuilder.show()
 
-            // Nested click listener ... for click of "confirm"
+            // on click of "Confirm"
             sendDialogView.button_confirm.setOnClickListener{
 
-                // do things once we figure out backend
+                //TODO null/empty checks for input fields
+
+                // get token amount
+                val amount = sendDialogView.amount.text.toString().toDouble()
+
+                // get userId of sender
+                val nullableSenderId = activity?.text_user_name?.textContent
+                val senderId = nullableSenderId ?: ""
+
+                // get userId of recipient
+                val recipientId = sendDialogView.recipient.text.toString()
+
+                // update balances
+                dbInterface?.sendTokens(senderId, recipientId, amount)
+
+                //TODO
+                //showBalance()
+
                 sendAlertDialog.dismiss()
             }
 

@@ -33,6 +33,15 @@ class WalletDBInterface {
 
     fun sendTokens(senderId: String, recipientId: String, amount: Double) {
         thread(true) {
+
+            // Return if trying to send 0 tokens
+            if (amount <= 0){
+                runOnUiThread {
+                    Timber.d("ERROR: User must enter a positive number of tokens to send")
+                }
+                return@thread
+            }
+
             // Get sender and recipient wallets from the DB
             val senderWallet = dynamoDBMapper?.load(WalletsDO::class.java, senderId)
             val recipientWallet = dynamoDBMapper?.load(WalletsDO::class.java, recipientId)
@@ -51,6 +60,7 @@ class WalletDBInterface {
                 }
                 return@thread
             }
+
 
             // Save updated balances to the DB
             senderWallet.balance -= amount
