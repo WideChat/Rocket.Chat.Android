@@ -53,6 +53,13 @@ class WalletDBInterface {
 
     fun sendTokens(senderId: String, recipientId: String, amount: Double, callback: (Double) -> Unit) {
         thread(true) {
+            // Return if trying to send to self
+            if (senderId == recipientId) {
+                runOnUiThread {
+                    Timber.d("ERROR: User cannot send to his/herself.")
+                }
+                return@thread
+            }
 
             // Return if trying to send 0 tokens
             if (amount <= 0){
