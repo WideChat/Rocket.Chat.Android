@@ -121,10 +121,6 @@ class WalletFragment : Fragment(), WalletView {
         dbInterface?.getBalance(activity?.text_user_name?.textContent, {bal -> textView_balance.textContent = bal.toString()})
     }
 
-    private fun showBalance(bal: Double) {
-        textView_balance.textContent = bal.toString()
-    }
-
     private fun showWallet() {
         button_create_wallet.setVisible(false)
         button_buy.setVisible(true)

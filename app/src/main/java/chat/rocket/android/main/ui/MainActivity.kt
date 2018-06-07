@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
     private var isFragmentAdded: Boolean = false
     private var expanded = false
     private val headerLayout by lazy { view_navigation.getHeaderView(0) }
-    
+
 
     companion object {                                          // MOCK-BACKEND
         private val TAG: String = this::class.java.simpleName   // MOCK-BACKEND

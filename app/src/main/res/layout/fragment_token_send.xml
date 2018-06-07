@@ -34,13 +34,15 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/holo_green_light"
-        android:text="@string/confirm_send_label" />
+        android:text="@string/confirm_send_label"
+        android:textColor="@color/whitesmoke"/>
 
     <Button
         android:id="@+id/button_cancel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@android:color/holo_red_light"
-        android:text="@string/cancel_send_label" />
+        android:text="@string/cancel_send_label"
+        android:textColor="@color/whitesmoke"/>
 
 </LinearLayout>
