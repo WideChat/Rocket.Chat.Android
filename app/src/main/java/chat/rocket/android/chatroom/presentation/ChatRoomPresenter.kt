@@ -202,6 +202,10 @@ class ChatRoomPresenter @Inject constructor(private val view: ChatRoomView,
         }
     }
 
+    fun sendTokens() {
+        view.showSendTokens()
+    }
+
     private fun markRoomAsRead(roomId: String) {
         launchUI(strategy) {
             try {
