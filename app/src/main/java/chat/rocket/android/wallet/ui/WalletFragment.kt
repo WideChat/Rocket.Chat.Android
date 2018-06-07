@@ -37,7 +37,7 @@ class WalletFragment : Fragment(), WalletView {
         dbInterface?.findWallet(activity?.text_user_name?.textContent, {wallet ->
             if (wallet != null) {
                 // Show this user's existing wallet
-                showWallet()
+                showWallet(true)
             }
         })
     }
@@ -54,14 +54,14 @@ class WalletFragment : Fragment(), WalletView {
         button_create_wallet.setOnClickListener {
             dbInterface?.createWallet(activity?.text_user_name?.textContent, {
                 showToast("Wallet Created!", Toast.LENGTH_LONG)
-                showWallet()
+                showWallet(true)
             })
         }
 
         button_delete_wallet.setOnClickListener {
             dbInterface?.deleteWallet(activity?.text_user_name?.textContent, {
                 showToast("Wallet Deleted!", Toast.LENGTH_LONG)
-                hideWallet()
+                showWallet(false)
             })
         }
 
@@ -142,6 +142,20 @@ class WalletFragment : Fragment(), WalletView {
         textView_wallet_title.setVisible(false)
         divider_wallet.setVisible(false)
         button_delete_wallet.setVisible(false)
+
     }
 
+        private fun showWallet(value: Boolean = true) {
+            button_create_wallet.setVisible(!value)
+            button_buy.setVisible(value)
+            button_sendToken.setVisible(value)
+            textView_transactions.setVisible(value)
+            textView_balance.setVisible(value)
+            textView_wallet_title.setVisible(value)
+            divider_wallet.setVisible(value)
+            button_delete_wallet.setVisible(value)
+            if (value)
+                showBalance()
+
+        }
 }

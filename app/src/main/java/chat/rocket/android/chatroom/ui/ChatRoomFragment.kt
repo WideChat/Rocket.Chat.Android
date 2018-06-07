@@ -27,7 +27,10 @@ import chat.rocket.android.helper.EndlessRecyclerViewScrollListener
 import chat.rocket.android.helper.KeyboardHelper
 import chat.rocket.android.helper.MessageParser
 import chat.rocket.android.util.extensions.*
+import chat.rocket.android.wallet.transaction.ui.TransactionActivity
 import chat.rocket.android.widget.emoji.*
+import chat.rocket.common.model.RoomType
+import chat.rocket.common.model.roomTypeOf
 import chat.rocket.core.internal.realtime.socket.model.State
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.CompositeDisposable
@@ -476,6 +479,20 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         showMessage(getString(R.string.max_file_size_exceeded, fileSize, maxFileSize))
     }
 
+    override fun showSendTokens() {
+        ui {
+            val intent = Intent(activity, TransactionActivity::class.java)
+            intent.putExtra("user_name", chatRoomName)
+            startActivity(intent)
+            activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
+        }
+    }
+
+    // Show a little message in the DM chat room of who sent how many tokens to who
+    override fun displaySentTokens() {
+        TODO("not implemented")
+    }
+
     override fun showConnectionState(state: State) {
         ui {
             connection_status_text.fadeIn()
@@ -590,6 +607,20 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 handler.postDelayed({
                     hideAttachmentOptions()
                 }, 400)
+            }
+
+            if (roomTypeOf(chatRoomType) == RoomType.DIRECT_MESSAGE) {
+                button_send_tokens.setVisible(true)
+                button_send_tokens.setOnClickListener {
+                    handler.postDelayed({
+                        // TODO add function to presenter to load send tokens activity
+                        //presenter.selectFile()
+                    }, 200)
+
+                    handler.postDelayed({
+                        hideAttachmentOptions()
+                    }, 400)
+                }
             }
 
             button_add_reaction.setOnClickListener { view ->
