@@ -44,7 +44,7 @@ class WalletDBInterface {
 
     fun getBalance(userId: String?, callback: (Double) -> Unit) {
         thread (true) {
-            val walletItem = dynamoDBMapper?.load(WalletsDO::class.java, userId)
+            val walletItem: WalletsDO? = dynamoDBMapper?.load(WalletsDO::class.java, userId)
             runOnUiThread {
                 callback(walletItem?.balance ?: -1.0)
             }
