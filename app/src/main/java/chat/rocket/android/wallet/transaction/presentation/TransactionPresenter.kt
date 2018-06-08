@@ -11,8 +11,11 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
 
     private val dbInterface = WalletDBInterface()
 
-    fun sendTransaction() {
-        //TODO
+    fun sendTransaction(recipientId: String, amount: Double) {
+        val userId = localRepository.get(LocalRepository.CURRENT_USERNAME_KEY) ?: ""
+        dbInterface.sendTokens(userId, recipientId, amount, { bal ->
+            view.showTransactionSuccess(recipientId, amount)
+        })
     }
 
     fun loadUserTokens() {

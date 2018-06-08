@@ -7,14 +7,12 @@
     android:layout_height="match_parent">
 
     <TextView
-        android:id="@+id/recipient"
+        android:id="@+id/text_recipient"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:text="Send to: "
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -28,11 +26,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/recipient">
+        app:layout_constraintTop_toBottomOf="@+id/text_recipient">
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/amount_tokens"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
             android:text="$0"
@@ -76,4 +74,15 @@
             android:hint="Reason:"
             android:paddingTop="8dp" />
     </android.support.design.widget.TextInputLayout>
+
+    <TextView
+        android:id="@+id/text_current_balance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginTop="8dp"
+        android:text="TextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Current Balance: 0.00" />
 </android.support.constraint.ConstraintLayout>

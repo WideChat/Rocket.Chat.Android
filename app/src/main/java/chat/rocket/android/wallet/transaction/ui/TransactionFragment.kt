@@ -9,9 +9,9 @@ import android.support.v7.view.ActionMode
 import android.view.*
 import android.widget.Toast
 import chat.rocket.android.R
-import chat.rocket.android.R.id.*
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.showToast
+import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.transaction.presentation.TransactionView
 import dagger.android.support.AndroidSupportInjection
@@ -24,8 +24,6 @@ import kotlinx.android.synthetic.main.fragment_transaction.*
 class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.ActionMode.Callback {
     @Inject lateinit var presenter: TransactionPresenter
     private var actionMode: ActionMode? = null
-
-    private var dbInterface: WalletDBInterface? = null
 
     companion object {
         fun newInstance() = TransactionFragment()
@@ -41,28 +39,17 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     override fun onActivityCreated(savedInstanceState: Bundle?){
         super.onActivityCreated(savedInstanceState)
 
-        dbInterface = WalletDBInterface()
-
         // get recipient ID
         val nullableRecipientId = activity?.intent?.getStringExtra("recipient_user_name")
         val recipientId = nullableRecipientId ?: ""
-        recipient.text = recipient.text.toString().plus(recipientId)
+        text_recipient.text = text_recipient.text.toString().plus(recipientId)
 
         button_transaction_send.setOnClickListener {
 
             // get token amount
             val amount = amount_tokens.text.toString().toDouble()
 
-            // get userId of sender
-            val nullableSenderId = activity?.intent?.getStringExtra("sender_user_name")
-            val senderId = nullableSenderId ?: ""
-
-            // update balances
-            dbInterface?.sendTokens(senderId, recipientId, amount, { bal ->
-                //textView_balance.textContent = bal.toString()
-                showToast("Sent $amount tokens to $recipientId", Toast.LENGTH_LONG)
-            })
-
+            presenter.sendTransaction(recipientId, amount)
             //go back to chat
             activity?.onBackPressed()
         }
@@ -73,7 +60,11 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     }
 
     override fun showWalletBalance(balance: Double) {
-        //button_transaction_send.textContent = balance.toString()
+        text_current_balance.textContent = "Current Balance: " + balance.toString()
+    }
+
+    override fun showTransactionSuccess(recipient: String, amount: Double) {
+        showToast("Sent $amount tokens to $recipient", Toast.LENGTH_LONG)
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
