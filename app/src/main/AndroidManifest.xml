@@ -136,6 +136,9 @@
         <activity android:name=".settings.about.ui.AboutActivity"
             android:theme="@style/AppTheme"/>
 
+        <activity android:name=".wallet.transaction.ui.TransactionActivity"
+            android:theme="@style/AppTheme"/>
+
     </application>
 
 </manifest>
