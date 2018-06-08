@@ -219,4 +219,5 @@
     <string name="hint_send_label">Send to:</string>
     <string name="balance_placeholder">...</string>
     <string name="title_transaction">Transaction</string>
+    <string name="action_confirm_transaction">Confirm Transaction</string>
 </resources>

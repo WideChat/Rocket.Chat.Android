@@ -9,14 +9,17 @@ import android.support.v7.view.ActionMode
 import android.view.*
 import android.widget.Toast
 import chat.rocket.android.R
+import chat.rocket.android.util.extensions.asObservable
 import chat.rocket.android.util.extensions.inflate
-import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.extensions.textContent
-import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.transaction.presentation.TransactionView
 import dagger.android.support.AndroidSupportInjection
 import chat.rocket.android.util.extensions.ui
 import chat.rocket.android.wallet.transaction.presentation.TransactionPresenter
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.Observables
+import kotlinx.android.synthetic.main.fragment_password.*
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_transaction.*
 
@@ -24,6 +27,9 @@ import kotlinx.android.synthetic.main.fragment_transaction.*
 class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.ActionMode.Callback {
     @Inject lateinit var presenter: TransactionPresenter
     private var actionMode: ActionMode? = null
+    private var recipientId: String = ""
+    private val disposables = CompositeDisposable()
+
 
     companion object {
         fun newInstance() = TransactionFragment()
@@ -41,7 +47,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
 
         // get recipient ID
         val nullableRecipientId = activity?.intent?.getStringExtra("recipient_user_name")
-        val recipientId = nullableRecipientId ?: ""
+        recipientId = nullableRecipientId ?: ""
         text_recipient.text = text_recipient.text.toString().plus(recipientId)
 
         button_transaction_send.setOnClickListener {
@@ -57,6 +63,13 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.loadUserTokens()
+
+        disposables.add(listenToChanges())
+    }
+
+    override fun onDestroyView() {
+        disposables.clear()
+        super.onDestroyView()
     }
 
     override fun showWalletBalance(balance: Double) {
@@ -64,25 +77,30 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     }
 
     override fun showTransactionSuccess(recipient: String, amount: Double) {
-        showToast("Sent $amount tokens to $recipient", Toast.LENGTH_LONG)
+        showToast("Sent $amount tokens to $recipient")
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-//        return when (item.itemId) { // TODO
-//            R.id.button_send_transaction -> {
-//                presenter.sendTransaction()
-//                mode.finish()
-//                return true
-//            }
-//            else -> {
-//                false
-//            }
-//        }
-        return false
+        return when (item.itemId) { // TODO
+            R.id.action_password -> {
+                val amount = amount_tokens.text.toString().toDouble()
+
+                presenter.sendTransaction(recipientId, amount)
+
+                mode.finish()
+                //go back to chat
+                activity?.onBackPressed()
+                return true
+            }
+            else -> {
+                false
+            }
+        }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu?): Boolean {
-        // TODO
+        mode.menuInflater.inflate(R.menu.password, menu)
+        mode.title = getString(R.string.action_confirm_transaction)
         return true
     }
 
@@ -91,6 +109,27 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     override fun onDestroyActionMode(mode: ActionMode?) {
         actionMode = null
     }
+
+    private fun listenToChanges(): Disposable {
+        return Observables.combineLatest(amount_tokens.asObservable(),
+                edittext_reason.asObservable()).subscribe {
+            val amountText = amount_tokens.textContent
+            val reason = edittext_reason.textContent
+
+            if (amountText.isNotEmpty() && amountText != "." && amountText.toDouble() > 0.0)
+                startActionMode()
+            else
+                finishActionMode()
+        }
+    }
+
+    private fun startActionMode() {
+        if (actionMode == null) {
+            actionMode = (activity as TransactionActivity).startSupportActionMode(this)
+        }
+    }
+
+    private fun finishActionMode() = actionMode?.finish()
 
     private fun showToast(msg: String?) {
         ui {

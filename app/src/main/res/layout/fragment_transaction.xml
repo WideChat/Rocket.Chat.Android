@@ -33,9 +33,10 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="$0"
+            android:text="0.0"
             android:textColor="@color/colorDrawableTintGrey"
-            android:textSize="40dp" />
+            android:textSize="40dp"
+            android:inputType="numberDecimal" />
     </android.support.design.widget.TextInputLayout>
 
     <Button
