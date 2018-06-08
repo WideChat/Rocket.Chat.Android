@@ -11,6 +11,8 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.app_bar_transaction.*
+import kotlinx.android.synthetic.main.fragment_transaction.*
+import timber.log.Timber
 import javax.inject.Inject
 
 class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
@@ -33,8 +35,18 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
         }
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+        overridePendingTransition(R.anim.close_enter, R.anim.close_exit)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onNavigateUp()
+    }
+
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-        text_transaction.textContent = resources.getString(R.string.title_transaction)
     }
 }

@@ -16,7 +16,6 @@ import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.presentation.WalletView
 import kotlinx.android.synthetic.main.app_bar.*
-import kotlinx.android.synthetic.main.fragment_token_send.*
 import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
 import kotlinx.android.synthetic.main.nav_header.*
@@ -77,7 +76,7 @@ class WalletFragment : Fragment(), WalletView {
             val sendDialogView = LayoutInflater.from(activity).inflate(R.layout.fragment_token_send, null)
             val sendDialogBuilder = AlertDialog.Builder(activity)
                     .setView(sendDialogView)
-                    .setTitle("SendTokens")
+                    .setTitle("Send Tokens")
 
             // show dialog
             val sendAlertDialog = sendDialogBuilder.show()
