@@ -25,6 +25,16 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
         addFragment("TransactionFragment")
     }
 
+    override fun onBackPressed() {
+        super.onBackPressed()
+        finish()
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        onBackPressed()
+        return super.onNavigateUp()
+    }
+
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentDispatchingAndroidInjector
 
     private fun addFragment(tag: String) {

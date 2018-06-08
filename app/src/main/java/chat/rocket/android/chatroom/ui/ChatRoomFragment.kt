@@ -482,7 +482,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
     override fun showSendTokens() {
         ui {
             val intent = Intent(activity, TransactionActivity::class.java)
-            intent.putExtra("user_name", chatRoomName)
+            intent.putExtra("recipient_user_name", chatRoomName)
             startActivity(intent)
             activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
         }
