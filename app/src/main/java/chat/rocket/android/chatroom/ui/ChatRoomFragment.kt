@@ -613,7 +613,6 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 button_send_tokens.setVisible(true)
                 button_send_tokens.setOnClickListener {
                     handler.postDelayed({
-                        // TODO add function to presenter to load send tokens activity
                         presenter.sendTokens()
                     }, 200)
 

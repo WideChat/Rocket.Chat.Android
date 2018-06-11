@@ -17,12 +17,12 @@ import chat.rocket.android.main.presentation.MainPresenter
 import chat.rocket.android.main.presentation.MainView
 import chat.rocket.android.main.viewmodel.NavHeaderViewModel
 import chat.rocket.android.server.domain.model.Account
-import chat.rocket.android.util.extensions.*
-import chat.rocket.android.wallet.WalletDBInterface
+import chat.rocket.android.util.extensions.fadeIn
+import chat.rocket.android.util.extensions.fadeOut
+import chat.rocket.android.util.extensions.rotateBy
+import chat.rocket.android.util.extensions.showToast
 import chat.rocket.common.model.UserStatus
 import com.amazonaws.mobile.client.AWSMobileClient              // MOCK-BACKEND
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import com.google.android.gms.gcm.GoogleCloudMessaging
 import com.google.android.gms.iid.InstanceID
 import dagger.android.AndroidInjection
@@ -32,7 +32,6 @@ import dagger.android.HasActivityInjector
 import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar.*
-import kotlinx.android.synthetic.main.nav_header.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.launch
