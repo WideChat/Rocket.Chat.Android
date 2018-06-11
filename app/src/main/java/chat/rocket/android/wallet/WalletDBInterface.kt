@@ -1,6 +1,5 @@
 package chat.rocket.android.wallet
 
-import chat.rocket.android.R.id.amount
 import chat.rocket.android.main.ui.WalletsDO
 import com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread
 import com.amazonaws.mobile.client.AWSMobileClient
@@ -8,7 +7,6 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
 import timber.log.Timber
 import kotlin.concurrent.thread
-import java.util.UUID
 
 class WalletDBInterface {
     private var dynamoDBMapper: DynamoDBMapper? = null

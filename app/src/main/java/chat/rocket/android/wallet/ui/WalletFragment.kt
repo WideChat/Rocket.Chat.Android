@@ -80,6 +80,7 @@ class WalletFragment : Fragment(), WalletView {
         // Clicking send from wallet fragment shows "send" dialog
         button_sendToken.setOnClickListener {
 
+            // TODO remove this dialog and instead redirect to a TransactionActivity to handle the transaction
             // Inflate with custom view
             val sendDialogView = LayoutInflater.from(activity).inflate(R.layout.fragment_token_send, null)
             val sendDialogBuilder = AlertDialog.Builder(activity)

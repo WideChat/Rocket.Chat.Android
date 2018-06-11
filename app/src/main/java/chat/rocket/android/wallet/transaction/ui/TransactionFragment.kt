@@ -79,7 +79,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     }
 
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        return when (item.itemId) { // TODO
+        return when (item.itemId) {
             R.id.action_password -> {
                 val amount = amount_tokens.text.toString().toDouble()
 
