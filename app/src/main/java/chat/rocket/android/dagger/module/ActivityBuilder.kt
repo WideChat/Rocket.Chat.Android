@@ -22,6 +22,7 @@ import chat.rocket.android.server.di.ChangeServerModule
 import chat.rocket.android.server.ui.ChangeServerActivity
 import chat.rocket.android.settings.password.di.PasswordFragmentProvider
 import chat.rocket.android.settings.password.ui.PasswordActivity
+import chat.rocket.android.wallet.di.WalletFragmentProvider
 import chat.rocket.android.wallet.transaction.di.TransactionFragmentProvider
 import chat.rocket.android.wallet.transaction.ui.TransactionActivity
 import chat.rocket.android.weblinks.di.WebLinksFragmentProvider
@@ -45,7 +46,8 @@ abstract class ActivityBuilder {
     @ContributesAndroidInjector(modules = [MainModule::class,
         WebLinksFragmentProvider::class,
         ChatRoomsFragmentProvider::class,
-        ProfileFragmentProvider::class
+        ProfileFragmentProvider::class,
+        WalletFragmentProvider::class
     ])
     abstract fun bindMainActivity(): MainActivity
 

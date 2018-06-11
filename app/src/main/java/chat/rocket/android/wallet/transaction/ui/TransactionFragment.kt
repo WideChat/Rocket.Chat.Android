@@ -18,8 +18,6 @@ import chat.rocket.android.util.extensions.ui
 import chat.rocket.android.wallet.transaction.presentation.TransactionPresenter
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.rxkotlin.Observables
-import kotlinx.android.synthetic.main.fragment_password.*
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_transaction.*
 
@@ -111,10 +109,8 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     }
 
     private fun listenToChanges(): Disposable {
-        return Observables.combineLatest(amount_tokens.asObservable(),
-                edittext_reason.asObservable()).subscribe {
+        return amount_tokens.asObservable().subscribe {
             val amountText = amount_tokens.textContent
-            val reason = edittext_reason.textContent
 
             if (amountText.isNotEmpty() && amountText != "." && amountText.toDouble() > 0.0)
                 startActionMode()
