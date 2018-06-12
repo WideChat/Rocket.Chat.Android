@@ -124,11 +124,11 @@ class WalletFragment : Fragment(), WalletView {
         }
     }
 
-    private fun showBalance() {
+    override fun showBalance() {
         dbInterface?.getBalance(presenter.getUserName(), {bal -> textView_balance.textContent = bal.toString()})
     }
 
-    private fun showWallet(value: Boolean = true) {
+    override fun showWallet(value: Boolean) {
         button_create_wallet.setVisible(!value)
         button_buy.setVisible(value)
         button_sendToken.setVisible(value)

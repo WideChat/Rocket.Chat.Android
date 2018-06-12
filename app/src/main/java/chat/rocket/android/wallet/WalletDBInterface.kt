@@ -72,8 +72,15 @@ class WalletDBInterface {
             val recipientWallet = dynamoDBMapper?.load(WalletsDO::class.java, recipientId)
 
             if (senderWallet === null || recipientWallet === null) {
-                runOnUiThread {
-                    Timber.d("ERROR: Database does not contain user(s)")
+                if (senderWallet === null) {
+                    runOnUiThread {
+                        Timber.d("ERROR: Database does not contain user: $senderId")
+                    }
+                }
+                if (recipientWallet === null) {
+                    runOnUiThread {
+                        Timber.d("ERROR: Database does not contain user: $recipientId")
+                    }
                 }
                 return@thread
             }
