@@ -29,7 +29,8 @@ fun Context.chatRoomIntent(chatRoomId: String,
                            chatRoomType: String,
                            isChatRoomReadOnly: Boolean,
                            chatRoomLastSeen: Long,
-                           isChatRoomSubscribed: Boolean = true): Intent {
+                           isChatRoomSubscribed: Boolean = true,
+                           isFromWallet: Boolean = false): Intent {
     return Intent(this, ChatRoomActivity::class.java).apply {
         putExtra(INTENT_CHAT_ROOM_ID, chatRoomId)
         putExtra(INTENT_CHAT_ROOM_NAME, chatRoomName)
@@ -37,6 +38,7 @@ fun Context.chatRoomIntent(chatRoomId: String,
         putExtra(INTENT_IS_CHAT_ROOM_READ_ONLY, isChatRoomReadOnly)
         putExtra(INTENT_CHAT_ROOM_LAST_SEEN, chatRoomLastSeen)
         putExtra(INTENT_CHAT_IS_SUBSCRIBED, isChatRoomSubscribed)
+        putExtra(INTENT_IS_FROM_WALLET, isFromWallet)
     }
 }
 
@@ -46,6 +48,7 @@ private const val INTENT_CHAT_ROOM_TYPE = "chat_room_type"
 private const val INTENT_IS_CHAT_ROOM_READ_ONLY = "is_chat_room_read_only"
 private const val INTENT_CHAT_ROOM_LAST_SEEN = "chat_room_last_seen"
 private const val INTENT_CHAT_IS_SUBSCRIBED = "is_chat_room_subscribed"
+private const val INTENT_IS_FROM_WALLET = "is_from_wallet"
 
 class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -61,6 +64,7 @@ class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
     private var isChatRoomReadOnly: Boolean = false
     private var isChatRoomSubscribed: Boolean = true
     private var chatRoomLastSeen: Long = -1L
+    private var isFromWallet: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -94,10 +98,12 @@ class ChatRoomActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
         isChatRoomSubscribed = intent.getBooleanExtra(INTENT_CHAT_IS_SUBSCRIBED, true)
 
+        isFromWallet = intent.getBooleanExtra(INTENT_IS_FROM_WALLET, false)
+
         if (supportFragmentManager.findFragmentByTag("ChatRoomFragment") == null) {
             addFragment("ChatRoomFragment", R.id.fragment_container) {
                 newInstance(chatRoomId, chatRoomName, chatRoomType, isChatRoomReadOnly, chatRoomLastSeen,
-                        isChatRoomSubscribed)
+                        isChatRoomSubscribed, isFromWallet)
             }
         }
 

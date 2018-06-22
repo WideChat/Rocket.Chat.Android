@@ -86,8 +86,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
                 presenter.sendTransaction(recipientId, amount)
 
                 mode.finish()
-                //go back to chat
-                activity?.onBackPressed()
+                (activity as TransactionActivity).setupResultAndFinish(recipientId, amount)
                 return true
             }
             else -> {

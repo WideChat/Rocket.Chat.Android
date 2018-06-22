@@ -1,5 +1,7 @@
 package chat.rocket.android.wallet.transaction.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -26,12 +28,25 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        finish()
+        setupResultAndFinish("", 0.0)
     }
 
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return super.onNavigateUp()
+    }
+
+    fun setupResultAndFinish(recipient: String, amount: Double) {
+        if (recipient.isEmpty() || amount <= 0.0) {
+            setResult(Activity.RESULT_CANCELED)
+        }
+        else {
+            var result = Intent()
+            result.putExtra("recipientId", recipient)
+            result.putExtra("amount", amount)
+            setResult(Activity.RESULT_OK, result)
+        }
+        finish()
     }
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentDispatchingAndroidInjector

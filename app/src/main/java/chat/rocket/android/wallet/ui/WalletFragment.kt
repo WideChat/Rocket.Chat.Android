@@ -74,6 +74,9 @@ class WalletFragment : Fragment(), WalletView {
 
         button_buy.setOnClickListener {
             showBalance()
+            // The passing of "e" is temporary and should be replaced by the recipient's username/id
+            //  The name "e" returns the first DM room in the user's list of chatrooms that has an "e" in it
+            presenter.loadDMRoomByName("e") //TODO move this to button_sendToken with search functionality
             //nothing for now TODO
         }
 
@@ -122,6 +125,10 @@ class WalletFragment : Fragment(), WalletView {
                 sendAlertDialog.dismiss()
             }
         }
+    }
+
+    override fun showRoomFailedToLoadMessage(name: String) {
+        showToast("No direct message chat room open with user: $name", Toast.LENGTH_LONG)
     }
 
     override fun showBalance() {

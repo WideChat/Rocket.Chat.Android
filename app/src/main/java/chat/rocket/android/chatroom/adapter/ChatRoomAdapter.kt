@@ -121,7 +121,7 @@ class ChatRoomAdapter(
         notifyItemChanged(previousDataSetSize, dataSet.size)
     }
 
-    fun prependData(dataSet: List<BaseViewModel<*>>) {
+    fun prependData(dataSet: List<BaseViewModel<*>>) { //
         val item = dataSet.indexOfFirst { newItem ->
             this.dataSet.indexOfFirst { it.messageId == newItem.messageId && it.viewType == newItem.viewType } > -1
         }
