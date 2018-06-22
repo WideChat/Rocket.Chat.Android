@@ -22,6 +22,7 @@ import chat.rocket.android.util.extensions.fadeOut
 import chat.rocket.android.util.extensions.rotateBy
 import chat.rocket.android.util.extensions.showToast
 import chat.rocket.common.model.UserStatus
+import com.amazonaws.mobile.client.AWSMobileClient              // MOCK-BACKEND
 import com.google.android.gms.gcm.GoogleCloudMessaging
 import com.google.android.gms.iid.InstanceID
 import dagger.android.AndroidInjection
@@ -45,10 +46,19 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
     private var expanded = false
     private val headerLayout by lazy { view_navigation.getHeaderView(0) }
 
+
+    companion object {                                          // MOCK-BACKEND
+        private val TAG: String = this::class.java.simpleName   // MOCK-BACKEND
+    }                                                           // MOCK-BACKEND
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        AWSMobileClient.getInstance().initialize(this) {    // MOCK-BACKEND
+            Timber.d(TAG, "AWSMobileClient is initialized")         // MOCK-BACKEND
+        }.execute()                                                 // MOCK-BACKEND
 
         launch(CommonPool) {
             try {
@@ -64,6 +74,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
         presenter.loadCurrentInfo()
         setupToolbar()
         setupNavigationView()
+
     }
 
     override fun onResume() {
@@ -208,6 +219,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
             }
             R.id.action_settings -> {
                 presenter.toSettings()
+            }
+            R.id.action_wallet -> {
+                presenter.toWallet()
             }
             R.id.action_logout -> {
                 presenter.logout()

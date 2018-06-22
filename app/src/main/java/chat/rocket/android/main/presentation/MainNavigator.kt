@@ -10,6 +10,7 @@ import chat.rocket.android.profile.ui.ProfileFragment
 import chat.rocket.android.server.ui.changeServerIntent
 import chat.rocket.android.settings.ui.SettingsFragment
 import chat.rocket.android.util.extensions.addFragment
+import chat.rocket.android.wallet.ui.WalletFragment
 import chat.rocket.android.weblinks.ui.WebLinksFragment
 
 class MainNavigator(internal val activity: MainActivity) {
@@ -35,6 +36,12 @@ class MainNavigator(internal val activity: MainActivity) {
     fun toSettings() {
         activity.addFragment("SettingsFragment", R.id.fragment_container) {
             SettingsFragment.newInstance()
+        }
+    }
+
+    fun toWallet() {
+        activity.addFragment("WalletFragment", R.id.fragment_container) {
+            WalletFragment.newInstance()
         }
     }
 

@@ -43,6 +43,16 @@ interface ChatRoomView : LoadingView, MessageView {
     fun showInvalidFileMessage()
 
     /**
+     * Show activity for sending tokens to another user
+     */
+    fun showSendTokens()
+
+    /**
+     * Show message in the chat room of tokens being sent
+     */
+    fun displaySentTokens()
+
+    /**
      * Shows a (recent) message sent to a chat room.
      *
      * @param message The (recent) message sent to a chat room.

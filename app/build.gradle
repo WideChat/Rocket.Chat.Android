@@ -117,6 +117,9 @@ dependencies {
     implementation libraries.linkpreview
     implementation libraries.slider
 
+    implementation ('com.amazonaws:aws-android-sdk-mobile-client:2.6.+@aar') { transitive = true } // MOCK-BACKEND
+    implementation 'com.amazonaws:aws-android-sdk-ddb-mapper:2.6.+' // MOCK-BACKEND
+
     implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true
     }
