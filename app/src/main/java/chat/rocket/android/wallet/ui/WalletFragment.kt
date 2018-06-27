@@ -1,19 +1,20 @@
 package chat.rocket.android.wallet.ui
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import chat.rocket.android.R
+import chat.rocket.android.R.id.*
 import chat.rocket.android.main.ui.MainActivity
-import chat.rocket.android.util.extensions.inflate
-import chat.rocket.android.util.extensions.setVisible
-import chat.rocket.android.util.extensions.showToast
-import chat.rocket.android.util.extensions.textContent
+import chat.rocket.android.util.extensions.*
 import chat.rocket.android.wallet.WalletDBInterface
+import chat.rocket.android.wallet.create.ui.CreateWalletActivity
 import chat.rocket.android.wallet.presentation.WalletPresenter
 import chat.rocket.android.wallet.presentation.WalletView
 import dagger.android.support.AndroidSupportInjection
@@ -22,6 +23,7 @@ import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
 import javax.inject.Inject
 
+private const val REQUEST_CODE_FOR_CREATE_WALLET = 44
 
 class WalletFragment : Fragment(), WalletView {
     @Inject lateinit var presenter: WalletPresenter
@@ -59,10 +61,16 @@ class WalletFragment : Fragment(), WalletView {
         super.onActivityCreated(savedInstanceState)
 
         button_create_wallet.setOnClickListener {
-            dbInterface?.createWallet(presenter.getUserName(), {
-                showToast("Wallet Created!", Toast.LENGTH_LONG)
-                showWallet(true)
-            })
+//            dbInterface?.createWallet(presenter.getUserName(), {
+//                showToast("Wallet Created!", Toast.LENGTH_LONG)
+//                showWallet(true)
+//            })
+            ui {
+                val intent = Intent(activity, CreateWalletActivity::class.java)
+                intent.putExtra("user_name", presenter.getUserName())
+                startActivity(intent) //TODO make startActivityForResult()?
+                activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
+            }
         }
 
         button_delete_wallet.setOnClickListener {
@@ -133,6 +141,7 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun showBalance() {
         dbInterface?.getBalance(presenter.getUserName(), {bal -> textView_balance.textContent = bal.toString()})
+
     }
 
     override fun showWallet(value: Boolean) {

@@ -220,4 +220,6 @@
     <string name="balance_placeholder">...</string>
     <string name="title_transaction">Transaction</string>
     <string name="action_confirm_transaction">Confirm Transaction</string>
+    <string name="title_create_wallet">Create Wallet</string>
+    <string name="action_confirm_create_wallet">Confirm new wallet creation?</string>
 </resources>
