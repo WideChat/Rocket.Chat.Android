@@ -1,5 +1,7 @@
 package chat.rocket.android.wallet.create.ui
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -48,6 +50,19 @@ class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
         text_create_wallet.textContent = resources.getString(R.string.title_create_wallet)
+    }
+
+    fun setupResultAndFinish(walletName: String, password: String) {
+        if (walletName.isEmpty() || password.isEmpty()) {
+            setResult(Activity.RESULT_CANCELED)
+        }
+       else {
+            var result = Intent()
+            result.putExtra("walletName", walletName)
+            result.putExtra("password", password)
+            setResult(Activity.RESULT_OK, result)
+        }
+        finish()
     }
 
 

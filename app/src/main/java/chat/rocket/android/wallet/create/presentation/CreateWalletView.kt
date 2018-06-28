@@ -4,6 +4,6 @@ interface CreateWalletView {
 
     fun showWalletSuccessfullyCreatedMessage()
 
-    fun showWalletCreationFailedMessage()
+    fun showWalletCreationFailedMessage(error : String?)
 
 }

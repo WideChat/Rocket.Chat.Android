@@ -99,7 +99,7 @@
         app:layout_constraintBottom_toBottomOf="parent"/>
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textView_reenter_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
@@ -116,7 +116,7 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/editText_confirm_password"
         android:layout_width="294dp"
         android:layout_height="47dp"
         android:layout_marginBottom="8dp"

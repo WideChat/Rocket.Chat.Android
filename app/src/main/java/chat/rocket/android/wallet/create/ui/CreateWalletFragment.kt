@@ -53,6 +53,8 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
                 val password = textView_create_password.text.toString()
                 presenter.createNewWallet(walletName, password)
 
+                (activity as CreateWalletActivity).setupResultAndFinish(walletName, password)
+
                 return true
             }
             else -> {
@@ -79,17 +81,18 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
 
     }
 
-    override fun showWalletCreationFailedMessage() {
-        showToast("Failed to create wallet")
+    override fun showWalletCreationFailedMessage(error : String?) {
+        showToast("Failed to create wallet: " + error)
     }
 
     private fun finishActionMode() = actionMode?.finish()
 
     private fun listenToChanges(): Disposable {
-        return editText_password.asObservable().subscribe {
+        return editText_confirm_password.asObservable().subscribe {
             val passText = editText_password.textContent
+            val confirmPass = editText_confirm_password.textContent
 
-            if (passText.isNotEmpty() && passText != "" )
+            if (passText.isNotEmpty() && passText != "" && confirmPass.isNotEmpty() && confirmPass == passText)
                 startActionMode()
             else
                 finishActionMode()

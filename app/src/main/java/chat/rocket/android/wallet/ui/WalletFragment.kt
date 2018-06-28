@@ -68,7 +68,7 @@ class WalletFragment : Fragment(), WalletView {
             ui {
                 val intent = Intent(activity, CreateWalletActivity::class.java)
                 intent.putExtra("user_name", presenter.getUserName())
-                startActivity(intent) //TODO make startActivityForResult()?
+                startActivity(intent) //TODO make it a startActivityForResult()instead?
                 activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
             }
         }
