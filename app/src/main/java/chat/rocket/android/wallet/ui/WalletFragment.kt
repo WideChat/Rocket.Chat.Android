@@ -13,6 +13,7 @@ import chat.rocket.android.R
 import chat.rocket.android.R.id.*
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.*
+import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.create.ui.CreateWalletActivity
 import chat.rocket.android.wallet.presentation.WalletPresenter
@@ -23,11 +24,10 @@ import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
 import javax.inject.Inject
 
-private const val REQUEST_CODE_FOR_CREATE_WALLET = 44
-
 class WalletFragment : Fragment(), WalletView {
     @Inject lateinit var presenter: WalletPresenter
-    private var dbInterface: WalletDBInterface? = null
+
+    private var bcInterface: BlockchainInterface? = null
 
     companion object {
         fun newInstance() = WalletFragment()
@@ -40,15 +40,14 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dbInterface = WalletDBInterface()
+
+        bcInterface = BlockchainInterface(this.context)
         setupToolbar()
-        // Check if user has a wallet (in the database)
-        dbInterface?.findWallet(presenter.getUserName(), {wallet ->
-            if (wallet != null) {
-                // Show this user's existing wallet
-                showWallet(true)
-            }
-        })
+        // Check if user has a wallet
+        var wallets = bcInterface?.findWallets()
+        if( wallets!!.isNotEmpty()){
+            showWallet(true)
+        }
     }
 
     private fun setupToolbar() {
@@ -61,10 +60,6 @@ class WalletFragment : Fragment(), WalletView {
         super.onActivityCreated(savedInstanceState)
 
         button_create_wallet.setOnClickListener {
-//            dbInterface?.createWallet(presenter.getUserName(), {
-//                showToast("Wallet Created!", Toast.LENGTH_LONG)
-//                showWallet(true)
-//            })
             ui {
                 val intent = Intent(activity, CreateWalletActivity::class.java)
                 intent.putExtra("user_name", presenter.getUserName())
@@ -74,10 +69,10 @@ class WalletFragment : Fragment(), WalletView {
         }
 
         button_delete_wallet.setOnClickListener {
-            dbInterface?.deleteWallet(presenter.getUserName(), {
-                showToast("Wallet Deleted!", Toast.LENGTH_LONG)
-                showWallet(false)
-            })
+//            dbInterface?.deleteWallet(presenter.getUserName(), {
+//                showToast("Wallet Deleted!", Toast.LENGTH_LONG)
+//                showWallet(false)
+//            }) TODO do we actually want to delete wallets?
         }
 
         button_buy.setOnClickListener {
@@ -119,11 +114,11 @@ class WalletFragment : Fragment(), WalletView {
                     // get userId of recipient
                     val recipientId = sendDialogView.recipient.text.toString()
 
-                    // update balances
-                    dbInterface?.sendTokens(senderId, recipientId, amount, {bal ->
-                        textView_balance.textContent = bal.toString()
-                        showToast("Sent $amount tokens to $recipientId", Toast.LENGTH_LONG)
-                    })
+                    // update balances TODO
+//                    dbInterface?.sendTokens(senderId, recipientId, amount, {bal ->
+//                        textView_balance.textContent = bal.toString()
+//                        showToast("Sent $amount tokens to $recipientId", Toast.LENGTH_LONG)
+//                    })
                     sendAlertDialog.dismiss()
                 }
             }
@@ -140,8 +135,11 @@ class WalletFragment : Fragment(), WalletView {
     }
 
     override fun showBalance() {
-        dbInterface?.getBalance(presenter.getUserName(), {bal -> textView_balance.textContent = bal.toString()})
-
+        // currently, only the balance of the first wallet in the list is displayed... TODO
+        var wallets = bcInterface?.findWallets()
+        // Log.d("Wallet address", wallets!![0])
+        var bal = bcInterface?.getBalance(wallets!![0])
+        textView_balance.textContent = bal.toString()
     }
 
     override fun showWallet(value: Boolean) {

@@ -2,6 +2,7 @@ package chat.rocket.android.wallet;
 
 
 import android.content.Context;
+import android.util.Log;
 
 import org.web3j.crypto.WalletUtils;
 import org.web3j.protocol.Web3j;
@@ -44,7 +45,7 @@ public class BlockchainInterface {
             addresses.add(getAddressFromFileName(file.getName()));
         }
 
-        return (String[]) addresses.toArray();
+        return addresses.toArray(new String[0]);
     }
 
     /**
@@ -56,7 +57,7 @@ public class BlockchainInterface {
     public BigDecimal getBalance(String address) {
         try {
             EthGetBalance ethGetBalance = this.web3
-                    .ethGetBalance(address, DefaultBlockParameterName.LATEST)
+                    .ethGetBalance("0x"+address, DefaultBlockParameterName.LATEST)
                     .sendAsync()
                     .get();
             return Convert.fromWei(ethGetBalance.getBalance().toString(), Convert.Unit.ETHER);

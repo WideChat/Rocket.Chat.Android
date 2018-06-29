@@ -1,5 +1,6 @@
 package chat.rocket.android.wallet.create.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.view.ActionMode
@@ -83,6 +84,10 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
 
     override fun showWalletCreationFailedMessage(error : String?) {
         showToast("Failed to create wallet: " + error)
+    }
+
+    override fun returnContext(): Context?{
+        return this.context
     }
 
     private fun finishActionMode() = actionMode?.finish()
