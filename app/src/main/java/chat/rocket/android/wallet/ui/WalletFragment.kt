@@ -1,6 +1,7 @@
 package chat.rocket.android.wallet.ui
 
 import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -14,7 +15,6 @@ import chat.rocket.android.R.id.*
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.*
 import chat.rocket.android.wallet.BlockchainInterface
-import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.android.wallet.create.ui.CreateWalletActivity
 import chat.rocket.android.wallet.presentation.WalletPresenter
 import chat.rocket.android.wallet.presentation.WalletView
@@ -28,6 +28,9 @@ class WalletFragment : Fragment(), WalletView {
     @Inject lateinit var presenter: WalletPresenter
 
     private var bcInterface: BlockchainInterface? = null
+    private val NEW_WALLET_REQUEST = 1
+    private val RESULT_OK = -1
+
 
     companion object {
         fun newInstance() = WalletFragment()
@@ -43,9 +46,11 @@ class WalletFragment : Fragment(), WalletView {
 
         bcInterface = BlockchainInterface(this.context)
         setupToolbar()
+
         // Check if user has a wallet
         var wallets = bcInterface?.findWallets()
-        if( wallets!!.isNotEmpty()){
+        if( /*wallets!!.isNotEmpty()*/ wallets!!.size > 20){ //TODO for testing purposes
+
             showWallet(true)
         }
     }
@@ -63,7 +68,7 @@ class WalletFragment : Fragment(), WalletView {
             ui {
                 val intent = Intent(activity, CreateWalletActivity::class.java)
                 intent.putExtra("user_name", presenter.getUserName())
-                startActivity(intent) //TODO make it a startActivityForResult()instead?
+                startActivityForResult(intent, NEW_WALLET_REQUEST)
                 activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
             }
         }
@@ -72,7 +77,7 @@ class WalletFragment : Fragment(), WalletView {
 //            dbInterface?.deleteWallet(presenter.getUserName(), {
 //                showToast("Wallet Deleted!", Toast.LENGTH_LONG)
 //                showWallet(false)
-//            }) TODO do we actually want to delete wallets?
+//            }) TODO can't actually delete a wallet
         }
 
         button_buy.setOnClickListener {
@@ -130,6 +135,39 @@ class WalletFragment : Fragment(), WalletView {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == NEW_WALLET_REQUEST){
+            if(resultCode == RESULT_OK){
+
+               // val keyDialogView = LayoutInflater.from(activity).inflate(R.layout.new_wallet_key_dialog, null)
+                //val keyDialogBuilder = AlertDialog.Builder(activity)
+                //        .setView(keyDialogView)
+
+                // show dialog
+                //val keyAlertDialog = keyDialogBuilder.show()
+
+                // on click of "Confirm"
+                //keyDialogView.button_confirm.setOnClickListener{
+                //    keyAlertDialog.dismiss()
+               // }
+
+                val dialogBuilder = AlertDialog.Builder(activity)
+
+                // set message of alert dialog
+                dialogBuilder.setMessage("Do you want to close this application ?")
+                        // if the dialog is cancelable
+                        .setCancelable(true)
+
+                // create dialog box
+                val alert = dialogBuilder.create()
+                // set title for alert dialog box
+                alert.setTitle("AlertDialogExample")
+                // show alert dialog
+                alert.show()
+            }
+        }
+    }
+
     override fun showRoomFailedToLoadMessage(name: String) {
         showToast("No direct message chat room open with user: $name", Toast.LENGTH_LONG)
     }
@@ -150,7 +188,7 @@ class WalletFragment : Fragment(), WalletView {
         textView_balance.setVisible(value)
         textView_wallet_title.setVisible(value)
         divider_wallet.setVisible(value)
-        button_delete_wallet.setVisible(value)
+        //button_delete_wallet.setVisible(value)
         if (value)
             showBalance()
     }

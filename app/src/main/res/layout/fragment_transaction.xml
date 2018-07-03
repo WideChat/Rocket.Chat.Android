@@ -30,13 +30,17 @@
 
         <android.support.design.widget.TextInputEditText
             android:id="@+id/amount_tokens"
+            style="@android:style/Widget.DeviceDefault.EditText"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="0.0"
+            android:hint="0.0"
+            android:inputType="numberDecimal"
+            android:selectAllOnFocus="false"
             android:textColor="@color/colorDrawableTintGrey"
+            android:textColorHint="@color/gray_material"
             android:textSize="40dp"
-            android:inputType="numberDecimal" />
+            tools:text="0.0" />
     </android.support.design.widget.TextInputLayout>
 
     <Button

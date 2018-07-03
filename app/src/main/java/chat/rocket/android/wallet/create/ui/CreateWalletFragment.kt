@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.view.ActionMode
 import android.view.*
 import android.widget.Toast
+import android.app.AlertDialog
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.*
 import chat.rocket.android.util.extensions.inflate
@@ -16,6 +17,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_create_wallet.*
+import kotlinx.android.synthetic.main.new_wallet_key_dialog.view.*
 
 class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.view.ActionMode.Callback {
     @Inject lateinit var presenter: CreateWalletPresenter
@@ -79,7 +81,6 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
 
     override fun showWalletSuccessfullyCreatedMessage() {
         showToast("Wallet was successfully created")
-
     }
 
     override fun showWalletCreationFailedMessage(error : String?) {
@@ -115,5 +116,6 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
             actionMode = (activity as CreateWalletActivity).startSupportActionMode(this)
         }
     }
+
 
 }

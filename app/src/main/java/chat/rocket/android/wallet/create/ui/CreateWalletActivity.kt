@@ -1,10 +1,12 @@
 package chat.rocket.android.wallet.create.ui
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.LayoutInflater
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.addFragment
 import chat.rocket.android.util.extensions.textContent
@@ -13,6 +15,7 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.app_bar_create_wallet.*
+import kotlinx.android.synthetic.main.new_wallet_key_dialog.view.*
 import javax.inject.Inject
 
 class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
@@ -62,6 +65,7 @@ class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
             result.putExtra("password", password)
             setResult(Activity.RESULT_OK, result)
         }
+
         finish()
     }
 
