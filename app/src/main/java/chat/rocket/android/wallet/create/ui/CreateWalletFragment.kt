@@ -8,6 +8,7 @@ import android.view.*
 import android.widget.Toast
 import android.util.Log
 import chat.rocket.android.R
+import chat.rocket.android.R.menu.password
 import chat.rocket.android.util.extensions.*
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.wallet.create.presentation.CreateWalletPresenter
@@ -47,18 +48,30 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
     }
 
     override fun onActionItemClicked(mode: ActionMode, menuItem: MenuItem): Boolean {
-        return when (menuItem.itemId) {
-            R.id.action_password -> {
+        
+        val walletName = editText_wallet_name.textContent
+        val passText = editText_password.textContent
+        val confirmPass = editText_confirm_password.textContent
 
+        return when {
+            walletName.isEmpty() -> {
+                showToast("Wallet must have a name.")
+                false
+            }
+            passText.isEmpty() -> {
+                showToast("Password cannot be empty.")
+                false
+            }
+            confirmPass != passText -> {
+                showToast("Passwords do not match.")
+                false
+            }
+            else -> {
                 mode.finish()
                 val walletName = textView_name_wallet.text.toString()
                 val password = textView_create_password.text.toString()
                 presenter.createNewWallet(walletName, password)
-
-                return true
-            }
-            else -> {
-                false
+                true
             }
         }
     }
@@ -105,16 +118,16 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
             val confirmPass = editText_confirm_password.textContent
 
             when {
+                walletName.isEmpty() -> {
+                    showToast("Wallet must have a name.")
+                    finishActionMode()
+                }
                 passText.isEmpty() -> {
                     showToast("Password cannot be empty.")
                     finishActionMode()
                 }
                 confirmPass != passText -> {
                     showToast("Passwords do not match.")
-                    finishActionMode()
-                }
-                walletName.isEmpty() -> {
-                    showToast("Wallet must have a name.")
                     finishActionMode()
                 }
                 else -> startActionMode()
