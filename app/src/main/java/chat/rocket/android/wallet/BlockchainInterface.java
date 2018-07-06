@@ -2,9 +2,8 @@ package chat.rocket.android.wallet;
 
 
 import android.content.Context;
-import android.util.Log;
 
-import org.web3j.crypto.WalletUtils;
+import org.web3j.crypto.Bip39Wallet;
 import org.web3j.protocol.Web3j;
 import org.web3j.protocol.Web3jFactory;
 import org.web3j.protocol.core.DefaultBlockParameterName;
@@ -18,6 +17,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import chat.rocket.android.util.OwnWalletUtils;
 import timber.log.Timber;
 
 
@@ -77,14 +77,40 @@ public class BlockchainInterface {
         String address = "";
         try {
             // Creates a new wallet and file, which is saved to the app's file directory
-            String fileName = WalletUtils.generateFullNewWalletFile(password, this.context.getFilesDir());
+            String fileName = OwnWalletUtils.generateFullNewWalletFile(password, this.context.getFilesDir());
             // Send the public key back, to save on rocket.chat user's account
             address = getAddressFromFileName(fileName);
         } catch(Exception e) {
             Timber.d("Failed creating wallet!");
         } finally {
+            Timber.d("Wallet Address: " + address);
             return address;
         }
+    }
+
+    /**
+     * Create a new account on the blockchain and save private key file to internal storage
+     * @param password user's password to make the account/wallet
+     * @return the mnemonic for the account/wallet
+     */
+    public String createBip39Wallet(String password){
+        String mnemonic = "";
+        try {
+            Bip39Wallet wallet = OwnWalletUtils.generateBip39Wallet(password, this.context.getFilesDir());
+            mnemonic = wallet.getMnemonic();
+        } catch (Exception e){
+            Timber.d("Failed creating Bip39Wallet! Exception:" + e.getMessage());
+            // printStackTrace method
+            // prints line numbers + call stack
+            e.printStackTrace();
+
+            // Prints what exception has been thrown
+            System.out.println(e);
+        } finally {
+            Timber.d("Blockchain Interface, mnemonic is: " + mnemonic);
+            return mnemonic;
+        }
+
     }
 
     private String getAddressFromFileName(String fileName) {

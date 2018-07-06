@@ -6,7 +6,7 @@ import android.support.v4.app.Fragment
 import android.support.v7.view.ActionMode
 import android.view.*
 import android.widget.Toast
-import android.app.AlertDialog
+import android.util.Log
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.*
 import chat.rocket.android.util.extensions.inflate
@@ -17,7 +17,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_create_wallet.*
-import kotlinx.android.synthetic.main.new_wallet_key_dialog.view.*
+import timber.log.Timber
 
 class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.view.ActionMode.Callback {
     @Inject lateinit var presenter: CreateWalletPresenter
@@ -51,12 +51,9 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
             R.id.action_password -> {
 
                 mode.finish()
-
                 val walletName = textView_name_wallet.text.toString()
                 val password = textView_create_password.text.toString()
                 presenter.createNewWallet(walletName, password)
-
-                (activity as CreateWalletActivity).setupResultAndFinish(walletName, password)
 
                 return true
             }
@@ -79,8 +76,9 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
     }
 
 
-    override fun showWalletSuccessfullyCreatedMessage() {
+    override fun showWalletSuccessfullyCreatedMessage(mnemonic: String) {
         showToast("Wallet was successfully created")
+        setMnemonic(mnemonic)
     }
 
     override fun showWalletCreationFailedMessage(error : String?) {
@@ -91,17 +89,36 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
         return this.context
     }
 
+    override fun setMnemonic(mnemonic: String) {
+        val walletName = textView_name_wallet.text.toString()
+        val password = textView_create_password.text.toString()
+        (activity as CreateWalletActivity).setupResultAndFinish(walletName, password, mnemonic)
+
+    }
+
     private fun finishActionMode() = actionMode?.finish()
 
     private fun listenToChanges(): Disposable {
         return editText_confirm_password.asObservable().subscribe {
+            val walletName = editText_wallet_name.textContent
             val passText = editText_password.textContent
             val confirmPass = editText_confirm_password.textContent
 
-            if (passText.isNotEmpty() && passText != "" && confirmPass.isNotEmpty() && confirmPass == passText)
-                startActionMode()
-            else
-                finishActionMode()
+            when {
+                passText.isEmpty() -> {
+                    showToast("Password cannot be empty.")
+                    finishActionMode()
+                }
+                confirmPass != passText -> {
+                    showToast("Passwords do not match.")
+                    finishActionMode()
+                }
+                walletName.isEmpty() -> {
+                    showToast("Wallet must have a name.")
+                    finishActionMode()
+                }
+                else -> startActionMode()
+            }
         }
     }
 

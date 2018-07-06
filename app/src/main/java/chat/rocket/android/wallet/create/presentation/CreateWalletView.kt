@@ -4,10 +4,12 @@ import android.content.Context
 
 interface CreateWalletView {
 
-    fun showWalletSuccessfullyCreatedMessage()
+    fun showWalletSuccessfullyCreatedMessage(mnemonic : String)
 
     fun showWalletCreationFailedMessage(error : String?)
 
     fun returnContext():Context?
+
+    fun setMnemonic(mnemonic : String)
 
 }

@@ -6,23 +6,6 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <EditText
-        android:id="@+id/editText_password"
-        android:layout_width="296dp"
-        android:layout_height="49dp"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:ems="10"
-        android:hint="password"
-        android:inputType="textPassword"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/view_loading"
-        app:layout_constraintVertical_bias="0.186" />
-
-    <EditText
         android:id="@+id/editText_wallet_name"
         android:layout_width="292dp"
         android:layout_height="54dp"
@@ -30,7 +13,7 @@
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:ems="10"
-        android:hint="MyEtherWallet"
+        android:hint="Ex. MyEtherWallet..."
         android:inputType="textPersonName"
         android:textColor="@color/colorDrawableTintGrey"
         app:layout_constraintBottom_toTopOf="@+id/editText_password"
@@ -49,10 +32,27 @@
         android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/editText_wallet_name"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.14"
+        app:layout_constraintHorizontal_bias="0.148"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView_create_title"
         app:layout_constraintVertical_bias="1.0" />
+
+    <EditText
+        android:id="@+id/editText_password"
+        android:layout_width="296dp"
+        android:layout_height="49dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:ems="10"
+        android:hint="Enter password..."
+        android:inputType="textPassword"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/view_loading"
+        app:layout_constraintVertical_bias="0.186" />
 
     <TextView
         android:id="@+id/textView_create_password"
@@ -64,7 +64,7 @@
         android:textColor="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/editText_password"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.134"
+        app:layout_constraintHorizontal_bias="0.141"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editText_wallet_name"
         app:layout_constraintVertical_bias="0.693" />
@@ -102,18 +102,15 @@
         android:id="@+id/textView_reenter_password"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="36dp"
         android:text="Re-enter your password:"
         android:textColor="@color/colorPrimary"
-        app:layout_constraintBottom_toTopOf="@+id/editText"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.166"
+        app:layout_constraintHorizontal_bias="0.175"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editText_password"
-        app:layout_constraintVertical_bias="1.0" />
+        app:layout_constraintTop_toBottomOf="@+id/editText_password" />
 
     <EditText
         android:id="@+id/editText_confirm_password"
@@ -124,7 +121,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:ems="10"
-        android:hint="password"
+        android:hint="Re-enter password..."
         android:inputType="textPassword"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

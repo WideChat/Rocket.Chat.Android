@@ -20,8 +20,11 @@ import chat.rocket.android.wallet.presentation.WalletPresenter
 import chat.rocket.android.wallet.presentation.WalletView
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.app_bar.*
+import kotlinx.android.synthetic.main.emoji_keyboard.*
 import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
+import kotlinx.android.synthetic.main.mnemonic_dialog.view.*
+import timber.log.Timber
 import javax.inject.Inject
 
 class WalletFragment : Fragment(), WalletView {
@@ -49,7 +52,7 @@ class WalletFragment : Fragment(), WalletView {
 
         // Check if user has a wallet
         var wallets = bcInterface?.findWallets()
-        if( /*wallets!!.isNotEmpty()*/ wallets!!.size > 20){ //TODO for testing purposes
+        if( /*wallets!!.isNotEmpty()*/ wallets!!.size > 40){ //TODO
 
             showWallet(true)
         }
@@ -77,7 +80,7 @@ class WalletFragment : Fragment(), WalletView {
 //            dbInterface?.deleteWallet(presenter.getUserName(), {
 //                showToast("Wallet Deleted!", Toast.LENGTH_LONG)
 //                showWallet(false)
-//            }) TODO can't actually delete a wallet
+//            }) TODO remove... can't actually delete a wallet
         }
 
         button_buy.setOnClickListener {
@@ -85,7 +88,6 @@ class WalletFragment : Fragment(), WalletView {
             // The passing of "e" is temporary and should be replaced by the recipient's username/id
             //  The name "e" returns the first DM room in the user's list of chatrooms that has an "e" in it
             presenter.loadDMRoomByName("e") //TODO move this to button_sendToken with search functionality
-            //nothing for now TODO
         }
 
         // Clicking send from wallet fragment shows "send" dialog
@@ -139,31 +141,23 @@ class WalletFragment : Fragment(), WalletView {
         if(requestCode == NEW_WALLET_REQUEST){
             if(resultCode == RESULT_OK){
 
-               // val keyDialogView = LayoutInflater.from(activity).inflate(R.layout.new_wallet_key_dialog, null)
-                //val keyDialogBuilder = AlertDialog.Builder(activity)
-                //        .setView(keyDialogView)
+                val mnemonicDialogView = LayoutInflater.from(activity).inflate(R.layout.mnemonic_dialog, null)
+                val mnemonicDialogBuilder = AlertDialog.Builder(activity)
+                        .setView(mnemonicDialogView)
+
+                // display phrase
+                var mnemonic = data!!.getStringExtra("mnemonic")
+                mnemonicDialogView.mnemonic.textContent = mnemonic
 
                 // show dialog
-                //val keyAlertDialog = keyDialogBuilder.show()
+                val mnemonicAlertDialog = mnemonicDialogBuilder.create()
 
-                // on click of "Confirm"
-                //keyDialogView.button_confirm.setOnClickListener{
-                //    keyAlertDialog.dismiss()
-               // }
+                // set listener
+                mnemonicDialogView.button_mnemonic_saved.setOnClickListener{
+                    mnemonicAlertDialog.dismiss()
+                }
 
-                val dialogBuilder = AlertDialog.Builder(activity)
-
-                // set message of alert dialog
-                dialogBuilder.setMessage("Do you want to close this application ?")
-                        // if the dialog is cancelable
-                        .setCancelable(true)
-
-                // create dialog box
-                val alert = dialogBuilder.create()
-                // set title for alert dialog box
-                alert.setTitle("AlertDialogExample")
-                // show alert dialog
-                alert.show()
+                mnemonicAlertDialog.show()
             }
         }
     }
@@ -173,9 +167,8 @@ class WalletFragment : Fragment(), WalletView {
     }
 
     override fun showBalance() {
-        // currently, only the balance of the first wallet in the list is displayed... TODO
+        // currently, only the balance of the first wallet in the list is displayed... TODO eventually allow user to have/access multiple wallets
         var wallets = bcInterface?.findWallets()
-        // Log.d("Wallet address", wallets!![0])
         var bal = bcInterface?.getBalance(wallets!![0])
         textView_balance.textContent = bal.toString()
     }

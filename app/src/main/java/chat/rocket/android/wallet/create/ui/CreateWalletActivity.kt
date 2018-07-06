@@ -1,12 +1,10 @@
 package chat.rocket.android.wallet.create.ui
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
-import android.view.LayoutInflater
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.addFragment
 import chat.rocket.android.util.extensions.textContent
@@ -15,7 +13,6 @@ import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.app_bar_create_wallet.*
-import kotlinx.android.synthetic.main.new_wallet_key_dialog.view.*
 import javax.inject.Inject
 
 class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
@@ -55,7 +52,7 @@ class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
         text_create_wallet.textContent = resources.getString(R.string.title_create_wallet)
     }
 
-    fun setupResultAndFinish(walletName: String, password: String) {
+    fun setupResultAndFinish(walletName: String, password: String, mnemonic: String) {
         if (walletName.isEmpty() || password.isEmpty()) {
             setResult(Activity.RESULT_CANCELED)
         }
@@ -63,6 +60,7 @@ class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
             var result = Intent()
             result.putExtra("walletName", walletName)
             result.putExtra("password", password)
+            result.putExtra("mnemonic", mnemonic)
             setResult(Activity.RESULT_OK, result)
         }
 
