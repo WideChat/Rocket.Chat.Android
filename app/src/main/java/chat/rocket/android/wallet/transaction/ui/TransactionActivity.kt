@@ -28,7 +28,7 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     override fun onBackPressed() {
         super.onBackPressed()
-        setupResultAndFinish("", 0.0)
+        setupResultAndFinish("", 0.0,"")
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -36,14 +36,15 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
         return super.onNavigateUp()
     }
 
-    fun setupResultAndFinish(recipient: String, amount: Double) {
+    fun setupResultAndFinish(recipient: String, amount: Double, txHash: String) {
         if (recipient.isEmpty() || amount <= 0.0) {
             setResult(Activity.RESULT_CANCELED)
         }
         else {
-            var result = Intent()
+            val result = Intent()
             result.putExtra("recipientId", recipient)
             result.putExtra("amount", amount)
+            result.putExtra("transaction_hash", txHash)
             setResult(Activity.RESULT_OK, result)
         }
         finish()

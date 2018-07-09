@@ -68,8 +68,8 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
             }
             else -> {
                 mode.finish()
-                val walletName = textView_name_wallet.text.toString()
-                val password = textView_create_password.text.toString()
+                val walletName = editText_wallet_name.text.toString()
+                val password = editText_password.text.toString()
                 presenter.createNewWallet(walletName, password)
                 true
             }

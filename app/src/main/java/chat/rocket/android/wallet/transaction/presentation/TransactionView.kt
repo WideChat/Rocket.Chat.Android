@@ -1,8 +1,22 @@
 package chat.rocket.android.wallet.transaction.presentation
 
+import java.math.BigDecimal
+
 interface TransactionView {
 
-    fun showWalletBalance(balance: Double)
+    fun showUserWallet(address: String, balance: BigDecimal)
 
-    fun showTransactionSuccess(recipient: String, amount: Double)
+    fun showRecipientAddress(address: String)
+
+    fun showSuccessfulTransaction(amount: Double, txHash: String)
+
+    fun showNoAddressError()
+
+    fun showNoWalletError()
+
+    fun showTransactionFailedMessage(msg: String?)
+
+    fun showLoading()
+
+    fun hideLoading()
 }

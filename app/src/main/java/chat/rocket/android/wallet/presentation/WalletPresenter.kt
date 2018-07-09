@@ -1,5 +1,6 @@
 package chat.rocket.android.wallet.presentation
 
+import android.content.Context
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.main.presentation.MainNavigator
@@ -7,6 +8,7 @@ import chat.rocket.android.server.domain.*
 import chat.rocket.android.server.infraestructure.RocketChatClientFactory
 import chat.rocket.android.util.extensions.launchUI
 import chat.rocket.android.util.retryIO
+import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.common.RocketChatException
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.Token
@@ -30,44 +32,23 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val serverUrl = serverInteractor.get()!!
     private val client: RocketChatClient = factory.create(serverUrl)
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
+    private val bcInterface = BlockchainInterface()
 
     /**
-     * Change the walletAddress field in the current user's customFields field
-     *
-     * @param address not required, but should start with "0x"
-     *
-     * NOTE: this function directly calls the REST API, which normally should be
-     *          done in the Kotlin SDK
+     * Check if the user has a wallet
+     *  both tied to their rocket.chat account and stored on their device
+     *  and display either their wallet or the create wallet button
      */
-    fun updateWalletAddress(address: String) {
+    fun loadWallet(c: Context) {
         launchUI(strategy) {
             try {
-                val httpUrl = restUrl?.newBuilder()
-                        ?.addPathSegment("api")
-                        ?.addPathSegment("v1")
-                        ?.addPathSegment("users.update")
-                        ?.build()
-
-                val me = retryIO("me") { client.me() }
-                val payloadBody = "{\"userId\":\"${me.id}\",\"data\":{\"customFields\":{\"walletAddress\":\"$address\"}}}"
-                val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), payloadBody)
-                val builder = Request.Builder().url(httpUrl)
-
-                val token: Token? = tokenRepository.get(serverUrl)
-                token?.let {
-                    builder.addHeader("X-Auth-Token", token.authToken)
-                            .addHeader("X-User-Id", token.userId)
-                }
-                val request = builder.post(body).build()
-
-                val httpClient = OkHttpClient()
-                httpClient.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) { Timber.d("ERROR: request call failed!")}
-                    override fun onResponse(call: Call, response: Response) {
-                        Timber.d("13567:: %s",(response.body()?.string()))
-                        // TODO do something
+                loadWalletAddress {
+                    if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
+                        view.showWallet(true, bcInterface.getBalance(it).toDouble())
+                    } else {
+                        view.showWallet(false)
                     }
-                })
+                }
             } catch (ex: Exception) {
                 Timber.e(ex)
             }
@@ -77,13 +58,16 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     /**
      * Retrieve the walletAddress field in a user's customFields object
      *
+     * If the user does not have a wallet address stored, then an empty string
+     *  is given to the callback
+     *
      * @param username the user name of the user to get the walletAddress of
      *                  if none is given, then the current user is used
      *
      * NOTE: this function directly calls the REST API, which normally should be
      *          done in the Kotlin SDK
      */
-    fun loadWalletAddress(username: String? = null) {
+    fun loadWalletAddress(username: String? = null, callback: (String) -> Unit) {
         launchUI(strategy) {
             try {
                 val me = retryIO("me") { client.me() }
@@ -107,6 +91,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                     override fun onFailure(call: Call, e: IOException) { Timber.d("ERROR: request call failed!")}
                     override fun onResponse(call: Call, response: Response) {
                         var jsonObject = JSONObject(response.body()?.string())
+                        var walletAddress = ""
                         if (jsonObject.isNull("error")) {
 
                             if (!jsonObject.isNull("user")) {
@@ -114,12 +99,14 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
 
                                 if (!jsonObject.isNull("customFields")) {
                                     jsonObject = jsonObject.getJSONObject("customFields")
-                                    val walletAddress = jsonObject.getString("walletAddress")
-                                    // TODO do something
+                                    walletAddress = jsonObject.getString("walletAddress")
                                 }
                             }
                         } else {
                             Timber.d("ERROR: %s", jsonObject.getString("error"))
+                        }
+                        launchUI(strategy) {
+                            callback(walletAddress)
                         }
                     }
                 })
@@ -133,6 +120,25 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
         return localRepository.get(LocalRepository.CURRENT_USERNAME_KEY) ?: ""
     }
 
+    /**
+     * Get all room names the user has open that are Direct Message rooms
+     */
+    fun loadDMRooms() {
+        launchUI(strategy) {
+            try {
+                val roomList = getChatRoomsInteractor.getByName(serverUrl, "")
+                val directMessageRoomList = roomList.filter( {it.type.javaClass == RoomType.DIRECT_MESSAGE.javaClass} )
+                view.setupSendToDialog(directMessageRoomList.map({room -> room.name}))
+            } catch (ex: RocketChatException) {
+                Timber.e(ex)
+            }
+        }
+    }
+
+    /**
+     * Find an open direct message room that matches a given username
+     *  and redirect the user to the ChatRoom Activity, then immediately to a Transaction Activity
+     */
     fun loadDMRoomByName(name: String) {
         launchUI(strategy) {
             try {

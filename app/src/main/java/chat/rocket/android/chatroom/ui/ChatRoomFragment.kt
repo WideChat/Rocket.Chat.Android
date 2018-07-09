@@ -173,7 +173,8 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
             if (resultData != null) {
                 val recipient = resultData.getStringExtra("recipientId")
                 val amount = resultData.getDoubleExtra("amount", -1.0)
-                sendMessage("Sent $amount tokens to @$recipient")
+                val txHash = resultData.getStringExtra("transaction_hash")
+                sendMessage("Sending $amount Ether to @$recipient\nhttp://etheriumpublic-2079999181.us-east-1.elb.amazonaws.com:8080/#/tx/$txHash")
             }
         }
     }
