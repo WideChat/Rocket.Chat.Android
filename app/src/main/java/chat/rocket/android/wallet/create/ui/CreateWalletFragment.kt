@@ -48,7 +48,7 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
     }
 
     override fun onActionItemClicked(mode: ActionMode, menuItem: MenuItem): Boolean {
-        
+
         val walletName = editText_wallet_name.textContent
         val passText = editText_password.textContent
         val confirmPass = editText_confirm_password.textContent
