@@ -76,28 +76,17 @@ public class BlockchainInterface {
         return txModels;
     }
 
+    /**
+     * Get the time the transaction was mined by getting the block it is in
+     * @param tx
+     * @return timestamp as BigInteger value
+     */
     private BigInteger getTimeStamp(Transaction tx) {
         try {
             return web3.ethGetBlockByHash(tx.getBlockHash(), false).sendAsync().get().getBlock().getTimestamp();
         } catch (Exception ex) {
             return BigInteger.ZERO;
         }
-    }
-
-    /**
-     * Find all wallet files in the app's internal storage
-     * @param c Context of the app's current activity
-     * @return array of wallet addresses (address is without "0x" prefix)
-     */
-    public String[] findWallets(Context c) {
-        List<String> addresses = new ArrayList<>();
-
-        File[] fileList = getWalletFiles(c);
-        for (File file: fileList) {
-            addresses.add(getAddressFromFileName(file.getName()));
-        }
-
-        return addresses.toArray(new String[0]);
     }
 
     /**
@@ -217,16 +206,19 @@ public class BlockchainInterface {
         // Send transaction
         String hexValue = Numeric.toHexString(signedTx);
         String txHash = web3.ethSendRawTransaction(hexValue).send().getTransactionHash();
-        // TODO txHash is sometimes null. why?
-        //  The transaction doesn't get sent...
-        //  Maybe if there is already a pending transaction for either(?) account,
-        //  the transaction won't work
+        // txHash is sometimes null, meaning the transaction was unable to be sent or is invalid
         if (txHash == null) {
-            throw new Exception("Transaction Failed... too soon since last transaction");
+            throw new Exception("Transaction Failed.");
         }
         return txHash;
     }
 
+    /**
+     * Check the formatting of an address
+     *
+     * @param address wallet address that will be checked
+     * @return Boolean value if the address is valid or not
+     */
     public Boolean isValidAddress(String address) {
         return (address.startsWith("0x") && address.length() == 42) ||
                 (address.length() == 40);
@@ -251,26 +243,14 @@ public class BlockchainInterface {
         return fileList;
     }
 
+    /**
+     * Parse the address that is in a private key file name
+     * @param fileName the file name of the private key file
+     * @return The wallet address (Not prepended with "0x")
+     */
     private String getAddressFromFileName(String fileName) {
         // A file is in the format of "*--*--[address].json"
         return fileName.split("--",3)[2].split("\\.",2)[0];
-    }
-
-    /**
-     * Get all wallet files in the app's internal storage directory
-     * @param c Context of the app's current activity
-     * @return array of Files that are wallet (private key) files
-     */
-    private File[] getWalletFiles(Context c) {
-        // Wallet files exist in the app's file directory and start with 'UTC--'
-        File[] fileList = c.getFilesDir().listFiles(new FileFilter(){
-            @Override
-            public boolean accept(File file) {
-                return file.getName().startsWith("UTC--");
-            }
-        });
-
-        return fileList;
     }
 
     private String addAddressPrefix(String address) {

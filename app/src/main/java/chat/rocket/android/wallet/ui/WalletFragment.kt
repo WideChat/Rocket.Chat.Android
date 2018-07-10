@@ -53,17 +53,23 @@ class WalletFragment : Fragment(), WalletView {
         // Check if user has a wallet
         presenter.loadWallet(this.activity as MainActivity)
 
-        val transactionsRecyclerView = view.findViewById<RecyclerView>(R.id.transactions_recyclerView)
-        val linearLayoutManager = LinearLayoutManager(this.activity)
-        transactionsRecyclerView.layoutManager = linearLayoutManager
-        val adapter = WalletAdapter()
-        transactionsRecyclerView.adapter = adapter
+        // Set up transaction list (recycler view)
+        setupRecyclerView(view)
 
+        // Load transaction history
         presenter.loadTransactions()
     }
 
     private fun setupToolbar() {
         (activity as MainActivity).toolbar.title = getString(R.string.title_wallet)
+    }
+
+    private fun setupRecyclerView(view: View) {
+        val transactionsRecyclerView = view.findViewById<RecyclerView>(R.id.transactions_recyclerView)
+        val linearLayoutManager = LinearLayoutManager(this.activity)
+        transactionsRecyclerView.layoutManager = linearLayoutManager
+        val adapter = WalletAdapter()
+        transactionsRecyclerView.adapter = adapter
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = container?.inflate(R.layout.fragment_wallet)

@@ -45,6 +45,11 @@ interface WalletView {
      */
     fun directToDmRoom(name: String)
 
+    /**
+     * Populate the recycler view of transaction history with transactions
+     *
+     * @param txs List of transaction models
+     */
     fun updateTransactions(txs: List<TransactionViewModel>)
 
 }

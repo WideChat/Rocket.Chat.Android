@@ -115,6 +115,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
         return when (item.itemId) {
             R.id.action_password -> {
+                // Send the transaction
                 val amount = amount_tokens.text.toString().toDouble()
                 val password = wallet_password_editText.textContent
                 val act = this.activity as TransactionActivity

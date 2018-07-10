@@ -28,6 +28,7 @@ class WalletAdapter : RecyclerView.Adapter<WalletAdapter.ViewHolder>() {
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         fun bind(tx: TransactionViewModel) = with(itemView) {
+            // Set the text of the UI elements
             text_hash.textContent = tx.txHash
             text_timestamp.textContent = tx.timestamp
             if (tx.outgoingTx) {

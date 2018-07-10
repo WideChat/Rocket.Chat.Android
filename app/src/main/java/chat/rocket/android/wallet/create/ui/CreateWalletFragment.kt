@@ -140,5 +140,4 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
         }
     }
 
-
 }

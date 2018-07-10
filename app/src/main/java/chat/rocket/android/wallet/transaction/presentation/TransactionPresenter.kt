@@ -58,16 +58,6 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
                     Timber.e(ex)
                 }
             }
-            //TODO remove testing code
-//            dbInterface.getTransactionList(senderAddr, {
-//                if (it == null) Timber.d("Transactions: List is null.")
-//                Timber.d("Transactions: Number of transactions: %d", it?.size)
-//                it?.let{
-//                    for (item: String in it){
-//                        Timber.d("Transactions: %s", item)
-//                    }
-//                }
-//            })
         }
     }
 

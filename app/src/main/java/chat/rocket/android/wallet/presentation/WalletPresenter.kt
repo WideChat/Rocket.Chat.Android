@@ -65,7 +65,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     /**
      * Check if the user has a wallet
      *  both tied to their rocket.chat account and stored on their device
-     *  and display either their wallet or the create wallet button
+     *  and display either their wallet or the create wallet button.
+     * Only display the wallet if it is stored with the rocket.chat account and on
+     *  the user's device. TODO add more options for checking for wallets (e.g. what if there's a private key file on the device, but no address in the rocket.chat account)
      */
     fun loadWallet(c: Context) {
         launchUI(strategy) {
