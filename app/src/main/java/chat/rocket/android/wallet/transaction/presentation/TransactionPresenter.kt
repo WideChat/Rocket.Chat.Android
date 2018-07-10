@@ -8,12 +8,15 @@ import chat.rocket.android.server.infraestructure.RocketChatClientFactory
 import chat.rocket.android.util.extensions.launchUI
 import chat.rocket.android.util.retryIO
 import chat.rocket.android.wallet.BlockchainInterface
+import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.common.model.Token
 import chat.rocket.core.RocketChatClient
 import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
 import okhttp3.*
 import org.json.JSONObject
+import org.spongycastle.asn1.x500.style.RFC4519Style.l
+import org.spongycastle.crypto.tls.ConnectionEnd.client
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
@@ -28,6 +31,7 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
     private val client: RocketChatClient = factory.create(serverUrl)
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
+    private val dbInterface = WalletDBInterface()
 
     /**
      * Send a transaction on the blockchain
@@ -44,6 +48,9 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
             async {
                 try {
                     val txHash = bcInterface.sendTransaction(password, senderAddr, recipientAddr, amount, c)
+
+                    dbInterface.updateTransactions(senderAddr, recipientAddr, txHash)
+
                     view.showSuccessfulTransaction(amount, txHash)
                 } catch (ex: Exception) {
                     view.hideLoading()
@@ -51,6 +58,16 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
                     Timber.e(ex)
                 }
             }
+            //TODO remove testing code
+//            dbInterface.getTransactionList(senderAddr, {
+//                if (it == null) Timber.d("Transactions: List is null.")
+//                Timber.d("Transactions: Number of transactions: %d", it?.size)
+//                it?.let{
+//                    for (item: String in it){
+//                        Timber.d("Transactions: %s", item)
+//                    }
+//                }
+//            })
         }
     }
 

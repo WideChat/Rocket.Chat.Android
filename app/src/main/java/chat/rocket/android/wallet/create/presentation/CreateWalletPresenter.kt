@@ -39,7 +39,7 @@ class CreateWalletPresenter @Inject constructor (private val view: CreateWalletV
                 updateWalletAddress(address, {
                     view.showWalletSuccessfullyCreatedMessage(mnemonic)
                 })
-            } catch (exception: Exception ) {
+            } catch (exception: Exception) {
                 view.showWalletCreationFailedMessage(exception.message)
             }
         }
