@@ -132,8 +132,6 @@ dependencies {
     androidTestImplementation(libraries.expressoCore, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-
-    api ('org.web3j:core:3.3.1-android') //Ethereum blockchain
 }
 
 kotlin {
