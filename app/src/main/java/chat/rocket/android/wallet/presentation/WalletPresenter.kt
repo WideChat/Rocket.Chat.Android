@@ -45,12 +45,16 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
             try {
                 loadWalletAddress {addr ->
                     // Query the DB for transaction hashes
-                    dbInterface.getTransactionList(addr, {hashList ->
-                        // Update transaction history
-                        async {
-                            view.updateTransactions(bcInterface.getTransactions(addr, hashList))
-                        }
-                    })
+                    if (bcInterface.isValidAddress(addr)) {
+                        dbInterface.getTransactionList(addr, { hashList ->
+                            // Update transaction history
+                            if (hashList != null) {
+                                async {
+                                    view.updateTransactions(bcInterface.getTransactions(addr, hashList))
+                                }
+                            }
+                        })
+                    }
                 }
             } catch (ex: Exception) {
                 Timber.e(ex)

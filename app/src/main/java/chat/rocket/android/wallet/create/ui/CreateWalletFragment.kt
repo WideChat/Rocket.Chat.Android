@@ -16,6 +16,7 @@ import chat.rocket.android.wallet.create.presentation.CreateWalletView
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
+import io.reactivex.rxkotlin.Observables
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_create_wallet.*
 import timber.log.Timber
@@ -112,25 +113,17 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
     private fun finishActionMode() = actionMode?.finish()
 
     private fun listenToChanges(): Disposable {
-        return editText_confirm_password.asObservable().subscribe {
+        return Observables.combineLatest(editText_wallet_name.asObservable(),
+                editText_password.asObservable(),
+                editText_confirm_password.asObservable()).subscribe {
             val walletName = editText_wallet_name.textContent
             val passText = editText_password.textContent
             val confirmPass = editText_confirm_password.textContent
 
-            when {
-                walletName.isEmpty() -> {
-                    showToast("Wallet must have a name.")
-                    finishActionMode()
-                }
-                passText.isEmpty() -> {
-                    showToast("Password cannot be empty.")
-                    finishActionMode()
-                }
-                confirmPass != passText -> {
-                    showToast("Passwords do not match.")
-                    finishActionMode()
-                }
-                else -> startActionMode()
+            if (walletName.isNotEmpty() && passText.isNotEmpty() && passText == confirmPass) {
+                startActionMode()
+            } else {
+                finishActionMode()
             }
         }
     }
