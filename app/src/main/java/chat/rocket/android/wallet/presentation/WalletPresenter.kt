@@ -14,11 +14,13 @@ import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.Token
 import chat.rocket.core.RocketChatClient
 import chat.rocket.core.internal.rest.me
+import kotlinx.coroutines.experimental.async
 import okhttp3.*
 import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
+import kotlin.collections.ArrayList
 
 class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val strategy: CancelStrategy,
@@ -33,6 +35,25 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val client: RocketChatClient = factory.create(serverUrl)
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
+
+    /**
+     * Get transaction history associated with the user's wallet
+     */
+    fun loadTransactions() {
+        launchUI(strategy) {
+            try {
+                loadWalletAddress {
+                    // Query the DB for transaction hashes
+                    val hashList = ArrayList<String>()
+
+                    // Update the transaction history
+                    view.updateTransactions(bcInterface.getTransactions(it, hashList))
+                }
+            } catch (ex: Exception) {
+                Timber.e(ex)
+            }
+        }
+    }
 
     /**
      * Check if the user has a wallet

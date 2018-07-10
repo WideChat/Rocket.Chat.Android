@@ -4,6 +4,8 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -50,6 +52,14 @@ class WalletFragment : Fragment(), WalletView {
 
         // Check if user has a wallet
         presenter.loadWallet(this.activity as MainActivity)
+
+        val transactionsRecyclerView = view.findViewById<RecyclerView>(R.id.transactions_recyclerView)
+        val linearLayoutManager = LinearLayoutManager(this.activity)
+        transactionsRecyclerView.layoutManager = linearLayoutManager
+        val adapter = WalletAdapter()
+        transactionsRecyclerView.adapter = adapter
+
+        presenter.loadTransactions()
     }
 
     private fun setupToolbar() {
@@ -63,7 +73,6 @@ class WalletFragment : Fragment(), WalletView {
 
         // Load room names for the send-to dialog
         presenter.loadDMRooms()
-
         button_create_wallet.setOnClickListener {
             ui {
                 val intent = Intent(activity, CreateWalletActivity::class.java)
@@ -102,6 +111,16 @@ class WalletFragment : Fragment(), WalletView {
 
                 mnemonicAlertDialog.show()
             }
+        }
+    }
+
+    override fun updateTransactions(txs: List<TransactionViewModel>) {
+        ui {
+            val adapter = (transactions_recyclerView.adapter as WalletAdapter)
+
+            adapter.updateTransactions(txs)
+
+            adapter.notifyDataSetChanged()
         }
     }
 

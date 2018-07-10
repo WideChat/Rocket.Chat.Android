@@ -12,6 +12,7 @@ import org.web3j.protocol.Web3jFactory;
 import org.web3j.protocol.core.DefaultBlockParameterName;
 import org.web3j.protocol.core.methods.response.EthGetBalance;
 import org.web3j.protocol.core.methods.response.EthGetTransactionCount;
+import org.web3j.protocol.core.methods.response.Transaction;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.utils.Convert;
 import org.web3j.utils.Numeric;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import chat.rocket.android.util.OwnWalletUtils;
+import chat.rocket.android.wallet.ui.TransactionViewModel;
 import timber.log.Timber;
 
 
@@ -38,6 +40,46 @@ public class BlockchainInterface {
         // Connect to the private ethereum network via the json rpc url
         HttpService httpService = new HttpService(RPC_URL);
         this.web3 = Web3jFactory.build(httpService);
+    }
+
+    /**
+     * Get transaction information for a list of transaction hashes that are associated with
+     *  the current user for the purpose of displaying the transaction history
+     *
+     * @param userWalletAddress the user's wallet address
+     * @param transactionHashes List of Strings which are transaction hashes
+     * @return List of TransactionViewModel containing data for displaying the transactions
+     */
+    public List<TransactionViewModel> getTransactions(String userWalletAddress, List<String> transactionHashes) {
+        // Get web3 Transaction objects from the hashes
+        List<Transaction> transactions = new ArrayList<>();
+        try {
+            for (String tx : transactionHashes) {
+                transactions.add(web3.ethGetTransactionByHash(tx).send().getTransaction());
+            }
+        } catch (Exception ex) {
+            Timber.e(ex);
+            return new ArrayList<>();
+        }
+
+        // Map the Transaction objects to TransactionViewModels
+        List<TransactionViewModel> txModels = new ArrayList<>();
+        for (Transaction tx: transactions) {
+            Boolean sentFromUser = tx.getFrom().equals(userWalletAddress);
+            txModels.add(new TransactionViewModel(tx.getHash(),
+                    Convert.fromWei(tx.getValue().toString(), Convert.Unit.ETHER),
+                    getTimeStamp(tx).longValue(),
+                    sentFromUser));
+        }
+        return txModels;
+    }
+
+    private BigInteger getTimeStamp(Transaction tx) {
+        try {
+            return web3.ethGetBlockByHash(tx.getBlockHash(), false).sendAsync().get().getBlock().getTimestamp();
+        } catch (Exception ex) {
+            return BigInteger.ZERO;
+        }
     }
 
     /**
@@ -108,7 +150,7 @@ public class BlockchainInterface {
      * Create a new account on the blockchain and save private key file to internal storage
      * @param password user's password to make the account/wallet
      * @param c the app's current Context/Activity
-     * @return the mnemonic for the account/wallet
+     * @return a String array of the wallet address and the mnemonic
      */
     public String[] createBip39Wallet(String password, Context c) {
         String address = "";

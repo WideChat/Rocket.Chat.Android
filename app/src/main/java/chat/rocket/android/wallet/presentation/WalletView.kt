@@ -1,5 +1,7 @@
 package chat.rocket.android.wallet.presentation
 
+import chat.rocket.android.wallet.ui.TransactionViewModel
+
 interface WalletView {
 
     /**
@@ -42,5 +44,7 @@ interface WalletView {
      * @param name the recipient's Rocket.chat username
      */
     fun directToDmRoom(name: String)
+
+    fun updateTransactions(txs: List<TransactionViewModel>)
 
 }
