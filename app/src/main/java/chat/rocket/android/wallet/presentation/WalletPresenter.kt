@@ -9,6 +9,7 @@ import chat.rocket.android.server.infraestructure.RocketChatClientFactory
 import chat.rocket.android.util.extensions.launchUI
 import chat.rocket.android.util.retryIO
 import chat.rocket.android.wallet.BlockchainInterface
+import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.common.RocketChatException
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.Token
@@ -20,7 +21,6 @@ import org.json.JSONObject
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
-import kotlin.collections.ArrayList
 
 class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val strategy: CancelStrategy,
@@ -35,6 +35,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val client: RocketChatClient = factory.create(serverUrl)
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
+    private val dbInterface = WalletDBInterface()
 
     /**
      * Get transaction history associated with the user's wallet
@@ -42,12 +43,14 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     fun loadTransactions() {
         launchUI(strategy) {
             try {
-                loadWalletAddress {
+                loadWalletAddress {addr ->
                     // Query the DB for transaction hashes
-                    val hashList = ArrayList<String>()
-
-                    // Update the transaction history
-                    view.updateTransactions(bcInterface.getTransactions(it, hashList))
+                    dbInterface.getTransactionList(addr, {hashList ->
+                        // Update transaction history
+                        async {
+                            view.updateTransactions(bcInterface.getTransactions(addr, hashList))
+                        }
+                    })
                 }
             } catch (ex: Exception) {
                 Timber.e(ex)

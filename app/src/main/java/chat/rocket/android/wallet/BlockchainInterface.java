@@ -23,6 +23,7 @@ import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import chat.rocket.android.util.OwnWalletUtils;
@@ -65,12 +66,13 @@ public class BlockchainInterface {
         // Map the Transaction objects to TransactionViewModels
         List<TransactionViewModel> txModels = new ArrayList<>();
         for (Transaction tx: transactions) {
-            Boolean sentFromUser = tx.getFrom().equals(userWalletAddress);
+            Boolean sentFromUser = tx.getFrom().substring(2).equals(userWalletAddress);
             txModels.add(new TransactionViewModel(tx.getHash(),
                     Convert.fromWei(tx.getValue().toString(), Convert.Unit.ETHER),
                     getTimeStamp(tx).longValue(),
                     sentFromUser));
         }
+        Collections.reverse(txModels);
         return txModels;
     }
 
