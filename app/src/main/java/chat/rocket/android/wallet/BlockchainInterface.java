@@ -119,27 +119,6 @@ public class BlockchainInterface {
     /**
      * Create a new account on the blockchain and save private key file to internal storage
      * @param password user's password to make the account/wallet
-     * @param c Context of the app's current activity
-     * @return the public key of the account/wallet
-     */
-    public String createWallet(String password, Context c) {
-        String address = "";
-        try {
-            // Creates a new wallet and file, which is saved to the app's file directory
-            String fileName = WalletUtils.generateFullNewWalletFile(password, c.getFilesDir());
-            // Send the public key back, to save on rocket.chat user's account
-            address = getAddressFromFileName(fileName);
-        } catch(Exception e) {
-            Timber.d("Failed creating wallet!");
-        } finally {
-            Timber.d("Wallet Address: " + address);
-            return address;
-        }
-    }
-
-    /**
-     * Create a new account on the blockchain and save private key file to internal storage
-     * @param password user's password to make the account/wallet
      * @param c the app's current Context/Activity
      * @return a String array of the wallet address and the mnemonic
      */

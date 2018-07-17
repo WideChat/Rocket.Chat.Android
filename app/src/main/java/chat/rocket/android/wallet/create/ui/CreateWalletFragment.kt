@@ -91,12 +91,12 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
 
 
     override fun showWalletSuccessfullyCreatedMessage(mnemonic: String) {
-        showToast("Wallet was successfully created")
+        showToast(getString(R.string.wallet_creation_success))
         setMnemonic(mnemonic)
     }
 
     override fun showWalletCreationFailedMessage(error : String?) {
-        showToast("Failed to create wallet: " + error)
+        showToast(getString(R.string.action_confirm_create_wallet) + error)
     }
 
     override fun returnContext(): Context?{
@@ -120,7 +120,7 @@ class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.vi
             val passText = editText_password.textContent
             val confirmPass = editText_confirm_password.textContent
 
-            if (walletName.isNotEmpty() && passText.isNotEmpty() && passText == confirmPass) {
+            if (walletName.isNotEmpty() && passText == confirmPass && passText.length >= 8) {
                 startActionMode()
             } else {
                 finishActionMode()

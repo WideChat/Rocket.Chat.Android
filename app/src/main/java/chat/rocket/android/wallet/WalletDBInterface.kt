@@ -119,16 +119,17 @@ class WalletDBInterface {
                 transactionRecord.account = senderId
                 transactionRecord.transactions = emptyList()
                 dynamoDBMapper?.save(transactionRecord)
+
+                senderTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, senderId)
             }
             if (recipientTransactionRecords == null){
                 val transactionRecord = TransactionRecordsDO()
                 transactionRecord.account = recipientId
                 transactionRecord.transactions = emptyList()
                 dynamoDBMapper?.save(transactionRecord)
-            }
 
-            senderTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, senderId)
-            recipientTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, recipientId)
+                recipientTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, recipientId)
+            }
 
             senderTransactionRecords?.transactions?.add(hash)
             recipientTransactionRecords?.transactions?.add(hash)

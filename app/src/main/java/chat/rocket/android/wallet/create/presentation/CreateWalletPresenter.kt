@@ -36,13 +36,12 @@ class CreateWalletPresenter @Inject constructor (private val view: CreateWalletV
                 val response = bcInterface.createBip39Wallet(password, view.returnContext())
                 val address = response[0]
                 val mnemonic =  response[1]
-                updateWalletAddress(address, {
-                    view.showWalletSuccessfullyCreatedMessage(mnemonic)
-                })
+                updateWalletAddress(address, mnemonic)
             } catch (exception: Exception) {
                 view.showWalletCreationFailedMessage(exception.message)
             }
         }
+
     }
 
     /**
@@ -53,7 +52,7 @@ class CreateWalletPresenter @Inject constructor (private val view: CreateWalletV
      * NOTE: this function directly calls the REST API, which normally should be
      *          done in the Kotlin SDK
      */
-    private fun updateWalletAddress(address: String, callback: () -> Unit) {
+    private fun updateWalletAddress(address: String, mnemonic: String) {
         launchUI(strategy) {
             try {
                 val httpUrl = restUrl?.newBuilder()
@@ -78,11 +77,13 @@ class CreateWalletPresenter @Inject constructor (private val view: CreateWalletV
                 httpClient.newCall(request).enqueue(object : Callback {
                     override fun onFailure(call: Call, e: IOException) { Timber.d("ERROR: request call failed!")}
                     override fun onResponse(call: Call, response: Response) {
-                        callback()
+
+                        view.showWalletSuccessfullyCreatedMessage(mnemonic)
                     }
                 })
             } catch (ex: Exception) {
                 Timber.e(ex)
+                view.showWalletCreationFailedMessage(ex.message)
             }
         }
     }
