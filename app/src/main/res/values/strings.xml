@@ -222,4 +222,6 @@
     <string name="action_confirm_transaction">Confirm Transaction</string>
     <string name="title_create_wallet">Create Wallet</string>
     <string name="action_confirm_create_wallet">Confirm new wallet creation?</string>
+    <string name="wallet_creation_error">Sorry, there was an error creating your new wallet. Error: </string>
+    <string name="wallet_creation_success">Congratulations! Your new wallet has been created.</string>
 </resources>
