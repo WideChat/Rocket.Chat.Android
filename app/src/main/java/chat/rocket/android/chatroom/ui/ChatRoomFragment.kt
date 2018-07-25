@@ -15,6 +15,8 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import chat.rocket.android.R
+import chat.rocket.android.R.id.layout_message_attachment_options
+import chat.rocket.android.R.id.root_layout
 import chat.rocket.android.chatroom.adapter.*
 import chat.rocket.android.chatroom.presentation.ChatRoomPresenter
 import chat.rocket.android.chatroom.presentation.ChatRoomView
@@ -175,7 +177,8 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 val recipient = resultData.getStringExtra("recipientId")
                 val amount = resultData.getDoubleExtra("amount", -1.0)
                 val txHash = resultData.getStringExtra("transaction_hash")
-                sendMessage("Sending $amount Ether to @$recipient\n${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash")
+                val reason = resultData.getStringExtra("reason")
+                sendMessage("Sending $amount Ether to @$recipient for reason: $reason \n[More Details](${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash)")
             }
         }
     }

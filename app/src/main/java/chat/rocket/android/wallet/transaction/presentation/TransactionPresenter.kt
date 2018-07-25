@@ -42,7 +42,7 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
      * @param amount Double amount of ether being sent
      * @param c Context/Activity
      */
-    fun sendTransaction(password: String, senderAddr: String, recipientAddr: String, amount: Double, c: Context) {
+    fun sendTransaction(password: String, senderAddr: String, recipientAddr: String, amount: Double, c: Context, reason: String) {
         launchUI(strategy) {
             view.showLoading()
             async {
@@ -51,7 +51,7 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
 
                     dbInterface.updateTransactions(senderAddr, recipientAddr, txHash)
 
-                    view.showSuccessfulTransaction(amount, txHash)
+                    view.showSuccessfulTransaction(amount, txHash, reason)
                 } catch (ex: Exception) {
                     view.hideLoading()
                     view.showTransactionFailedMessage(ex.message)

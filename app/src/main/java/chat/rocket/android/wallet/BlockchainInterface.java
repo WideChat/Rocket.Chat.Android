@@ -132,7 +132,7 @@ public class BlockchainInterface {
             address = getAddressFromFileName(wallet.getFilename());
             mnemonic = wallet.getMnemonic();
         } catch (Exception e) {
-            Timber.d("Failed creating Bip39Wallet! Exception:" + e.getMessage());
+            Timber.d("Failed creating Bip39Wallet! Exception: %s", e.getMessage());
             // printStackTrace method
             // prints line numbers + call stack
             e.printStackTrace();
@@ -140,7 +140,7 @@ public class BlockchainInterface {
             // Prints what exception has been thrown
             System.out.println(e);
         } finally {
-            Timber.d("Blockchain Interface, mnemonic is: " + mnemonic);
+
             return new String[]{address, mnemonic};
         }
     }

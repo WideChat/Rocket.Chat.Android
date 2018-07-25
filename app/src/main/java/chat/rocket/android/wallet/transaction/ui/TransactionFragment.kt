@@ -107,8 +107,8 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
         showToast(msg ?: "Transaction failed!")
     }
 
-    override fun showSuccessfulTransaction(amount: Double, txHash: String) {
-        (activity as TransactionActivity).setupResultAndFinish(recipientUserName, amount, txHash)
+    override fun showSuccessfulTransaction(amount: Double, txHash: String, reason: String) {
+        (activity as TransactionActivity).setupResultAndFinish(recipientUserName, amount, txHash, reason)
         showToast("Transaction Successful!")
     }
 
@@ -118,8 +118,9 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
                 // Send the transaction
                 val amount = amount_tokens.text.toString().toDouble()
                 val password = wallet_password_editText.textContent
+                val reason = reason_editText.text.toString()
                 val act = this.activity as TransactionActivity
-                async{ presenter.sendTransaction(password, senderAddress, recipientAddress, amount, act) }
+                async{ presenter.sendTransaction(password, senderAddress, recipientAddress, amount, act, reason) }
                 mode.finish()
                 return true
             }

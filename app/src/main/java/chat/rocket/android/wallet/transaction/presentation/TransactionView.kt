@@ -25,7 +25,7 @@ interface TransactionView {
      * @param amount the amount of tokens in the transaction
      * @param txHash the hash of the transaction
      */
-    fun showSuccessfulTransaction(amount: Double, txHash: String)
+    fun showSuccessfulTransaction(amount: Double, txHash: String, reason: String)
 
     /**
      * Show error for the recipient not having a wallet address
