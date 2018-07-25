@@ -1,10 +1,12 @@
 package chat.rocket.android.wallet
 
+import chat.rocket.android.main.ui.TransactionRecordsDO
 import chat.rocket.android.main.ui.WalletsDO
 import com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
+import org.web3j.protocol.core.methods.response.EthTransaction
 import timber.log.Timber
 import kotlin.concurrent.thread
 
@@ -104,6 +106,49 @@ class WalletDBInterface {
                 callback(senderWallet.balance)
             }
         }
+    }
+
+    fun updateTransactions(senderId:String, recipientId:String, hash:String){
+
+        thread(true){
+            var senderTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, senderId)
+            var recipientTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, recipientId)
+
+            if (senderTransactionRecords == null){
+                val transactionRecord = TransactionRecordsDO()
+                transactionRecord.account = senderId
+                transactionRecord.transactions = emptyList()
+                dynamoDBMapper?.save(transactionRecord)
+
+                senderTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, senderId)
+            }
+            if (recipientTransactionRecords == null){
+                val transactionRecord = TransactionRecordsDO()
+                transactionRecord.account = recipientId
+                transactionRecord.transactions = emptyList()
+                dynamoDBMapper?.save(transactionRecord)
+
+                recipientTransactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, recipientId)
+            }
+
+            senderTransactionRecords?.transactions?.add(hash)
+            recipientTransactionRecords?.transactions?.add(hash)
+
+            dynamoDBMapper?.save(senderTransactionRecords)
+            dynamoDBMapper?.save(recipientTransactionRecords)
+        }
+    }
+
+    fun getTransactionList(accountId:String, callback: (List<String>?) -> Unit){
+
+        thread(true) {
+
+            val transactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, accountId)
+            runOnUiThread {
+                callback(transactionRecords?.transactions)
+            }
+        }
+
     }
 
     init {

@@ -108,6 +108,7 @@ ext {
         expressoCore  : "com.android.support.test.espresso:espresso-core:${versions.expresso}",
         roomTest      : "android.arch.persistence.room:testing:${versions.room}",
         truth         : "com.google.truth:truth:$versions.truth",
+
     ]
 
 }

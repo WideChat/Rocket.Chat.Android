@@ -1,31 +1,39 @@
 package chat.rocket.android.wallet.ui
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Toast
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
-import chat.rocket.android.util.extensions.inflate
-import chat.rocket.android.util.extensions.setVisible
-import chat.rocket.android.util.extensions.showToast
-import chat.rocket.android.util.extensions.textContent
-import chat.rocket.android.wallet.WalletDBInterface
+import chat.rocket.android.util.extensions.*
+import chat.rocket.android.wallet.BlockchainInterface
+import chat.rocket.android.wallet.create.ui.CreateWalletActivity
 import chat.rocket.android.wallet.presentation.WalletPresenter
 import chat.rocket.android.wallet.presentation.WalletView
+import chat.rocket.android.wallet.transaction.ui.TransactionActivity
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.app_bar.*
-import kotlinx.android.synthetic.main.fragment_token_send.view.*
 import kotlinx.android.synthetic.main.fragment_wallet.*
+import kotlinx.android.synthetic.main.mnemonic_dialog.view.*
+import kotlinx.android.synthetic.main.wallet_send_to_dialog.view.*
 import javax.inject.Inject
-
 
 class WalletFragment : Fragment(), WalletView {
     @Inject lateinit var presenter: WalletPresenter
-    private var dbInterface: WalletDBInterface? = null
+
+    private var bcInterface: BlockchainInterface? = null
+    private val NEW_WALLET_REQUEST = 1
+    private val RESULT_OK = -1
+
 
     companion object {
         fun newInstance() = WalletFragment()
@@ -38,19 +46,27 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dbInterface = WalletDBInterface()
+
+        bcInterface = BlockchainInterface()
         setupToolbar()
-        // Check if user has a wallet (in the database)
-        dbInterface?.findWallet(presenter.getUserName(), {wallet ->
-            if (wallet != null) {
-                // Show this user's existing wallet
-                showWallet(true)
-            }
-        })
+
+        // Set up transaction list (recycler view)
+        setupRecyclerView(view)
+
+        // Check if user has a wallet
+        presenter.loadWallet(this.activity as MainActivity)
     }
 
     private fun setupToolbar() {
         (activity as MainActivity).toolbar.title = getString(R.string.title_wallet)
+    }
+
+    private fun setupRecyclerView(view: View) {
+        val transactionsRecyclerView = view.findViewById<RecyclerView>(R.id.transactions_recyclerView)
+        val linearLayoutManager = LinearLayoutManager(this.activity)
+        transactionsRecyclerView.layoutManager = linearLayoutManager
+        val adapter = WalletAdapter()
+        transactionsRecyclerView.adapter = adapter
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = container?.inflate(R.layout.fragment_wallet)
@@ -58,87 +74,150 @@ class WalletFragment : Fragment(), WalletView {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
+        // Load room names for the send-to dialog
+        presenter.loadDMRooms()
         button_create_wallet.setOnClickListener {
-            dbInterface?.createWallet(presenter.getUserName(), {
-                showToast("Wallet Created!", Toast.LENGTH_LONG)
-                showWallet(true)
-            })
+            ui {
+                val intent = Intent(activity, CreateWalletActivity::class.java)
+                intent.putExtra("user_name", presenter.getUserName())
+                startActivityForResult(intent, NEW_WALLET_REQUEST)
+                activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
+            }
         }
+    }
 
-        button_delete_wallet.setOnClickListener {
-            dbInterface?.deleteWallet(presenter.getUserName(), {
-                showToast("Wallet Deleted!", Toast.LENGTH_LONG)
-                showWallet(false)
-            })
+    override fun onResume() {
+        super.onResume()
+        // Update the wallet (currently mainly the balance)
+        presenter.loadWallet(this.activity as MainActivity)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if(requestCode == NEW_WALLET_REQUEST){
+            if(resultCode == RESULT_OK){
+
+                val mnemonicDialogView = LayoutInflater.from(activity).inflate(R.layout.mnemonic_dialog, null)
+                val mnemonicDialogBuilder = AlertDialog.Builder(activity)
+                        .setView(mnemonicDialogView)
+
+                // display phrase
+                var mnemonic = data!!.getStringExtra("mnemonic")
+                mnemonicDialogView.mnemonic.textContent = mnemonic
+
+                // show dialog
+                val mnemonicAlertDialog = mnemonicDialogBuilder.create()
+
+                // set listener
+                mnemonicDialogView.button_mnemonic_saved.setOnClickListener{
+                    mnemonicAlertDialog.dismiss()
+                }
+
+                mnemonicAlertDialog.show()
+            }
         }
+    }
 
-        button_buy.setOnClickListener {
-            showBalance()
-            //nothing for now TODO
+    override fun updateTransactions(txs: List<TransactionViewModel>) {
+        ui {
+            val adapter = (transactions_recyclerView.adapter as WalletAdapter)
+
+            adapter.updateTransactions(txs)
+
+            adapter.notifyDataSetChanged()
         }
+    }
 
-        // Clicking send from wallet fragment shows "send" dialog
+    override fun setupSendToDialog(names: List<String>) {
         button_sendToken.setOnClickListener {
-
-            // TODO remove this dialog and instead redirect to a TransactionActivity to handle the transaction
-            // Inflate with custom view
-            val sendDialogView = LayoutInflater.from(activity).inflate(R.layout.fragment_token_send, null)
-            val sendDialogBuilder = AlertDialog.Builder(activity)
-                    .setView(sendDialogView)
-                    .setTitle("Send Tokens")
-
-            // show dialog
-            val sendAlertDialog = sendDialogBuilder.show()
-
-            // on click of "Confirm"
-            sendDialogView.button_confirm.setOnClickListener{
-
-                // empty checks for input fields
-                if (sendDialogView.amount.text.toString() == "" || sendDialogView.recipient.text.toString() == "") {
-                    sendAlertDialog.dismiss()
-                    showToast("Transaction failed!", Toast.LENGTH_LONG)
+            val dialogLayout = layoutInflater.inflate(R.layout.wallet_send_to_dialog, null)
+            val adapter: ArrayAdapter<String> = ArrayAdapter(activity, android.R.layout.simple_dropdown_item_1line, names)
+            val textView: AutoCompleteTextView = dialogLayout.findViewById(R.id.search_users_autoCompleteTextView)
+            textView.setAdapter(adapter)
+            textView.onFocusChangeListener = View.OnFocusChangeListener{
+                view, b ->
+                if (b) {
+                    textView.showDropDown()
                 }
-                else {
-                    // get token amount
-                    val amount = sendDialogView.amount.text.toString().toDouble()
+            }
+            // Update the wallet address textEdit text when a username is chosen
+            textView.setOnItemClickListener { parent, view, position, id ->
+                val recipient = dialogLayout.search_users_autoCompleteTextView.textContent
+                presenter.loadWalletAddress(recipient, {
+                    dialogLayout.recipient_address_editText.textContent = it
+                })
+            }
+            // Setup radio buttons
+            dialogLayout.radio_group_send_to.setOnCheckedChangeListener { group, checkedId ->
+                when {
+                    dialogLayout.search_users_radioButton.isChecked -> {
+                        dialogLayout.search_users_autoCompleteTextView.requestFocus()
+                        dialogLayout.recipient_address_editText.isEnabled = false
+                    }
+                    dialogLayout.qr_radioButton.isChecked -> {
+                        dialogLayout.recipient_address_editText.isEnabled = false
+                    }
+                    else -> {
+                        dialogLayout.recipient_address_editText.isEnabled = true
+                        dialogLayout.recipient_address_editText.requestFocus()
+                    }
+                }
+            }
 
-                    // get userId of sender
-                    val senderId = presenter.getUserName()
-
-                    // get userId of recipient
-                    val recipientId = sendDialogView.recipient.text.toString()
-
-                    // update balances
-                    dbInterface?.sendTokens(senderId, recipientId, amount, {bal ->
-                        textView_balance.textContent = bal.toString()
-                        showToast("Sent $amount tokens to $recipientId", Toast.LENGTH_LONG)
+            val dialogSendTo = AlertDialog.Builder(context)
+                    .setTitle("Find Recipient")
+                    .setView(dialogLayout)
+                    .setNegativeButton("Cancel", { dialog, _ -> dialog.dismiss() })
+                    .setPositiveButton("Send", { dialog, _ ->
+                        // Check that there is a valid wallet address in the editText
+                        val address = dialogLayout.recipient_address_editText.textContent
+                        if (address.length == 40 ||
+                                (address.length == 42 && address.startsWith("0x"))) {
+                            if (dialogLayout.search_users_radioButton.isChecked) {
+                                directToDmRoom(dialogLayout.search_users_autoCompleteTextView.textContent)
+                            } else {
+                                directToTransaction(dialogLayout.recipient_address_editText.textContent)
+                            }
+                            dialog.dismiss()
+                        } else {
+                            showToast("No wallet address found or invalid address format", Toast.LENGTH_LONG)
+                        }
                     })
-                    sendAlertDialog.dismiss()
-                }
-            }
 
-            // on click of "Cancel" close the window
-            sendDialogView.button_cancel.setOnClickListener{
-                sendAlertDialog.dismiss()
-            }
+            dialogSendTo.show()
         }
     }
 
-    override fun showBalance() {
-        dbInterface?.getBalance(presenter.getUserName(), {bal -> textView_balance.textContent = bal.toString()})
+    override fun directToTransaction(walletAddress: String) {
+        ui {
+            val intent = Intent(activity, TransactionActivity::class.java)
+            intent.putExtra("recipient_address", walletAddress)
+            startActivity(intent)
+            activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
+        }
     }
 
-    override fun showWallet(value: Boolean) {
+    override fun directToDmRoom(name: String) {
+        presenter.loadDMRoomByName(name)
+    }
+
+    override fun showRoomFailedToLoadMessage(name: String) {
+        showToast("No direct message chat room open with user: $name", Toast.LENGTH_LONG)
+    }
+
+    override fun showBalance(bal: Double) {
+        // TODO eventually allow user to have/access multiple wallets
+        textView_balance.textContent = bal.toString()
+    }
+
+    override fun showWallet(value: Boolean, bal: Double) {
         button_create_wallet.setVisible(!value)
-        button_buy.setVisible(value)
         button_sendToken.setVisible(value)
         textView_transactions.setVisible(value)
         textView_balance.setVisible(value)
         textView_wallet_title.setVisible(value)
         divider_wallet.setVisible(value)
-        button_delete_wallet.setVisible(value)
         if (value)
-            showBalance()
+            showBalance(bal)
     }
 
 }

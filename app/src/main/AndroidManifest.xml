@@ -73,12 +73,10 @@
             android:name=".webview.weblink.ui.WebViewActivity"
             android:theme="@style/AppTheme.Translucent"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
-
         <activity
             android:name=".chatroom.ui.ChatRoomActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
             android:theme="@style/AppTheme.Translucent" />
-
         <activity
             android:name=".chatroom.ui.PinnedMessagesActivity"
             android:theme="@style/AppTheme"
@@ -86,7 +84,6 @@
         <activity
             android:name=".settings.password.ui.PasswordActivity"
             android:theme="@style/AppTheme" />
-
         <receiver
             android:name="com.google.android.gms.gcm.GcmReceiver"
             android:exported="true"
@@ -98,7 +95,6 @@
                 <category android:name="${applicationId}" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".push.DirectReplyReceiver"
             android:enabled="true"
@@ -137,6 +133,9 @@
             android:theme="@style/AppTheme"/>
 
         <activity android:name=".wallet.transaction.ui.TransactionActivity"
+            android:theme="@style/AppTheme"/>
+
+        <activity android:name=".wallet.create.ui.CreateWalletActivity"
             android:theme="@style/AppTheme"/>
 
     </application>

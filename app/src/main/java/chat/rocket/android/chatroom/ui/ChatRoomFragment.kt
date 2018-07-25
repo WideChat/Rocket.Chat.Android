@@ -27,6 +27,7 @@ import chat.rocket.android.helper.EndlessRecyclerViewScrollListener
 import chat.rocket.android.helper.KeyboardHelper
 import chat.rocket.android.helper.MessageParser
 import chat.rocket.android.util.extensions.*
+import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.transaction.ui.TransactionActivity
 import chat.rocket.android.widget.emoji.*
 import chat.rocket.common.model.RoomType
@@ -46,7 +47,8 @@ fun newInstance(chatRoomId: String,
                 chatRoomType: String,
                 isChatRoomReadOnly: Boolean,
                 chatRoomLastSeen: Long,
-                isSubscribed: Boolean = true): Fragment {
+                isSubscribed: Boolean = true,
+                isFromWallet: Boolean = false): Fragment {
     return ChatRoomFragment().apply {
         arguments = Bundle(1).apply {
             putString(BUNDLE_CHAT_ROOM_ID, chatRoomId)
@@ -55,6 +57,7 @@ fun newInstance(chatRoomId: String,
             putBoolean(BUNDLE_IS_CHAT_ROOM_READ_ONLY, isChatRoomReadOnly)
             putLong(BUNDLE_CHAT_ROOM_LAST_SEEN, chatRoomLastSeen)
             putBoolean(BUNDLE_CHAT_ROOM_IS_SUBSCRIBED, isSubscribed)
+            putBoolean(BUNDLE_IS_FROM_WALLET, isFromWallet)
         }
     }
 }
@@ -64,8 +67,10 @@ private const val BUNDLE_CHAT_ROOM_NAME = "chat_room_name"
 private const val BUNDLE_CHAT_ROOM_TYPE = "chat_room_type"
 private const val BUNDLE_IS_CHAT_ROOM_READ_ONLY = "is_chat_room_read_only"
 private const val REQUEST_CODE_FOR_PERFORM_SAF = 42
+private const val REQUEST_CODE_FOR_SEND_TOKENS = 43
 private const val BUNDLE_CHAT_ROOM_LAST_SEEN = "chat_room_last_seen"
 private const val BUNDLE_CHAT_ROOM_IS_SUBSCRIBED = "chat_room_is_subscribed"
+private const val BUNDLE_IS_FROM_WALLET = "is_from_wallet"
 
 class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiReactionListener {
     @Inject
@@ -83,6 +88,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
     private lateinit var actionSnackbar: ActionSnackbar
     private var citation: String? = null
     private var editingMessageId: String? = null
+    private var isFromWallet: Boolean = false
 
     private val compositeDisposable = CompositeDisposable()
     private var playComposeMessageButtonsAnimation = true
@@ -107,6 +113,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
             isChatRoomReadOnly = bundle.getBoolean(BUNDLE_IS_CHAT_ROOM_READ_ONLY)
             isSubscribed = bundle.getBoolean(BUNDLE_CHAT_ROOM_IS_SUBSCRIBED)
             chatRoomLastSeen = bundle.getLong(BUNDLE_CHAT_ROOM_LAST_SEEN)
+            isFromWallet = bundle.getBoolean(BUNDLE_IS_FROM_WALLET)
         } else {
             requireNotNull(bundle) { "no arguments supplied when the fragment was instantiated" }
         }
@@ -134,6 +141,11 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         text_message.addTextChangedListener(EmojiKeyboardPopup.EmojiTextWatcher(text_message))
+
+        // Immediately redirect to a TransactionActivity if originally from the WalletFragment
+        if (isFromWallet) {
+            showSendTokens()
+        }
     }
 
     override fun onDestroyView() {
@@ -156,6 +168,14 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         if (requestCode == REQUEST_CODE_FOR_PERFORM_SAF && resultCode == Activity.RESULT_OK) {
             if (resultData != null) {
                 uploadFile(resultData.data)
+            }
+        }
+        else if (requestCode == REQUEST_CODE_FOR_SEND_TOKENS && resultCode == Activity.RESULT_OK) {
+            if (resultData != null) {
+                val recipient = resultData.getStringExtra("recipientId")
+                val amount = resultData.getDoubleExtra("amount", -1.0)
+                val txHash = resultData.getStringExtra("transaction_hash")
+                sendMessage("Sending $amount Ether to @$recipient\n${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash")
             }
         }
     }
@@ -483,7 +503,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         ui {
             val intent = Intent(activity, TransactionActivity::class.java)
             intent.putExtra("recipient_user_name", chatRoomName)
-            startActivity(intent)
+            startActivityForResult(intent, REQUEST_CODE_FOR_SEND_TOKENS)
             activity?.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
         }
     }

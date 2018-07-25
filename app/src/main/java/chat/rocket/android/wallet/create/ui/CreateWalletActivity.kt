@@ -1,4 +1,4 @@
-package chat.rocket.android.wallet.transaction.ui
+package chat.rocket.android.wallet.create.ui
 
 import android.app.Activity
 import android.content.Intent
@@ -7,28 +7,31 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.addFragment
+import chat.rocket.android.util.extensions.textContent
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
+import kotlinx.android.synthetic.main.app_bar_create_wallet.*
 import javax.inject.Inject
-import kotlinx.android.synthetic.main.app_bar_transaction.*
 
-class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
+class CreateWalletActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_transaction)
+        setContentView(R.layout.activity_create_wallet)
 
         setupToolbar()
-        addFragment("TransactionFragment")
+        addFragment("CreateWalletFragment")
+
     }
 
     override fun onBackPressed() {
         super.onBackPressed()
-        setupResultAndFinish("", 0.0,"")
+        finish()
+        overridePendingTransition(R.anim.close_enter, R.anim.close_exit)
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -36,29 +39,33 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
         return super.onNavigateUp()
     }
 
-    fun setupResultAndFinish(recipient: String, amount: Double, txHash: String) {
-        if (recipient.isEmpty() || amount <= 0.0) {
-            setResult(Activity.RESULT_CANCELED)
-        }
-        else {
-            val result = Intent()
-            result.putExtra("recipientId", recipient)
-            result.putExtra("amount", amount)
-            result.putExtra("transaction_hash", txHash)
-            setResult(Activity.RESULT_OK, result)
-        }
-        finish()
-    }
-
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = fragmentDispatchingAndroidInjector
 
     private fun addFragment(tag: String) {
         addFragment(tag, R.id.fragment_container) {
-            TransactionFragment.newInstance()
+            CreateWalletFragment.newInstance()
         }
     }
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
+        text_create_wallet.textContent = resources.getString(R.string.title_create_wallet)
     }
+
+    fun setupResultAndFinish(walletName: String, password: String, mnemonic: String) {
+        if (walletName.isEmpty() || password.isEmpty()) {
+            setResult(Activity.RESULT_CANCELED)
+        }
+       else {
+            var result = Intent()
+            result.putExtra("walletName", walletName)
+            result.putExtra("password", password)
+            result.putExtra("mnemonic", mnemonic)
+            setResult(Activity.RESULT_OK, result)
+        }
+
+        finish()
+    }
+
+
 }
