@@ -2,10 +2,6 @@ const ENDPOINT = 'http://etheriumpublic-2079999181.us-east-1.elb.amazonaws.com:8
 var Web3 = require('web3');
 web3 = new Web3(new Web3.providers.HttpProvider(ENDPOINT));
 const EthereumTx = require('ethereumjs-tx')
-const keythereum = require('keythereum');
-const datadir = './'; //TODO change to where the private key file being stored
-
-
 
 /**
  * Function get the Ether balance at the specified address
@@ -19,7 +15,6 @@ function getBalance(address, callback) {
   });
 }
 
-
 /**
  * Function to send tokens to a user's account
  */
@@ -31,6 +26,7 @@ function sendTokens(recipient, amount) {
 
   const sender = "0xcf3c2e6e0edc6417e73dcf49eb5f03cd6990651b";
   const password = "password";
+  const privateKey = "029BAA521A81F0BD7E075667D51CA930D28E605F196537CE6AA157A38D03786D";
 
   // Get nonce
   var noncePromise = web3.eth.getTransactionCount(sender);
@@ -61,12 +57,8 @@ function sendTokens(recipient, amount) {
 
 	var transaction = new EthereumTx(details);
 
-	// Get private key
-	var keyObject = keythereum.importFromFile(sender, datadir);
-	var privateKey = keythereum.recover(password, keyObject);
-
 	// Sign transaction
-	transaction.sign( privateKey );
+	transaction.sign( Buffer.from(privateKey, 'hex') );
 
 	// Serialize transaction
 	var serializedTransaction = transaction.serialize();
