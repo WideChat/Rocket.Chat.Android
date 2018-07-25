@@ -15,8 +15,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
 import chat.rocket.android.R
-import chat.rocket.android.R.id.layout_message_attachment_options
-import chat.rocket.android.R.id.root_layout
+import chat.rocket.android.R.id.*
 import chat.rocket.android.chatroom.adapter.*
 import chat.rocket.android.chatroom.presentation.ChatRoomPresenter
 import chat.rocket.android.chatroom.presentation.ChatRoomView
