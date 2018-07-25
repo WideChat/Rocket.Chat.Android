@@ -14,6 +14,7 @@ import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.*
+import androidx.core.graphics.alpha
 import chat.rocket.android.R
 import chat.rocket.android.R.id.*
 import chat.rocket.android.chatroom.adapter.*
