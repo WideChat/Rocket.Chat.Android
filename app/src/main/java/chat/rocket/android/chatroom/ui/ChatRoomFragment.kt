@@ -27,6 +27,7 @@ import chat.rocket.android.helper.EndlessRecyclerViewScrollListener
 import chat.rocket.android.helper.KeyboardHelper
 import chat.rocket.android.helper.MessageParser
 import chat.rocket.android.util.extensions.*
+import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.transaction.ui.TransactionActivity
 import chat.rocket.android.widget.emoji.*
 import chat.rocket.common.model.RoomType
@@ -174,7 +175,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 val recipient = resultData.getStringExtra("recipientId")
                 val amount = resultData.getDoubleExtra("amount", -1.0)
                 val txHash = resultData.getStringExtra("transaction_hash")
-                sendMessage("Sending $amount Ether to @$recipient\nhttp://etheriumpublic-2079999181.us-east-1.elb.amazonaws.com:8080/#/tx/$txHash")
+                sendMessage("Sending $amount Ether to @$recipient\n${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash")
             }
         }
     }

@@ -40,20 +40,18 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     /**
      * Get transaction history associated with the user's wallet
      */
-    fun loadTransactions() {
+    private fun loadTransactions(address: String) {
         launchUI(strategy) {
             try {
-                loadWalletAddress {addr ->
-                    // Query the DB for transaction hashes
-                    if (bcInterface.isValidAddress(addr)) {
-                        dbInterface.getTransactionList(addr, { hashList ->
-                            // Update transaction history
-                            if (hashList != null) {
-                                async {
-                                    view.updateTransactions(bcInterface.getTransactions(addr, hashList))
-                                }
+                // Query the DB for transaction hashes
+                if (bcInterface.isValidAddress(address)) {
+                    dbInterface.getTransactionList(address) { hashList ->
+                        // Update transaction history
+                        if (hashList != null) {
+                            async {
+                                view.updateTransactions(bcInterface.getTransactions(address, hashList))
                             }
-                        })
+                        }
                     }
                 }
             } catch (ex: Exception) {
@@ -75,6 +73,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                 loadWalletAddress {
                     if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
                         view.showWallet(true, bcInterface.getBalance(it).toDouble())
+                        loadTransactions(it)
                     } else {
                         view.showWallet(false)
                     }
@@ -173,7 +172,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
         launchUI(strategy) {
             try {
                 val roomList = getChatRoomsInteractor.getByName(serverUrl, name)
-                val directMessageRoomList = roomList.filter( {it.type.javaClass == RoomType.DIRECT_MESSAGE.javaClass} )
+                val directMessageRoomList = roomList.filter {it.type.javaClass == RoomType.DIRECT_MESSAGE.javaClass}
 
                 if (directMessageRoomList.isEmpty()) {
                     view.showRoomFailedToLoadMessage(name)

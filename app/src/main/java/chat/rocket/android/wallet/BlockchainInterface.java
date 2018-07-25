@@ -35,7 +35,9 @@ public class BlockchainInterface {
 
     private Web3j web3;
 
-    public static final String RPC_URL = "http://etheriumPublic-2079999181.us-east-1.elb.amazonaws.com:8545";
+    public static final String EXPLORER_URL = "http://etheriumPublic-2079999181.us-east-1.elb.amazonaws.com:8080/";
+    public static final String TX_ADDON = "#/tx/";
+    public static final String RPC_URL = "http://etheriumPublic-2079999181.us-east-1.elb.amazonaws.com:8545/";
 
     public BlockchainInterface() {
         // Connect to the private ethereum network via the json rpc url

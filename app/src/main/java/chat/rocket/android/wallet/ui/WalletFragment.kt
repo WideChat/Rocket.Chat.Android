@@ -50,14 +50,11 @@ class WalletFragment : Fragment(), WalletView {
         bcInterface = BlockchainInterface()
         setupToolbar()
 
-        // Check if user has a wallet
-        presenter.loadWallet(this.activity as MainActivity)
-
         // Set up transaction list (recycler view)
         setupRecyclerView(view)
 
-        // Load transaction history
-        presenter.loadTransactions()
+        // Check if user has a wallet
+        presenter.loadWallet(this.activity as MainActivity)
     }
 
     private fun setupToolbar() {
