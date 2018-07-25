@@ -177,8 +177,9 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 val recipient = resultData.getStringExtra("recipientId")
                 val amount = resultData.getDoubleExtra("amount", -1.0)
                 val txHash = resultData.getStringExtra("transaction_hash")
-                val reason = resultData.getStringExtra("reason")
-                sendMessage("Sending $amount Ether to @$recipient for reason: $reason \n[More Details](${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash)")
+                var reason = resultData.getStringExtra("reason")
+                if (reason.isEmpty()) reason = "No reason."
+                sendMessage("@$recipient, I'm sending you $amount token(s) for: $reason \n[More Details](${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash)")
             }
         }
     }
