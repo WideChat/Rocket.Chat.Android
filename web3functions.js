@@ -23,15 +23,14 @@ function getBalance(address, callback) {
 /**
  * Function to send tokens to a user's account
  */
-function sendTokens(sender, password, recipient, amount) {
-
-  if (!sender.startsWith("0x")) {
-    sender = "0x" + sender;
-  }
+function sendTokens(recipient, amount) {
 
   if (!recipient.startsWith("0x")) {
     recipient = "0x" + recipient;
   }
+
+  const sender = "0xcf3c2e6e0edc6417e73dcf49eb5f03cd6990651b";
+  const password = "password";
 
   // Get nonce
   var noncePromise = web3.eth.getTransactionCount(sender);
