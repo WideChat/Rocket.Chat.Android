@@ -71,7 +71,6 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
             showRecipientAddress(recipientAddress)
             if (recipientUserName.isEmpty()) {
                 reasonLayout.isVisible = false
-//                reason_editText.isVisible = false
             }
         }
 
