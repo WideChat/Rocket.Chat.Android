@@ -178,8 +178,11 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 val amount = resultData.getDoubleExtra("amount", -1.0)
                 val txHash = resultData.getStringExtra("transaction_hash")
                 var reason = resultData.getStringExtra("reason")
-                if (reason.isEmpty()) reason = "No reason."
-                sendMessage("@$recipient, I'm sending you $amount token(s) for: $reason \n[More Details](${BlockchainInterface.EXPLORER_URL}${BlockchainInterface.TX_ADDON}$txHash)")
+                if (reason.isEmpty()) reason = "No reason"
+                // Link to this transaction page on the explorer site
+                val txUrl = BlockchainInterface.EXPLORER_URL +
+                        BlockchainInterface.TX_ADDON + txHash
+                sendMessage(getString(R.string.sent_transaction_direct_message, recipient, amount.toString(), reason, txUrl))
             }
         }
     }

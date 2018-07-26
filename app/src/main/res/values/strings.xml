@@ -224,4 +224,5 @@
     <string name="action_confirm_create_wallet">Confirm new wallet creation?</string>
     <string name="wallet_creation_error">Sorry, there was an error creating your new wallet. Error: </string>
     <string name="wallet_creation_success">Congratulations! Your new wallet has been created.</string>
+    <string name="sent_transaction_direct_message">"@%1$s, I'm sending you %2$s token(s) for: %3$s.\n[More Details](%4$s)"</string>
 </resources>
