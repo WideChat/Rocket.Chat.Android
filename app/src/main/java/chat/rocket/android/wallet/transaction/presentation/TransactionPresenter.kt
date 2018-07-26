@@ -137,6 +137,9 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
                                 if (!jsonObject.isNull("customFields")) {
                                     jsonObject = jsonObject.getJSONObject("customFields")
                                     walletAddress = jsonObject.getString("walletAddress")
+                                    if (!bcInterface.isValidAddress(walletAddress)) {
+                                        walletAddress = ""
+                                    }
                                 }
                             }
                         } else {

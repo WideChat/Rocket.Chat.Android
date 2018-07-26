@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.support.v7.view.ActionMode
 import android.view.*
 import android.widget.Toast
+import androidx.core.view.isVisible
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.*
 import chat.rocket.android.wallet.transaction.presentation.TransactionView
@@ -19,6 +20,7 @@ import io.reactivex.rxkotlin.Observables
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_transaction.*
 import kotlinx.coroutines.experimental.async
+import timber.log.Timber
 import java.math.BigDecimal
 
 
@@ -54,19 +56,23 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
         recipientAddress = activity?.intent?.getStringExtra("recipient_address") ?: ""
         if (recipientAddress == "") {
             if (recipientUserName != "") {
-                presenter.loadWalletAddress(recipientUserName, {
+                presenter.loadWalletAddress(recipientUserName) {
                     recipientAddress = it
                     if (recipientAddress == "") {
                         showNoAddressError()
                     } else {
                         showRecipientAddress(recipientAddress)
                     }
-                })
+                }
             } else {
                 showNoAddressError()
             }
         } else {
             showRecipientAddress(recipientAddress)
+            if (recipientUserName.isEmpty()) {
+                reasonLayout.isVisible = false
+//                reason_editText.isVisible = false
+            }
         }
 
         // get sender's address and balance
@@ -147,7 +153,8 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
                 wallet_password_editText.asObservable()).subscribe {
             val amountText = amount_tokens.textContent
 
-            if (wallet_password_editText.textContent.isNotEmpty() &&
+            if (recipientAddress.isNotEmpty() &&
+                    wallet_password_editText.textContent.isNotEmpty() &&
                     (amountText.isNotEmpty() && amountText != "." && amountText.toDouble() > 0.0))
                 startActionMode()
             else
