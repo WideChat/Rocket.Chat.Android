@@ -220,4 +220,26 @@ class WalletFragment : Fragment(), WalletView {
             showBalance(bal)
     }
 
+    override fun showLoading() {
+        enableUserInput(false)
+        ui {
+            view_loading.setVisible(true)
+        }
+    }
+
+    override fun hideLoading() {
+        ui {
+            if (view_loading != null) {
+                view_loading.setVisible(false)
+            }
+        }
+        enableUserInput(true)
+    }
+
+    private fun enableUserInput(value: Boolean) {
+        ui {
+            button_create_wallet.isEnabled = value
+            button_sendToken.isEnabled = value
+        }
+    }
 }

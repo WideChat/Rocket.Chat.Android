@@ -52,4 +52,8 @@ interface WalletView {
      */
     fun updateTransactions(txs: List<TransactionViewModel>)
 
+    fun showLoading()
+
+    fun hideLoading()
+
 }

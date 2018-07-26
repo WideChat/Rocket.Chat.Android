@@ -69,6 +69,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
      */
     fun loadWallet(c: Context) {
         launchUI(strategy) {
+            view.showLoading()
             try {
                 loadWalletAddress {
                     if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
@@ -77,8 +78,11 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                     } else {
                         view.showWallet(false)
                     }
+                    view.hideLoading()
                 }
             } catch (ex: Exception) {
+                view.showWallet(false)
+                view.hideLoading()
                 Timber.e(ex)
             }
         }
