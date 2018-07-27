@@ -20,7 +20,6 @@ import io.reactivex.rxkotlin.Observables
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_transaction.*
 import kotlinx.coroutines.experimental.async
-import timber.log.Timber
 import java.math.BigDecimal
 
 
@@ -31,7 +30,6 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     private var recipientAddress: String = ""
     private var senderAddress: String = ""
     private val disposables = CompositeDisposable()
-    private var ableToSend: Boolean = true
 
 
     companion object {

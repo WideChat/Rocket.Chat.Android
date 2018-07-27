@@ -1,8 +1,14 @@
 # Wallet
 
-Our goal is to integrate a cryptocurrency wallet into the Rocket.Chat Android app. We have added basic integration with Ethereum networks into the app, allowing the user to see their Wallet, Create a Wallet, and send a Transaction.
+Our goal is to integrate a cryptocurrency wallet into the Rocket.Chat Android app. We have added basic integration with Ethereum networks into the app, allowing the user to see their Wallet, send a Transaction, and Create a Wallet.
 
 Note: This code has mainly been tested on a private Ethereum test network, and not on the main Ethereum network or more common test networks.
+
+<div align="center">
+  <img width="30%" src="https://preview.ibb.co/hiQiM8/Screenshot_1532719878.png">
+  <img width="30%" src="https://preview.ibb.co/kueeTo/Screenshot_1532720121.png">
+  <img width="30%" src="https://preview.ibb.co/bXJZuT/Screenshot_1532720468.png">
+</div>
 
 ### Wallet Screen
 

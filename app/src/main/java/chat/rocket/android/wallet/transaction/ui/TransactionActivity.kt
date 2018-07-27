@@ -7,12 +7,14 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import chat.rocket.android.R
 import chat.rocket.android.util.extensions.addFragment
+import chat.rocket.android.util.extensions.textContent
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import javax.inject.Inject
-import kotlinx.android.synthetic.main.app_bar_transaction.*
+import kotlinx.android.synthetic.main.app_bar_transaction.toolbar
+import kotlinx.android.synthetic.main.app_bar_transaction.text_transaction
 
 class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
     @Inject lateinit var fragmentDispatchingAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -61,5 +63,6 @@ class TransactionActivity : AppCompatActivity(), HasSupportFragmentInjector {
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
+        text_transaction.textContent = resources.getString(R.string.title_transaction)
     }
 }
