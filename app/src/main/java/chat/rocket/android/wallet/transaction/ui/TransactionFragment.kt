@@ -31,6 +31,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     private var recipientAddress: String = ""
     private var senderAddress: String = ""
     private val disposables = CompositeDisposable()
+    private var ableToSend: Boolean = true
 
 
     companion object {
@@ -79,7 +80,6 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     }
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        presenter.loadUserTokens()
 
         disposables.add(listenToChanges())
     }
@@ -92,6 +92,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     override fun showUserWallet(address: String, balance: BigDecimal) {
         senderAddress = address
         current_balance_textView.textContent = "Your Balance: " + balance.toString()
+        enableUserInput(true)
     }
 
     override fun showRecipientAddress(address: String) {
@@ -99,12 +100,10 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     }
 
     override fun showNoAddressError() {
-        enableUserInput(false)
         showToast("Error: No recipient wallet address found!")
     }
 
     override fun showNoWalletError() {
-        enableUserInput(false)
         showToast("Error: You don't have a wallet!")
     }
 
@@ -188,13 +187,12 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
                 view_loading.setVisible(false)
             }
         }
-        enableUserInput(true)
     }
 
     private fun enableUserInput(value: Boolean) {
         ui {
-            amount_tokens.isEnabled = value
-            reason_editText.isEnabled = value
+            amountLayout.isEnabled = value
+            reasonLayout.isEnabled = value
             wallet_password_editText.isEnabled = value
         }
     }

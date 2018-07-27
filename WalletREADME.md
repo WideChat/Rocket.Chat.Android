@@ -35,7 +35,7 @@ Currently, the user's wallet is stored half in his/her Rocket.Chat profile, and 
 When a user creates a wallet, the encrypted private key file is stored in the app's internal storage on the user's device, and the app will look for this file each time it attempts to load the Wallet screen or send a transaction.
 
 The public key of the Ethereum account is stored alongside the user's Rocket.Chat profile in the __customFields__ of the user's info in the field __walletAddress__. To have this storage work on your server add something like the following in `Administration > Accounts > Registration > Custom Fields`:
-```
+```json
 {
   "walletAddress": {
     "type": "text",
