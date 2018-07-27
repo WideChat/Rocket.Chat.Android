@@ -15,7 +15,6 @@ import android.widget.Toast
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.*
-import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.create.ui.CreateWalletActivity
 import chat.rocket.android.wallet.presentation.WalletPresenter
 import chat.rocket.android.wallet.presentation.WalletView
@@ -30,7 +29,6 @@ import javax.inject.Inject
 class WalletFragment : Fragment(), WalletView {
     @Inject lateinit var presenter: WalletPresenter
 
-    private var bcInterface: BlockchainInterface? = null
     private val NEW_WALLET_REQUEST = 1
     private val RESULT_OK = -1
 
@@ -46,8 +44,6 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bcInterface = BlockchainInterface()
         setupToolbar()
 
         // Set up transaction list (recycler view)

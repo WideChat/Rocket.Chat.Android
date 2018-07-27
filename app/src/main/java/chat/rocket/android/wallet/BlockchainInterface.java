@@ -79,23 +79,10 @@ public class BlockchainInterface {
     }
 
     /**
-     * Get the time the transaction was mined by getting the block it is in
-     * @param tx
-     * @return timestamp as BigInteger value
-     */
-    private BigInteger getTimeStamp(Transaction tx) {
-        try {
-            return web3.ethGetBlockByHash(tx.getBlockHash(), false).sendAsync().get().getBlock().getTimestamp();
-        } catch (Exception ex) {
-            return BigInteger.ZERO;
-        }
-    }
-
-    /**
      * Check if a given wallet address has a corresponding wallet file stored on the device
      */
-    public Boolean walletFileExists(String address, Context c) {
-        return getFilesByAddress(address, c).length > 0;
+    public Boolean walletFileExists(Context c, String address) {
+        return getFilesByAddress(c, address).length > 0;
     }
 
     /**
@@ -124,7 +111,7 @@ public class BlockchainInterface {
      * @param c the app's current Context/Activity
      * @return a String array of the wallet address and the mnemonic
      */
-    public String[] createBip39Wallet(String password, Context c) {
+    public String[] createBip39Wallet(Context c, String password) {
         String address = "";
         String mnemonic = "";
         try {
@@ -158,10 +145,10 @@ public class BlockchainInterface {
      * @throws Exception for errors such as wrong password, no private file found,
      *                      or other errors in the transaction sending process
      */
-    public String sendTransaction(final String password, String sender, String recipient, Double amount, Context c)
+    public String sendTransaction(Context c, final String password, String sender, String recipient, Double amount)
             throws Exception {
         // Find the sender's private key file
-        File[] files = getFilesByAddress(sender, c);
+        File[] files = getFilesByAddress(c, sender);
         if (files.length == 0)
             throw new FileNotFoundException("Private key file not found");
 
@@ -206,13 +193,26 @@ public class BlockchainInterface {
     }
 
     /**
+     * Get the time the transaction was mined by getting the block it is in
+     * @param tx
+     * @return timestamp as BigInteger value
+     */
+    private BigInteger getTimeStamp(Transaction tx) {
+        try {
+            return web3.ethGetBlockByHash(tx.getBlockHash(), false).sendAsync().get().getBlock().getTimestamp();
+        } catch (Exception ex) {
+            return BigInteger.ZERO;
+        }
+    }
+
+    /**
      * Find all files in the app's internal storage directory that have the given
      *  wallet address in the file name
      * @param address Wallet address to search for in the file names
      * @param c Context of the app's current activity
      * @return array of Files
      */
-    private File[] getFilesByAddress(String address, Context c) {
+    private File[] getFilesByAddress(Context c, String address) {
         final String addr = removeAddressPrefix(address);
         File[] fileList = c.getFilesDir().listFiles(new FileFilter(){
             @Override

@@ -72,7 +72,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
             view.showLoading()
             try {
                 loadWalletAddress {
-                    if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
+                    if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(c, it)) {
                         view.showWallet(true, bcInterface.getBalance(it).toDouble())
                         loadTransactions(it)
                     } else {
