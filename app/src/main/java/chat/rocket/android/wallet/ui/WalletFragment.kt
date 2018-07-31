@@ -130,10 +130,7 @@ class WalletFragment : Fragment(), WalletView {
     override fun setupSendToDialog(names: List<String>) {
         button_sendToken.setOnClickListener {
             val dialogLayout = layoutInflater.inflate(R.layout.wallet_send_to_dialog, null)
-            if (presenter.managedMode) {
-                hideComplexSendToOptions(dialogLayout)
-            }
-            val dialogTitle = if (presenter.managedMode) "Search Users" else "Find Recipient"
+            presenter.loadSendToDialogUI(dialogLayout)
             val adapter: ArrayAdapter<String> = ArrayAdapter(activity, android.R.layout.simple_dropdown_item_1line, names)
             val textView: AutoCompleteTextView = dialogLayout.findViewById(R.id.search_users_autoCompleteTextView)
             textView.setAdapter(adapter)
@@ -168,7 +165,7 @@ class WalletFragment : Fragment(), WalletView {
             }
 
             val dialogSendTo = AlertDialog.Builder(context)
-                    .setTitle(dialogTitle)
+                    .setTitle(presenter.getSendToDialogTitle())
                     .setView(dialogLayout)
                     .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
                     .setPositiveButton("Send") { dialog, _ ->
@@ -240,6 +237,14 @@ class WalletFragment : Fragment(), WalletView {
         enableUserInput(true)
     }
 
+    override fun hideComplexSendToOptions(view: View) {
+        view.search_users_radioButton.isVisible = false
+        view.qr_radioButton.isVisible = false
+        view.qr_button.isVisible = false
+        view.recipient_address_radioButton.isVisible = false
+        view.recipient_address_editText.isVisible = false
+    }
+
     private fun enableUserInput(value: Boolean) {
         ui {
             button_create_wallet.isEnabled = value
@@ -247,11 +252,4 @@ class WalletFragment : Fragment(), WalletView {
         }
     }
 
-    private fun hideComplexSendToOptions(view: View) {
-        view.search_users_radioButton.isVisible = false
-        view.qr_radioButton.isVisible = false
-        view.qr_button.isVisible = false
-        view.recipient_address_radioButton.isVisible = false
-        view.recipient_address_editText.isVisible = false
-    }
 }

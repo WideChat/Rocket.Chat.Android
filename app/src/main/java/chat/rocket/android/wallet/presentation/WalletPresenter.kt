@@ -1,6 +1,7 @@
 package chat.rocket.android.wallet.presentation
 
 import android.content.Context
+import android.view.View
 import android.widget.Toast
 import chat.rocket.android.R
 import chat.rocket.android.core.lifecycle.CancelStrategy
@@ -259,5 +260,15 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                 Timber.e(ex)
             }
         }
+    }
+
+    fun loadSendToDialogUI(dialogView: View) {
+        if (managedMode) {
+            view.hideComplexSendToOptions(dialogView)
+        }
+    }
+
+    fun getSendToDialogTitle(): String {
+        return if (managedMode) "Search Users" else "Find Recipient"
     }
 }

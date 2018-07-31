@@ -1,5 +1,6 @@
 package chat.rocket.android.wallet.presentation
 
+import android.view.View
 import chat.rocket.android.wallet.ui.TransactionViewModel
 
 interface WalletView {
@@ -55,5 +56,7 @@ interface WalletView {
     fun showLoading()
 
     fun hideLoading()
+
+    fun hideComplexSendToOptions(view: View)
 
 }
