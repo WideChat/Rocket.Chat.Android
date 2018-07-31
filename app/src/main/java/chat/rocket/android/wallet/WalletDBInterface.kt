@@ -6,17 +6,29 @@ import com.amazonaws.mobile.auth.core.internal.util.ThreadUtils.runOnUiThread
 import com.amazonaws.mobile.client.AWSMobileClient
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient
-import org.web3j.protocol.core.methods.response.EthTransaction
 import timber.log.Timber
 import kotlin.concurrent.thread
 
 class WalletDBInterface {
     private var dynamoDBMapper: DynamoDBMapper? = null
 
-    fun createWallet(userId: String?, callback: () -> Unit){
+    fun createWallet(userId: String?,
+                     balance: Double,
+                     mnemonic: String,
+                     password: String,
+                     privateKey: String,
+                     publicKey: String,
+                     walletAddress: String,
+                     callback: () -> Unit){ //TODO is the callback needed?
+
         val walletItem = WalletsDO()
         walletItem.userId = userId
-        walletItem.balance = 200.0
+        walletItem.balance = balance
+        walletItem.mnemonic = mnemonic
+        walletItem.password = password
+        walletItem.privateKey = privateKey
+        walletItem.publicKey = publicKey
+        walletItem.walletAddress = walletAddress
 
         thread(start = true) {
             dynamoDBMapper?.save(walletItem)

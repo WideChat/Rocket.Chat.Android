@@ -1,6 +1,10 @@
 package chat.rocket.android.wallet.presentation
 
 import android.content.Context
+import android.widget.Toast
+import chat.rocket.android.R
+import chat.rocket.android.R.id.mnemonic
+import chat.rocket.android.R.menu.password
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.main.presentation.MainNavigator
@@ -18,6 +22,7 @@ import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
 import okhttp3.*
 import org.json.JSONObject
+import org.spongycastle.asn1.x509.ObjectDigestInfo.publicKey
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
@@ -27,6 +32,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val navigator: MainNavigator,
                                            private val localRepository: LocalRepository,
                                            private val getChatRoomsInteractor: GetChatRoomsInteractor,
+                                           private val getSettingsInteractor: GetSettingsInteractor,
                                            private val tokenRepository: TokenRepository,
                                            serverInteractor: GetCurrentServerInteractor,
                                            factory: RocketChatClientFactory) {
@@ -37,6 +43,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
 
+    private lateinit var settings: PublicSettings
     /**
      * Get transaction history associated with the user's wallet
      */
@@ -61,30 +68,76 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     }
 
     /**
-     * Check if the user has a wallet
+     * Unmanaged mode: Check if the user has a wallet
      *  both tied to their rocket.chat account and stored on their device
      *  and display either their wallet or the create wallet button.
-     * Only display the wallet if it is stored with the rocket.chat account and on
+     *  Only display the wallet if it is stored with the rocket.chat account and on
      *  the user's device. TODO add more options for checking for wallets (e.g. what if there's a private key file on the device, but no address in the rocket.chat account)
+     *
+     * Managed mode: Check if the user has a wallet in the dynamoDB database.
+     *  If not, a wallet is auto-created and wallet information is added to the database.
      */
     fun loadWallet(c: Context) {
+
+        // TODO should this go somewhere else?
+        settings = getSettingsInteractor.get(serverUrl)
+        //val managedMode = settings.isWalletManaged()
+        val managedMode = true // TODO
+
         launchUI(strategy) {
             view.showLoading()
-            try {
-                loadWalletAddress {
-                    if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
-                        view.showWallet(true, bcInterface.getBalance(it).toDouble())
-                        loadTransactions(it)
-                    } else {
-                        view.showWallet(false)
-                    }
-                    view.hideLoading()
+
+            if ( managedMode ){    // Managed wallet
+
+                try{
+                    dbInterface.findWallet(getUserName(), {wallet ->    // Check if user has a wallet (in the database)
+                        if (wallet != null) {
+                            view.showWallet(true, wallet.balance)
+                        }
+                        else { // Create a wallet for the user
+
+                            //TODO creating a wallet takes some time, don't show button, but should there be an intermediate/loading screen?
+
+                            val walletInfo = bcInterface.createBip39Wallet(managedMode, "", c)
+
+                            //returns String[]{address, mnemonic, privateKey.toString(), publicKey.toString() , password}
+                            val userId = getUserName()
+                            val balance = 0.0
+                            val mnemonic = walletInfo[1]
+                            val password = walletInfo[4]
+                            val privateKey = walletInfo[2]
+                            val publicKey = walletInfo[3]
+                            val walletAddress = walletInfo[0];
+
+                            dbInterface.createWallet(userId, balance, mnemonic, password, privateKey, publicKey, walletAddress,
+                                    { Toast.makeText(c, R.string.wallet_creation_success, Toast.LENGTH_LONG).show()})
+
+                            dbInterface.getBalance(userId, {bal -> view.showWallet(true, bal)})
+                        }
+                    })
+
+                } catch (ex: Exception){
+                    Timber.e(ex)
                 }
-            } catch (ex: Exception) {
-                view.showWallet(false)
-                view.hideLoading()
-                Timber.e(ex)
             }
+            else{   // Un-managed wallet
+
+                try {
+                    loadWalletAddress {
+                        if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
+                            view.showWallet(true, bcInterface.getBalance(it).toDouble())
+                            loadTransactions(it)
+                        } else {
+                            view.showWallet(false)
+                        }
+                        view.hideLoading()
+                    }
+                } catch (ex: Exception) {
+                    view.showWallet(false)
+                    view.hideLoading()
+                    Timber.e(ex)
+                }
+            }//end of else
         }
     }
 

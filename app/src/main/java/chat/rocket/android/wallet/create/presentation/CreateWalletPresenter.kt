@@ -33,7 +33,7 @@ class CreateWalletPresenter @Inject constructor (private val view: CreateWalletV
     fun createNewWallet(walletName: String, password: String){
         launchUI(strategy) {
             try {
-                val response = bcInterface.createBip39Wallet(password, view.returnContext())
+                val response = bcInterface.createBip39Wallet(false, password, view.returnContext())
                 val address = response[0]
                 val mnemonic =  response[1]
                 updateWalletAddress(address, mnemonic)

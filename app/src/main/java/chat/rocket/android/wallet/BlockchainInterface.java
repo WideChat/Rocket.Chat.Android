@@ -4,6 +4,7 @@ import android.content.Context;
 
 import org.web3j.crypto.Bip39Wallet;
 import org.web3j.crypto.Credentials;
+import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.RawTransaction;
 import org.web3j.crypto.TransactionEncoder;
 import org.web3j.crypto.WalletUtils;
@@ -22,6 +23,7 @@ import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +40,9 @@ public class BlockchainInterface {
     public static final String EXPLORER_URL = "http://etheriumPublic-2079999181.us-east-1.elb.amazonaws.com:8080/";
     public static final String TX_ADDON = "#/tx/";
     public static final String RPC_URL = "http://etheriumPublic-2079999181.us-east-1.elb.amazonaws.com:8545/";
+
+    private static final String chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    private static SecureRandom rnd = new SecureRandom();
 
     public BlockchainInterface() {
         // Connect to the private ethereum network via the json rpc url
@@ -119,30 +124,96 @@ public class BlockchainInterface {
     }
 
     /**
-     * Create a new account on the blockchain and save private key file to internal storage
-     * @param password user's password to make the account/wallet
-     * @param c the app's current Context/Activity
-     * @return a String array of the wallet address and the mnemonic
+     * Create a randomly generated password for the user's wallet, since we aren't
+     * asking users to create their own password in the managed version.
+     * @param len required length of the password
+     * @return a randomly generated String that will be used as a wallet password
      */
-    public String[] createBip39Wallet(String password, Context c) {
+    private String randomString( int len ){
+        StringBuilder sb = new StringBuilder( len );
+        for( int i = 0; i < len; i++ )
+            sb.append( chars.charAt( rnd.nextInt(chars.length()) ) );
+        return sb.toString();
+    }
+
+    /**
+     * Managed: Create a new wallet on the blockchain and save wallet information
+     * to database
+     *
+     * Un-managed: Create a new account on the blockchain and save private key file
+     * to internal storage
+     *
+     * @param managedMode Boolean indicating what mode user is using the app in
+     * @param c the app's current Context/Activity
+     * @return a String array of wallet information;
+     *  for managed, returns wallet address, mnemonic, private key, and password
+     *  for un-managed, just returns the wallet address and the mnemonic
+     */
+    public String[] createBip39Wallet(Boolean managedMode, String password, Context c) {
+
         String address = "";
         String mnemonic = "";
-        try {
-            Bip39Wallet wallet = OwnWalletUtils.generateBip39Wallet(password, c.getFilesDir());
-            address = getAddressFromFileName(wallet.getFilename());
-            mnemonic = wallet.getMnemonic();
-        } catch (Exception e) {
-            Timber.d("Failed creating Bip39Wallet! Exception: %s", e.getMessage());
-            // printStackTrace method
-            // prints line numbers + call stack
-            e.printStackTrace();
+        BigInteger privateKey = null;
+        BigInteger publicKey = null;
 
-            // Prints what exception has been thrown
-            System.out.println(e);
-        } finally {
+        if (managedMode){
 
-            return new String[]{address, mnemonic};
+            try{
+                // TODO This may not be the best way to create a secure randomly generated password
+                String randomPassword = randomString(12);
+
+                Bip39Wallet wallet = OwnWalletUtils.generateBip39Wallet(randomPassword, c.getFilesDir());
+                address = getAddressFromFileName(wallet.getFilename());
+                mnemonic = wallet.getMnemonic();
+
+                // TODO is there a better way to get the private key?
+                // Find the sender's private key file
+                File[] files = getFilesByAddress(address, c);
+                if (files.length == 0)
+                    throw new FileNotFoundException("Private key file not found");
+
+                // Load sender's credentials
+                Credentials credentials = WalletUtils.loadCredentials(randomPassword, files[0]);
+
+                // Get private key
+                ECKeyPair pair = credentials.getEcKeyPair();
+                privateKey = pair.getPrivateKey();
+                publicKey = pair.getPublicKey();
+
+            } catch (Exception e){
+                Timber.d("Failed creating managed Bip39Wallet! Exception: %s", e.getMessage());
+                // printStackTrace method
+                // prints line numbers + call stack
+                e.printStackTrace();
+
+                // Prints what exception has been thrown
+                System.out.println(e);
+            }
+            finally {
+                return new String[]{address, mnemonic, privateKey.toString(), publicKey.toString() , password};
+            }
         }
+        else {  // Un-managed wallet creation
+
+            try {
+                Bip39Wallet wallet = OwnWalletUtils.generateBip39Wallet(password, c.getFilesDir());
+                address = getAddressFromFileName(wallet.getFilename());
+                mnemonic = wallet.getMnemonic();
+            } catch (Exception e) {
+                Timber.d("Failed creating Bip39Wallet! Exception: %s", e.getMessage());
+                // printStackTrace method
+                // prints line numbers + call stack
+                e.printStackTrace();
+
+                // Prints what exception has been thrown
+                System.out.println(e);
+            } finally {
+
+                return new String[]{address, mnemonic};
+            }
+
+        }
+
     }
 
     /**
