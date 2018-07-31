@@ -93,6 +93,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                     dbInterface.findWallet(getUserName(), {wallet ->    // Check if user has a wallet (in the database)
                         if (wallet != null) {
                             view.showWallet(true, wallet.balance)
+                            view.hideLoading()
                         }
                         else { // Create a wallet for the user
 
@@ -113,11 +114,13 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                     { Toast.makeText(c, R.string.wallet_creation_success, Toast.LENGTH_LONG).show()})
 
                             dbInterface.getBalance(userId, {bal -> view.showWallet(true, bal)})
+                            view.hideLoading()
                         }
                     })
 
                 } catch (ex: Exception){
                     Timber.e(ex)
+                    view.hideLoading()
                 }
             }
             else{   // Un-managed wallet
