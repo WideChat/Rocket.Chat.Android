@@ -34,7 +34,6 @@ class WalletFragment : Fragment(), WalletView {
     private var bcInterface: BlockchainInterface? = null
     private val NEW_WALLET_REQUEST = 1
     private val RESULT_OK = -1
-    private val managedMode = true
 
     companion object {
         fun newInstance() = WalletFragment()
@@ -131,10 +130,10 @@ class WalletFragment : Fragment(), WalletView {
     override fun setupSendToDialog(names: List<String>) {
         button_sendToken.setOnClickListener {
             val dialogLayout = layoutInflater.inflate(R.layout.wallet_send_to_dialog, null)
-            if (managedMode) {
+            if (presenter.managedMode) {
                 hideComplexSendToOptions(dialogLayout)
             }
-            val dialogTitle = if (managedMode) "Search Users" else "Find Recipient"
+            val dialogTitle = if (presenter.managedMode) "Search Users" else "Find Recipient"
             val adapter: ArrayAdapter<String> = ArrayAdapter(activity, android.R.layout.simple_dropdown_item_1line, names)
             val textView: AutoCompleteTextView = dialogLayout.findViewById(R.id.search_users_autoCompleteTextView)
             textView.setAdapter(adapter)

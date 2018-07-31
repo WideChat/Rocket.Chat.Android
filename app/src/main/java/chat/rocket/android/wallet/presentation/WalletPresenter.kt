@@ -3,8 +3,6 @@ package chat.rocket.android.wallet.presentation
 import android.content.Context
 import android.widget.Toast
 import chat.rocket.android.R
-import chat.rocket.android.R.id.mnemonic
-import chat.rocket.android.R.menu.password
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.main.presentation.MainNavigator
@@ -22,7 +20,6 @@ import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
 import okhttp3.*
 import org.json.JSONObject
-import org.spongycastle.asn1.x509.ObjectDigestInfo.publicKey
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
@@ -32,8 +29,8 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val navigator: MainNavigator,
                                            private val localRepository: LocalRepository,
                                            private val getChatRoomsInteractor: GetChatRoomsInteractor,
-                                           private val getSettingsInteractor: GetSettingsInteractor,
                                            private val tokenRepository: TokenRepository,
+                                           settingsRepository: SettingsRepository,
                                            serverInteractor: GetCurrentServerInteractor,
                                            factory: RocketChatClientFactory) {
 
@@ -42,9 +39,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
-    private val managedMode = true // TODO
+    private val settings = settingsRepository.get(serverUrl)
+    public val managedMode = settings.isWalletManaged()
 
-    private lateinit var settings: PublicSettings
     /**
      * Get transaction history associated with the user's wallet
      */
@@ -79,10 +76,6 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
      *  If not, a wallet is auto-created and wallet information is added to the database.
      */
     fun loadWallet(c: Context) {
-
-        // TODO should this go somewhere else?
-        settings = getSettingsInteractor.get(serverUrl)
-        //val managedMode = settings.isWalletManaged()
 
         launchUI(strategy) {
             view.showLoading()
