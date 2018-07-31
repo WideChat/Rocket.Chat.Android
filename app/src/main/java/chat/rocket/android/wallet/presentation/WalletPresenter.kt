@@ -42,6 +42,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
+    private val managedMode = true // TODO
 
     private lateinit var settings: PublicSettings
     /**
@@ -82,7 +83,6 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
         // TODO should this go somewhere else?
         settings = getSettingsInteractor.get(serverUrl)
         //val managedMode = settings.isWalletManaged()
-        val managedMode = true // TODO
 
         launchUI(strategy) {
             view.showLoading()
@@ -145,7 +145,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     }
 
     /**
-     * Retrieve the walletAddress field in a user's customFields object
+     * Unmanaged mode: Retrieve the walletAddress field in a user's customFields object
+     *
+     * Managed mode: Retrieve the user's walletAddress stored in the database
      *
      * If the user does not have a wallet address stored, then an empty string
      *  is given to the callback
@@ -158,49 +160,63 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
      */
     fun loadWalletAddress(username: String? = null, callback: (String) -> Unit) {
         launchUI(strategy) {
-            try {
-                val me = retryIO("me") { client.me() }
-                val httpUrl = restUrl?.newBuilder()
-                        ?.addPathSegment("api")
-                        ?.addPathSegment("v1")
-                        ?.addPathSegment("users.info")
-                        ?.addQueryParameter("username", username ?: me.username)
-                        ?.build()
-
-                val token: Token? = tokenRepository.get(serverUrl)
-                val builder = Request.Builder().url(httpUrl)
-                token?.let {
-                    builder.addHeader("X-Auth-Token", token.authToken)
-                            .addHeader("X-User-Id", token.userId)
-                }
-
-                val request = builder.get().build()
-                val httpClient = OkHttpClient()
-                httpClient.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) { Timber.d("ERROR: request call failed!")}
-                    override fun onResponse(call: Call, response: Response) {
-                        var jsonObject = JSONObject(response.body()?.string())
-                        var walletAddress = ""
-                        if (jsonObject.isNull("error")) {
-
-                            if (!jsonObject.isNull("user")) {
-                                jsonObject = jsonObject.getJSONObject("user")
-
-                                if (!jsonObject.isNull("customFields")) {
-                                    jsonObject = jsonObject.getJSONObject("customFields")
-                                    walletAddress = jsonObject.getString("walletAddress")
-                                }
-                            }
-                        } else {
-                            Timber.d("ERROR: %s", jsonObject.getString("error"))
-                        }
-                        launchUI(strategy) {
-                            callback(walletAddress)
-                        }
+            if (managedMode) {
+                val user = username ?: getUserName()
+                dbInterface.findWallet(user) { wallet ->
+                    var walletAddress = wallet?.walletAddress ?: ""
+                    if (!bcInterface.isValidAddress(walletAddress)) {
+                        walletAddress = ""
                     }
-                })
-            } catch (ex: Exception) {
-                Timber.e(ex)
+                    callback(walletAddress)
+                }
+            } else { // Unmanaged wallet mode
+                try {
+                    val me = retryIO("me") { client.me() }
+                    val httpUrl = restUrl?.newBuilder()
+                            ?.addPathSegment("api")
+                            ?.addPathSegment("v1")
+                            ?.addPathSegment("users.info")
+                            ?.addQueryParameter("username", username ?: me.username)
+                            ?.build()
+
+                    val token: Token? = tokenRepository.get(serverUrl)
+                    val builder = Request.Builder().url(httpUrl)
+                    token?.let {
+                        builder.addHeader("X-Auth-Token", token.authToken)
+                                .addHeader("X-User-Id", token.userId)
+                    }
+
+                    val request = builder.get().build()
+                    val httpClient = OkHttpClient()
+                    httpClient.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            Timber.d("ERROR: request call failed!")
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            var jsonObject = JSONObject(response.body()?.string())
+                            var walletAddress = ""
+                            if (jsonObject.isNull("error")) {
+
+                                if (!jsonObject.isNull("user")) {
+                                    jsonObject = jsonObject.getJSONObject("user")
+
+                                    if (!jsonObject.isNull("customFields")) {
+                                        jsonObject = jsonObject.getJSONObject("customFields")
+                                        walletAddress = jsonObject.getString("walletAddress")
+                                    }
+                                }
+                            } else {
+                                Timber.d("ERROR: %s", jsonObject.getString("error"))
+                            }
+                            launchUI(strategy) {
+                                callback(walletAddress)
+                            }
+                        }
+                    })
+                } catch (ex: Exception) {
+                    Timber.e(ex)
+                }
             }
         }
     }
