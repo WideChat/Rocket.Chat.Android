@@ -47,4 +47,6 @@ interface TransactionView {
     fun showLoading()
 
     fun hideLoading()
+
+    fun hideUnmanagedUI()
 }

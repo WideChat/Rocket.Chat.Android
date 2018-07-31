@@ -40,7 +40,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
     private val settings = settingsRepository.get(serverUrl)
-    public val managedMode = settings.isWalletManaged()
+    val managedMode = settings.isWalletManaged()
 
     /**
      * Get transaction history associated with the user's wallet
@@ -197,6 +197,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                     if (!jsonObject.isNull("customFields")) {
                                         jsonObject = jsonObject.getJSONObject("customFields")
                                         walletAddress = jsonObject.getString("walletAddress")
+                                        if (!bcInterface.isValidAddress(walletAddress)) {
+                                            walletAddress = ""
+                                        }
                                     }
                                 }
                             } else {

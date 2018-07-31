@@ -2,8 +2,11 @@ package chat.rocket.android.wallet.transaction.presentation
 
 import android.content.Context
 import chat.rocket.android.core.lifecycle.CancelStrategy
+import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
+import chat.rocket.android.server.domain.SettingsRepository
 import chat.rocket.android.server.domain.TokenRepository
+import chat.rocket.android.server.domain.isWalletManaged
 import chat.rocket.android.server.infraestructure.RocketChatClientFactory
 import chat.rocket.android.util.extensions.launchUI
 import chat.rocket.android.util.retryIO
@@ -24,7 +27,9 @@ import javax.inject.Inject
 class TransactionPresenter @Inject constructor (private val view: TransactionView,
                                                 private val strategy: CancelStrategy,
                                                 private val tokenRepository: TokenRepository,
+                                                private val localRepository: LocalRepository,
                                                 serverInteractor: GetCurrentServerInteractor,
+                                                settingsRepository: SettingsRepository,
                                                 factory: RocketChatClientFactory) {
 
     private val serverUrl = serverInteractor.get()!!
@@ -32,6 +37,8 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
+    private val settings = settingsRepository.get(serverUrl)
+    private val managedMode = settings.isWalletManaged()
 
     /**
      * Send a transaction on the blockchain
@@ -62,8 +69,7 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
     }
 
     /**
-     * Fetch the current user's wallet balance, using the wallet address stored
-     *  in their CustomFields
+     * Fetch the current user's wallet balance
      */
     fun loadUserTokens() {
         launchUI(strategy) {
@@ -86,7 +92,9 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
     }
 
     /**
-     * Retrieve the walletAddress field in a user's customFields object
+     * Managed mode: Retrieve the walletAddress field in a user's customFields object
+     *
+     * Unmanaged mode: Retrieve the user's walletAddress from the database
      *
      * If the user does not have a wallet address stored, then an empty string
      *  is given to the callback
@@ -100,62 +108,84 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
     fun loadWalletAddress(username: String? = null, callback: (String) -> Unit) {
         launchUI(strategy) {
             view.showLoading()
-            try {
-                val me = retryIO("me") { client.me() }
-                val httpUrl = restUrl?.newBuilder()
-                        ?.addPathSegment("api")
-                        ?.addPathSegment("v1")
-                        ?.addPathSegment("users.info")
-                        ?.addQueryParameter("username", username ?: me.username)
-                        ?.build()
-
-                val token: Token? = tokenRepository.get(serverUrl)
-                val builder = Request.Builder().url(httpUrl)
-                token?.let {
-                    builder.addHeader("X-Auth-Token", token.authToken)
-                            .addHeader("X-User-Id", token.userId)
-                }
-
-                val request = builder.get().build()
-                val httpClient = OkHttpClient()
-                httpClient.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        Timber.d("ERROR: request call failed!")
-                        launchUI(strategy) {
-                            view.hideLoading()
-                            callback("")
-                        }
+            if (managedMode) {
+                val user = username ?: getUserName()
+                dbInterface.findWallet(user) { wallet ->
+                    var walletAddress = wallet?.walletAddress ?: ""
+                    if (!bcInterface.isValidAddress(walletAddress)) {
+                        walletAddress = ""
                     }
-                    override fun onResponse(call: Call, response: Response) {
-                        var jsonObject = JSONObject(response.body()?.string())
-                        var walletAddress = ""
-                        if (jsonObject.isNull("error")) {
+                    view.hideLoading()
+                    callback(walletAddress)
+                }
+            } else {
+                try {
+                    val me = retryIO("me") { client.me() }
+                    val httpUrl = restUrl?.newBuilder()
+                            ?.addPathSegment("api")
+                            ?.addPathSegment("v1")
+                            ?.addPathSegment("users.info")
+                            ?.addQueryParameter("username", username ?: me.username)
+                            ?.build()
 
-                            if (!jsonObject.isNull("user")) {
-                                jsonObject = jsonObject.getJSONObject("user")
+                    val token: Token? = tokenRepository.get(serverUrl)
+                    val builder = Request.Builder().url(httpUrl)
+                    token?.let {
+                        builder.addHeader("X-Auth-Token", token.authToken)
+                                .addHeader("X-User-Id", token.userId)
+                    }
 
-                                if (!jsonObject.isNull("customFields")) {
-                                    jsonObject = jsonObject.getJSONObject("customFields")
-                                    walletAddress = jsonObject.getString("walletAddress")
-                                    if (!bcInterface.isValidAddress(walletAddress)) {
-                                        walletAddress = ""
+                    val request = builder.get().build()
+                    val httpClient = OkHttpClient()
+                    httpClient.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            Timber.d("ERROR: request call failed!")
+                            launchUI(strategy) {
+                                view.hideLoading()
+                                callback("")
+                            }
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            var jsonObject = JSONObject(response.body()?.string())
+                            var walletAddress = ""
+                            if (jsonObject.isNull("error")) {
+
+                                if (!jsonObject.isNull("user")) {
+                                    jsonObject = jsonObject.getJSONObject("user")
+
+                                    if (!jsonObject.isNull("customFields")) {
+                                        jsonObject = jsonObject.getJSONObject("customFields")
+                                        walletAddress = jsonObject.getString("walletAddress")
+                                        if (!bcInterface.isValidAddress(walletAddress)) {
+                                            walletAddress = ""
+                                        }
                                     }
                                 }
+                            } else {
+                                Timber.d("ERROR: %s", jsonObject.getString("error"))
                             }
-                        } else {
-                            Timber.d("ERROR: %s", jsonObject.getString("error"))
+                            launchUI(strategy) {
+                                view.hideLoading()
+                                callback(walletAddress)
+                            }
                         }
-                        launchUI(strategy) {
-                            view.hideLoading()
-                            callback(walletAddress)
-                        }
-                    }
-                })
-            } catch (ex: Exception) {
-                view.hideLoading()
-                Timber.e(ex)
+                    })
+                } catch (ex: Exception) {
+                    view.hideLoading()
+                    Timber.e(ex)
+                }
             }
         }
     }
 
+    fun loadUI() {
+        if (managedMode) {
+            view.hideUnmanagedUI()
+        }
+    }
+
+    fun getUserName(): String {
+        return localRepository.get(LocalRepository.CURRENT_USERNAME_KEY) ?: ""
+    }
 }

@@ -20,7 +20,6 @@ import io.reactivex.rxkotlin.Observables
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_transaction.*
 import kotlinx.coroutines.experimental.async
-import timber.log.Timber
 import java.math.BigDecimal
 
 
@@ -46,6 +45,8 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
 
     override fun onActivityCreated(savedInstanceState: Bundle?){
         super.onActivityCreated(savedInstanceState)
+
+        presenter.loadUI()
 
         // get recipient username
         val nullableRecipientUserName = activity?.intent?.getStringExtra("recipient_user_name")
@@ -189,6 +190,14 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
             }
         }
         enableUserInput(true)
+    }
+
+    override fun hideUnmanagedUI() {
+        ui {
+            recipient_address_textView.isVisible = false
+            wallet_password_textView.isVisible = false
+            wallet_password_editText.isVisible = false
+        }
     }
 
     private fun enableUserInput(value: Boolean) {
