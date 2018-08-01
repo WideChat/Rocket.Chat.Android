@@ -42,6 +42,10 @@
                     android:host="go.rocket.chat"
                     android:path="/auth"
                     android:scheme="https" />
+
+                <data android:scheme="chrome" />
+                <data android:scheme="viasat" />
+                <!-- <data android:scheme="about"/> -->
             </intent-filter>
         </activity>
 
@@ -72,7 +76,23 @@
         <activity
             android:name=".webview.weblink.ui.WebViewActivity"
             android:theme="@style/AppTheme.Translucent"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".main.ui.MainActivity" />
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:scheme="chrome" />
+                <!-- <data android:scheme="about"/> -->
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".settings.password.ui.PasswordActivity"
             android:theme="@style/AppTheme" />
@@ -81,7 +101,9 @@
         <activity
             android:name=".chatroom.ui.ChatRoomActivity"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
-            android:theme="@style/AppTheme.Translucent" />
+            android:theme="@style/AppTheme.Translucent">
+
+        </activity>
 
         <activity
             android:name=".chatroom.ui.PinnedMessagesActivity"

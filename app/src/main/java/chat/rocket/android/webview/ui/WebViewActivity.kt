@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -12,6 +13,7 @@ import kotlinx.android.synthetic.main.activity_web_view.*
 import kotlinx.android.synthetic.main.app_bar.*
 
 fun Context.webViewIntent(webPageUrl: String): Intent {
+    Log.e("Debin-199", "webPageUrl: " + webPageUrl)
     return Intent(this, WebViewActivity::class.java).apply {
         putExtra(INTENT_WEB_PAGE_URL, webPageUrl)
     }
@@ -28,6 +30,7 @@ class WebViewActivity : AppCompatActivity() {
         setContentView(R.layout.activity_web_view)
 
         webPageUrl = intent.getStringExtra(INTENT_WEB_PAGE_URL)
+        Log.e("Debin-200", "webPageUrl:"+webPageUrl)
         requireNotNull(webPageUrl) { "no web_page_url provided in Intent extras" }
 
         setupToolbar()

@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.RadioGroup
@@ -56,6 +57,9 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 import javax.inject.Inject
+
+import java.io.PrintWriter
+import java.io.StringWriter
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 
@@ -117,7 +121,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
+        Log.e("Debin_01", "onViewCreated()")
         viewModel = ViewModelProviders.of(this, factory).get(ChatRoomsViewModel::class.java)
         subscribeUi()
 
@@ -387,27 +391,55 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
         val title = SharedPreferenceHelper.getString("web_search_title", "Internet Search")
         val description = SharedPreferenceHelper.getString("web_search_desc", "Faster web with the Viasat Browser")
-        val imageUrl = SharedPreferenceHelper.getString("web_search_image", "http://www.verandaweb.com/search/browser.png")
-        val link = SharedPreferenceHelper.getString("web_search_link", "https://www.google.com")
+        // val imageUrl = SharedPreferenceHelper.getString("web_search_image", "http://www.verandaweb.com/search/browser.png")
+        //val imageUrl = SharedPreferenceHelper.getString("web_search_image", "https://www.programiz.com/sites/tutorial2program/files/c-logo.png")
+        //val imageUrl = SharedPreferenceHelper.getString("web_search_image", "http://debinzhang.github.io/product_logo_32.png")
+        val imageUrl = SharedPreferenceHelper.getString("web_search_image", "")
+        // val link = SharedPreferenceHelper.getString("web_search_link", "https://www.google.com")
+        val link = SharedPreferenceHelper.getString("web_search_link", "https://www.duckduckgo.com")
+        //val link = SharedPreferenceHelper.getString("web_search_link", "https://browser.viasat.com/newnewnewtab/index.html")
+        //val link = SharedPreferenceHelper.getString("web_search_link", "https://www.duckduckgo.com")
+        // val link = SharedPreferenceHelper.getString("web_search_link", "chrome://newtab")
+        //val link = SharedPreferenceHelper.getString("web_search_link", "about://newtab")
+
+        Log.e("Debin_001","Debin-3.1")
+        /** try {
+            val division = 0 / 0
+            } catch (e: ArithmeticException) {
+                val sw = StringWriter()
+                e.printStackTrace(PrintWriter(sw))
+                val exceptionAsString = sw.toString()
+                //println(exceptionAsString)
+                Log.e("Debin", exceptionAsString)
+            }
+        */
 
         updateUI(title, text_title,
                 description, text_description,
                 imageUrl, image_web_link,
                 link, text_link)
 
+        Log.e("Debin_002","Debin-3.1")
+
         web_search.setOnClickListener {
-            //CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
+            Log.e("Debin_003","setOnClickListener")
+            CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
+            Log.e("Debin_004", "setOnClickListener()")
             startActivity(this.activity?.webViewIntent(link, if (!title.isEmpty()) title else resources.getString(R.string.url_preview_title)))
+            Log.e("Debin_005", "setOnClickListener()")
         }
 
         val linkPreviewCallback = object : LinkPreviewCallback {
-
+            // Log.e("Debin_007", "LinkPreviewCallback()")
             override fun onPre() {
+                Log.e("Debin_007", "LinkPreviewCallback()")
                 //Do nothing
             }
 
             override fun onPos(sourceContent: SourceContent?, b: Boolean) {
+                Log.e("Debin_008", "LinkPreviewCallback()")
                 sourceContent?.let {
+                    Log.e("Debin_009", "LinkPreviewCallback()")
                     val newTitle = sourceContent.title
                     val newDescription = sourceContent.description
                     val imageList = sourceContent.images
@@ -421,8 +453,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                             newDescription, text_description,
                             newImageUrl, image_web_link,
                             link, text_link)
-
+                    Log.e("Debin_010", "LinkPreviewCallback()")
                     launch {
+                        Log.e("Debin_011", "LinkPreviewCallback()")
                         SharedPreferenceHelper.putString("web_search_title", newTitle)
                         SharedPreferenceHelper.putString("web_search_desc", newDescription)
                         SharedPreferenceHelper.putString("web_search_image", newImageUrl)
@@ -460,7 +493,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
             imageView.visibility = View.VISIBLE
             imageView.setImageURI(imageUrl)
         } else {
-            imageView.setActualImageResource(R.drawable.ic_link_black_24dp)
+            Log.e("Debin", "get logo")
+            //imageView.setActualImageResource(R.drawable.ic_link_black_24dp)
+            imageView.setActualImageResource(R.drawable.product_logo_32)
+            //imageView.setActualImageResource(R.drawable.ic_vera)
         }
 
         if (!link.isEmpty()) {

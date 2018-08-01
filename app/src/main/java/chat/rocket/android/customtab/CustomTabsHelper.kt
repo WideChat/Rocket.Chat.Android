@@ -3,9 +3,13 @@ package chat.rocket.android.customtab
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.widget.Toast
 import java.util.*
 import okhttp3.HttpUrl
 
@@ -18,6 +22,7 @@ object CustomTabsHelper {
     private const val BETA_PACKAGE = "com.chrome.beta"
     private const val DEV_PACKAGE = "com.chrome.dev"
     private const val LOCAL_PACKAGE = "com.google.android.apps.chrome"
+    private const val VB_PACKAGE = "com.viasat.browser"
     private const val EXTRA_CUSTOM_TABS_KEEP_ALIVE = "android.support.customtabs.extra.KEEP_ALIVE"
     private const val ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService"
 
@@ -49,6 +54,16 @@ object CustomTabsHelper {
         }
     }
 
+    fun postToastMessage(context: Context, msg: String): Unit {
+        var toast = Toast.makeText(context,
+                msg, Toast.LENGTH_LONG)
+        var view: View = toast.getView()
+        view.setBackgroundColor(Color.CYAN);
+        val pos = Gravity.TOP or Gravity.CENTER
+        toast.setGravity(pos, 0, 300)
+        toast.show()
+    }
+
     /**
      * Goes through all apps that handle VIEW intents and have a warmup service. Picks
      * the one chosen by the user if there is one, otherwise makes a best effort to return a
@@ -61,15 +76,34 @@ object CustomTabsHelper {
      * @return The package name recommended to use for connecting to custom tabs related components.
      */
     fun getPackageNameToUse(context: Context): String? {
-        if (sPackageNameToUse != null) return sPackageNameToUse
+        /*val logger = LoggerFactory.getLogger(ThisClass::class)
+
+        logger.info(“Hi")
+        */
+        //val Log = Logger.getLogger(MainActivity::class.java.name)
+        //Log.warning("Hello World Debin")
+        Log.e("Debin", "Debin-1")
+        var foundVbPackage: Boolean = false
+
+        if (sPackageNameToUse != null) {
+            Log.e("Debin-100",
+                    "Ignored value: sPackangeNameToUse is not empty: " + sPackageNameToUse)
+            return sPackageNameToUse
+        }
 
         val pm = context.packageManager
         // Get default VIEW intent handler.
-        val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
+         val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("http://www.example.com"))
+        //val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("chrome://newtab"))
+        // val activityIntent = Intent(Intent.ACTION_VIEW, Uri.parse("https://browser.viasat.com/newnewnewtab/index.html"))
         val defaultViewHandlerInfo = pm.resolveActivity(activityIntent, 0)
         var defaultViewHandlerPackageName: String? = null
         if (defaultViewHandlerInfo != null) {
             defaultViewHandlerPackageName = defaultViewHandlerInfo.activityInfo.packageName
+            Log.e("Debin-101",
+                    "defaultViewHandlerPackageName=" + defaultViewHandlerPackageName)
+        } else {
+            Log.e ("Debin-102", "No default view handler info")
         }
 
         // Get all apps that can handle VIEW intents.
@@ -80,6 +114,7 @@ object CustomTabsHelper {
             serviceIntent.action = ACTION_CUSTOM_TABS_CONNECTION
             serviceIntent.`package` = info.activityInfo.packageName
             if (pm.resolveService(serviceIntent, 0) != null) {
+                Log.e("Debin-103", "adding package: " + info.activityInfo.packageName)
                 packagesSupportingCustomTabs.add(info.activityInfo.packageName)
             }
         }
@@ -87,21 +122,39 @@ object CustomTabsHelper {
         // Now packagesSupportingCustomTabs contains all apps that can handle both VIEW intents
         // and service calls.
         if (packagesSupportingCustomTabs.isEmpty()) {
+            Log.e("Debin-104", "No package found")
             sPackageNameToUse = null
+        } else if (packagesSupportingCustomTabs.contains(VB_PACKAGE)){
+            sPackageNameToUse = VB_PACKAGE
+            postToastMessage(context, "You are using Viasat Browser as search platform")
+            Log.e("Debin-104.5", "Use VB package")
         } else if (packagesSupportingCustomTabs.size == 1) {
+            Log.e("Debin-105", "found single packet: " + packagesSupportingCustomTabs[0])
             sPackageNameToUse = packagesSupportingCustomTabs[0]
         } else if (!TextUtils.isEmpty(defaultViewHandlerPackageName)
                 && !hasSpecializedHandlerIntents(context, activityIntent)
                 && packagesSupportingCustomTabs.contains(defaultViewHandlerPackageName)) {
             sPackageNameToUse = defaultViewHandlerPackageName
+            Log.e("Debin-106", "Use default packet: " + sPackageNameToUse)
         } else if (packagesSupportingCustomTabs.contains(STABLE_PACKAGE)) {
             sPackageNameToUse = STABLE_PACKAGE
+            Log.e("Debin-107", "Use stable package: " + sPackageNameToUse)
         } else if (packagesSupportingCustomTabs.contains(BETA_PACKAGE)) {
             sPackageNameToUse = BETA_PACKAGE
+            Log.e("Debin-108", "Use Beta package: " + sPackageNameToUse)
         } else if (packagesSupportingCustomTabs.contains(DEV_PACKAGE)) {
             sPackageNameToUse = DEV_PACKAGE
+            Log.e("Debin-109", "Use Dev package: " + sPackageNameToUse)
         } else if (packagesSupportingCustomTabs.contains(LOCAL_PACKAGE)) {
             sPackageNameToUse = LOCAL_PACKAGE
+            Log.e("Debin-110", "Use Local package: " + sPackageNameToUse)
+        }
+
+        Log.e("Debin-2", sPackageNameToUse)
+        //return "com.viasat.browser"
+
+        if (sPackageNameToUse != VB_PACKAGE) {
+            postToastMessage(context, "For better performance, please install viasat browser")
         }
         return sPackageNameToUse
     }

@@ -1,5 +1,7 @@
 package chat.rocket.android.customtab
 
+import android.util.Log
+
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -11,6 +13,7 @@ import chat.rocket.android.webview.weblink.ui.WebViewActivity
  */
 class WebViewFallback : CustomTab.CustomTabFallback {
     override fun openUri(context: Context, uri: Uri) {
+        Log.e("Debin", "openUri(): " + uri.toString())
         val intent = Intent(context, WebViewActivity::class.java)
         intent.putExtra(WebViewActivity.INTENT_WEB_PAGE_URL, uri.toString())
         context.startActivity(intent)
