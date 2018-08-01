@@ -637,4 +637,8 @@ class ChatRoomPresenter @Inject constructor(private val view: ChatRoomView,
         return settings.isWalletManaged()
     }
 
+    fun isWalletEnabled(): Boolean {
+        return settings.isWalletEnabled()
+    }
+
 }
