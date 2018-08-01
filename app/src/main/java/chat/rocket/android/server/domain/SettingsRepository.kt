@@ -49,7 +49,7 @@ const val SHOW_DELETED_STATUS = "Message_ShowDeletedStatus"
 const val SHOW_EDITED_STATUS = "Message_ShowEditedStatus"
 const val ALLOW_MESSAGE_PINNING = "Message_AllowPinning"
 const val WALLET_MODE_MANAGED = "Wallet_Mode_Managed"
-const val WALLET_TOGGLE_ON = "Wallet_Toggle_On"
+const val WALLET_ENABLED = "Wallet_Enabled"
 
 /*
  * Extension functions for Public Settings.
@@ -101,5 +101,5 @@ fun PublicSettings.baseUrl(): String? = this[SITE_URL]?.value as String?
 fun PublicSettings.siteName(): String? = this[SITE_NAME]?.value as String?
 
 // Wallet settings
-fun PublicSettings.isWalletEnabled(): Boolean = true // TODO this[WALLET_TOGGLE_ON]?.value == true
+fun PublicSettings.isWalletEnabled(): Boolean = false // TODO this[WALLET_ENABLED]?.value == true
 fun PublicSettings.isWalletManaged(): Boolean = true // TODO this[WALLET_MODE_MANAGED]?.value == true

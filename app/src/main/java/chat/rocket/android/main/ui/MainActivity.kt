@@ -11,6 +11,7 @@ import android.view.MenuItem
 import android.view.View
 import chat.rocket.android.BuildConfig
 import chat.rocket.android.R
+import chat.rocket.android.R.menu.navigation
 import chat.rocket.android.main.adapter.Selector
 import chat.rocket.android.main.adapter.AccountsAdapter
 import chat.rocket.android.main.presentation.MainPresenter
@@ -201,6 +202,12 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector, HasSupp
     }
 
     private fun setupNavigationView() {
+
+        if (!presenter.isWalletEnabled()){
+            val wallet = view_navigation.menu.findItem(R.id.action_wallet)
+            wallet.isVisible = false
+        }
+
         view_navigation.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             drawer_layout.closeDrawer(Gravity.START)

@@ -68,13 +68,13 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     }
 
     /**
-     * Unmanaged mode: Check if the user has a wallet
+     * Un-managed mode: Check if the user has a wallet
      *  both tied to their rocket.chat account and stored on their device
      *  and display either their wallet or the create wallet button.
      *  Only display the wallet if it is stored with the rocket.chat account and on
      *  the user's device. TODO add more options for checking for wallets (e.g. what if there's a private key file on the device, but no address in the rocket.chat account)
      *
-     * Managed mode: Check if the user has a wallet in the dynamoDB database.
+     * Managed mode: Check if the user has a wallet in the database.
      *  If not, a wallet is auto-created and wallet information is added to the database.
      */
     fun loadWallet(c: Context) {
@@ -90,8 +90,6 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                         if (wallet != null) {
                             walletAddress = wallet.walletAddress
                         } else { // Create a wallet for the user
-
-                            //TODO creating a wallet takes some time, don't show button, but should there be an intermediate/loading screen?
 
                             val walletInfo = bcInterface.createBip39Wallet(managedMode, "", c)
 
