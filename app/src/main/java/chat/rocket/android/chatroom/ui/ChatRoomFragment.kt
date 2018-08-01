@@ -182,7 +182,12 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                 // Link to this transaction page on the explorer site
                 val txUrl = BlockchainInterface.EXPLORER_URL +
                         BlockchainInterface.TX_ADDON + txHash
-                sendMessage(getString(R.string.sent_transaction_direct_message, recipient, amount.toString(), reason, txUrl))
+
+                if (!presenter.isWalletManaged()){
+                    sendMessage(getString(R.string.sent_transaction_direct_message_unmanaged, recipient, amount.toString(), reason, txUrl))
+                }
+                else sendMessage(getString(R.string.sent_transaction_direct_message_managed,recipient, amount.toString(), reason))
+
             }
         }
     }

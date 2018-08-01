@@ -632,4 +632,9 @@ class ChatRoomPresenter @Inject constructor(private val view: ChatRoomView,
             }
         }
     }
+
+    fun isWalletManaged(): Boolean {
+        return settings.isWalletManaged()
+    }
+
 }

@@ -43,6 +43,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val settings = settingsRepository.get(serverUrl)
     val managedMode = settings.isWalletManaged()
 
+
     /**
      * Get transaction history associated with the user's wallet
      */

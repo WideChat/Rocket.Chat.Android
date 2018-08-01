@@ -219,7 +219,8 @@
     <string name="action_confirm_create_wallet">Confirm new wallet creation?</string>
     <string name="wallet_creation_error">Sorry, there was an error creating your new wallet. Error: </string>
     <string name="wallet_creation_success">Congratulations! Your new wallet has been created.</string>
-    <string name="sent_transaction_direct_message">"@%1$s, I'm sending you %2$s token(s) for: %3$s.\n[More Details](%4$s)"</string>
+    <string name="sent_transaction_direct_message_unmanaged">"@%1$s, I'm sending you %2$s token(s) for: %3$s.\n[More Details](%4$s)"</string>
+    <string name="sent_transaction_direct_message_managed">"@%1$s, I'm sending you %2$s token(s) for: %3$s.\n"</string>
     <string name="wallet_search_users">Search Users</string>
     <string name="wallet_scan_qr_code">Scan QR Code</string>
     <string name="wallet_recipient_address">Recipient Address</string>
