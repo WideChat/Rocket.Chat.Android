@@ -3,8 +3,6 @@ package chat.rocket.android.wallet.presentation
 import android.content.Context
 import android.widget.Toast
 import chat.rocket.android.R
-import chat.rocket.android.R.id.mnemonic
-import chat.rocket.android.R.menu.password
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.main.presentation.MainNavigator
@@ -22,7 +20,6 @@ import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
 import okhttp3.*
 import org.json.JSONObject
-import org.spongycastle.asn1.x509.ObjectDigestInfo.publicKey
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
@@ -32,8 +29,8 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val navigator: MainNavigator,
                                            private val localRepository: LocalRepository,
                                            private val getChatRoomsInteractor: GetChatRoomsInteractor,
-                                           private val getSettingsInteractor: GetSettingsInteractor,
                                            private val tokenRepository: TokenRepository,
+                                           settingsRepository: SettingsRepository,
                                            serverInteractor: GetCurrentServerInteractor,
                                            factory: RocketChatClientFactory) {
 
@@ -42,8 +39,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val restUrl: HttpUrl? = HttpUrl.parse(serverUrl)
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
+    private val settings = settingsRepository.get(serverUrl)
+    public val managedMode = settings.isWalletManaged()
 
-    private lateinit var settings: PublicSettings
 
     /**
      * Get transaction history associated with the user's wallet
@@ -79,11 +77,6 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
      *  If not, a wallet is auto-created and wallet information is added to the database.
      */
     fun loadWallet(c: Context) {
-
-        // TODO should this go somewhere else?
-        settings = getSettingsInteractor.get(serverUrl)
-        //val managedMode = settings.isWalletManaged()
-        val managedMode = true // TODO
 
         launchUI(strategy) {
             view.showLoading()
@@ -146,7 +139,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     }
 
     /**
-     * Retrieve the walletAddress field in a user's customFields object
+     * Unmanaged mode: Retrieve the walletAddress field in a user's customFields object
+     *
+     * Managed mode: Retrieve the user's walletAddress stored in the database
      *
      * If the user does not have a wallet address stored, then an empty string
      *  is given to the callback
@@ -159,49 +154,63 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
      */
     fun loadWalletAddress(username: String? = null, callback: (String) -> Unit) {
         launchUI(strategy) {
-            try {
-                val me = retryIO("me") { client.me() }
-                val httpUrl = restUrl?.newBuilder()
-                        ?.addPathSegment("api")
-                        ?.addPathSegment("v1")
-                        ?.addPathSegment("users.info")
-                        ?.addQueryParameter("username", username ?: me.username)
-                        ?.build()
-
-                val token: Token? = tokenRepository.get(serverUrl)
-                val builder = Request.Builder().url(httpUrl)
-                token?.let {
-                    builder.addHeader("X-Auth-Token", token.authToken)
-                            .addHeader("X-User-Id", token.userId)
-                }
-
-                val request = builder.get().build()
-                val httpClient = OkHttpClient()
-                httpClient.newCall(request).enqueue(object : Callback {
-                    override fun onFailure(call: Call, e: IOException) { Timber.d("ERROR: request call failed!")}
-                    override fun onResponse(call: Call, response: Response) {
-                        var jsonObject = JSONObject(response.body()?.string())
-                        var walletAddress = ""
-                        if (jsonObject.isNull("error")) {
-
-                            if (!jsonObject.isNull("user")) {
-                                jsonObject = jsonObject.getJSONObject("user")
-
-                                if (!jsonObject.isNull("customFields")) {
-                                    jsonObject = jsonObject.getJSONObject("customFields")
-                                    walletAddress = jsonObject.getString("walletAddress")
-                                }
-                            }
-                        } else {
-                            Timber.d("ERROR: %s", jsonObject.getString("error"))
-                        }
-                        launchUI(strategy) {
-                            callback(walletAddress)
-                        }
+            if (managedMode) {
+                val user = username ?: getUserName()
+                dbInterface.findWallet(user) { wallet ->
+                    var walletAddress = wallet?.walletAddress ?: ""
+                    if (!bcInterface.isValidAddress(walletAddress)) {
+                        walletAddress = ""
                     }
-                })
-            } catch (ex: Exception) {
-                Timber.e(ex)
+                    callback(walletAddress)
+                }
+            } else { // Unmanaged wallet mode
+                try {
+                    val me = retryIO("me") { client.me() }
+                    val httpUrl = restUrl?.newBuilder()
+                            ?.addPathSegment("api")
+                            ?.addPathSegment("v1")
+                            ?.addPathSegment("users.info")
+                            ?.addQueryParameter("username", username ?: me.username)
+                            ?.build()
+
+                    val token: Token? = tokenRepository.get(serverUrl)
+                    val builder = Request.Builder().url(httpUrl)
+                    token?.let {
+                        builder.addHeader("X-Auth-Token", token.authToken)
+                                .addHeader("X-User-Id", token.userId)
+                    }
+
+                    val request = builder.get().build()
+                    val httpClient = OkHttpClient()
+                    httpClient.newCall(request).enqueue(object : Callback {
+                        override fun onFailure(call: Call, e: IOException) {
+                            Timber.d("ERROR: request call failed!")
+                        }
+
+                        override fun onResponse(call: Call, response: Response) {
+                            var jsonObject = JSONObject(response.body()?.string())
+                            var walletAddress = ""
+                            if (jsonObject.isNull("error")) {
+
+                                if (!jsonObject.isNull("user")) {
+                                    jsonObject = jsonObject.getJSONObject("user")
+
+                                    if (!jsonObject.isNull("customFields")) {
+                                        jsonObject = jsonObject.getJSONObject("customFields")
+                                        walletAddress = jsonObject.getString("walletAddress")
+                                    }
+                                }
+                            } else {
+                                Timber.d("ERROR: %s", jsonObject.getString("error"))
+                            }
+                            launchUI(strategy) {
+                                callback(walletAddress)
+                            }
+                        }
+                    })
+                } catch (ex: Exception) {
+                    Timber.e(ex)
+                }
             }
         }
     }

@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Toast
+import androidx.core.view.isVisible
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.*
@@ -33,7 +34,6 @@ class WalletFragment : Fragment(), WalletView {
     private var bcInterface: BlockchainInterface? = null
     private val NEW_WALLET_REQUEST = 1
     private val RESULT_OK = -1
-
 
     companion object {
         fun newInstance() = WalletFragment()
@@ -130,6 +130,10 @@ class WalletFragment : Fragment(), WalletView {
     override fun setupSendToDialog(names: List<String>) {
         button_sendToken.setOnClickListener {
             val dialogLayout = layoutInflater.inflate(R.layout.wallet_send_to_dialog, null)
+            if (presenter.managedMode) {
+                hideComplexSendToOptions(dialogLayout)
+            }
+            val dialogTitle = if (presenter.managedMode) "Search Users" else "Find Recipient"
             val adapter: ArrayAdapter<String> = ArrayAdapter(activity, android.R.layout.simple_dropdown_item_1line, names)
             val textView: AutoCompleteTextView = dialogLayout.findViewById(R.id.search_users_autoCompleteTextView)
             textView.setAdapter(adapter)
@@ -164,10 +168,10 @@ class WalletFragment : Fragment(), WalletView {
             }
 
             val dialogSendTo = AlertDialog.Builder(context)
-                    .setTitle("Find Recipient")
+                    .setTitle(dialogTitle)
                     .setView(dialogLayout)
-                    .setNegativeButton("Cancel", { dialog, _ -> dialog.dismiss() })
-                    .setPositiveButton("Send", { dialog, _ ->
+                    .setNegativeButton("Cancel") { dialog, _ -> dialog.dismiss() }
+                    .setPositiveButton("Send") { dialog, _ ->
                         // Check that there is a valid wallet address in the editText
                         val address = dialogLayout.recipient_address_editText.textContent
                         if (address.length == 40 ||
@@ -181,7 +185,7 @@ class WalletFragment : Fragment(), WalletView {
                         } else {
                             showToast("No wallet address found or invalid address format", Toast.LENGTH_LONG)
                         }
-                    })
+                    }
 
             dialogSendTo.show()
         }
@@ -241,5 +245,13 @@ class WalletFragment : Fragment(), WalletView {
             button_create_wallet.isEnabled = value
             button_sendToken.isEnabled = value
         }
+    }
+
+    private fun hideComplexSendToOptions(view: View) {
+        view.search_users_radioButton.isVisible = false
+        view.qr_radioButton.isVisible = false
+        view.qr_button.isVisible = false
+        view.recipient_address_radioButton.isVisible = false
+        view.recipient_address_editText.isVisible = false
     }
 }

@@ -101,5 +101,5 @@ fun PublicSettings.baseUrl(): String? = this[SITE_URL]?.value as String?
 fun PublicSettings.siteName(): String? = this[SITE_NAME]?.value as String?
 
 // Wallet settings
-fun PublicSettings.isWalletEnabled(): Boolean = this[WALLET_TOGGLE_ON]?.value == true
-fun PublicSettings.isWalletManaged(): Boolean = this[WALLET_MODE_MANAGED]?.value == true
+fun PublicSettings.isWalletEnabled(): Boolean = true // TODO this[WALLET_TOGGLE_ON]?.value == true
+fun PublicSettings.isWalletManaged(): Boolean = true // TODO this[WALLET_MODE_MANAGED]?.value == true
