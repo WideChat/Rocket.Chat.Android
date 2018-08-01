@@ -63,6 +63,15 @@ class WalletDBInterface {
         }
     }
 
+    fun getPrivateKey(userId: String?, callback: (String) -> Unit) {
+        thread (true) {
+            val walletItem: WalletsDO? = dynamoDBMapper?.load(WalletsDO::class.java, userId)
+            runOnUiThread {
+                callback(walletItem?.privateKey ?: "")
+            }
+        }
+    }
+
     fun sendTokens(senderId: String, recipientId: String, amount: Double, callback: (Double) -> Unit) {
         thread(true) {
             // Return if trying to send to self

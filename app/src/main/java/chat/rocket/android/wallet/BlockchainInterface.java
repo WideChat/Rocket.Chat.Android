@@ -217,7 +217,7 @@ public class BlockchainInterface {
     }
 
     /**
-     * Initiate a transaction on the blockchain
+     * Initiate a transaction on the blockchain when in Managed Wallet Mode
      * @param password user/sender's wallet password
      * @param sender wallet address
      * @param recipient wallet address
@@ -256,6 +256,36 @@ public class BlockchainInterface {
         byte[] signedTx = TransactionEncoder.signMessage(rawTransaction, credentials);
 
         // Send transaction
+        String hexValue = Numeric.toHexString(signedTx);
+        String txHash = web3.ethSendRawTransaction(hexValue).send().getTransactionHash();
+        // txHash is sometimes null, meaning the transaction was unable to be sent or is invalid
+        if (txHash == null) {
+            throw new Exception("Transaction Failed.");
+        }
+        return txHash;
+    }
+
+    public String sendTransaction(String sender, String privateKey, String recipient, Double amount)
+            throws Exception {
+        // Generate the sender's Credentials
+        ECKeyPair keyPair = ECKeyPair.create((new BigInteger(privateKey)).toByteArray());
+        Credentials credentials = Credentials.create(keyPair);
+
+        // Get the nonce
+        EthGetTransactionCount ethGetTransactionCount = web3.ethGetTransactionCount(
+                addAddressPrefix(sender), DefaultBlockParameterName.LATEST).send();
+        BigInteger nonce = ethGetTransactionCount.getTransactionCount();
+
+        // Create the transaction
+        RawTransaction rawTransaction = RawTransaction.createEtherTransaction(
+                nonce,
+                web3.ethGasPrice().send().getGasPrice(),
+                BigInteger.valueOf(8000000),
+                addAddressPrefix(recipient),
+                Convert.toWei(BigDecimal.valueOf(amount), Convert.Unit.ETHER).toBigInteger());
+
+        // Sign and send
+        byte[] signedTx = TransactionEncoder.signMessage(rawTransaction, credentials);
         String hexValue = Numeric.toHexString(signedTx);
         String txHash = web3.ethSendRawTransaction(hexValue).send().getTransactionHash();
         // txHash is sometimes null, meaning the transaction was unable to be sent or is invalid

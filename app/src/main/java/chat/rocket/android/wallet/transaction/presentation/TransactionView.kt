@@ -9,8 +9,9 @@ interface TransactionView {
      *
      * @param address sender's address
      * @param balance sender's current wallet balance
+     * @param privateKey sender's private key (Managed wallet mode)
      */
-    fun showUserWallet(address: String, balance: BigDecimal)
+    fun showUserWallet(address: String, balance: BigDecimal, privateKey: String = "")
 
     /**
      * Display the recipient's wallet address

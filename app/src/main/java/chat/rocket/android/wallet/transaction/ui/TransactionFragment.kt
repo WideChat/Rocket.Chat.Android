@@ -29,6 +29,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
     private var recipientUserName: String = ""
     private var recipientAddress: String = ""
     private var senderAddress: String = ""
+    private var senderPrivateKey: String = ""
     private val disposables = CompositeDisposable()
 
 
@@ -90,8 +91,9 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
         super.onDestroyView()
     }
 
-    override fun showUserWallet(address: String, balance: BigDecimal) {
+    override fun showUserWallet(address: String, balance: BigDecimal, privateKey: String) {
         senderAddress = address
+        senderPrivateKey = privateKey
         current_balance_textView.textContent = "Your Balance: " + balance.toString()
     }
 
@@ -126,7 +128,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
                 val password = wallet_password_editText.textContent
                 val reason = reason_editText.text.toString()
                 val act = this.activity as TransactionActivity
-                async{ presenter.sendTransaction(password, senderAddress, recipientAddress, amount, act, reason) }
+                async{ presenter.sendTransaction(password, senderAddress, senderPrivateKey, recipientAddress, amount, act, reason) }
                 mode.finish()
                 return true
             }
@@ -154,7 +156,7 @@ class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.
             val amountText = amount_tokens.textContent
 
             if (recipientAddress.isNotEmpty() &&
-                    wallet_password_editText.textContent.isNotEmpty() &&
+                    (presenter.isManagedMode() || wallet_password_editText.textContent.isNotEmpty()) &&
                     (amountText.isNotEmpty() && amountText != "." && amountText.toDouble() > 0.0))
                 startActionMode()
             else

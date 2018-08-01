@@ -49,12 +49,16 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
      * @param amount Double amount of ether being sent
      * @param c Context/Activity
      */
-    fun sendTransaction(password: String, senderAddr: String, recipientAddr: String, amount: Double, c: Context, reason: String) {
+    fun sendTransaction(password: String, senderAddr: String, senderPrivateKey: String, recipientAddr: String, amount: Double, c: Context, reason: String) {
         launchUI(strategy) {
             view.showLoading()
             async {
                 try {
-                    val txHash = bcInterface.sendTransaction(password, senderAddr, recipientAddr, amount, c)
+                    val txHash = if (managedMode) {
+                        bcInterface.sendTransaction(senderAddr, senderPrivateKey, recipientAddr, amount)
+                    } else {
+                        bcInterface.sendTransaction(password, senderAddr, recipientAddr, amount, c)
+                    }
 
                     dbInterface.updateTransactions(senderAddr, recipientAddr, txHash)
 
@@ -76,14 +80,21 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
             view.showLoading()
             try {
                 val me = retryIO("me") { client.me() }
-                loadWalletAddress(me.username, {
+                loadWalletAddress(me.username) {
                     if (it.isEmpty()) {
                         view.showNoWalletError()
                     } else {
-                        view.showUserWallet(it, bcInterface.getBalance(it))
+                        if (managedMode) {
+                            val walletAddr = it
+                            dbInterface.getPrivateKey(me.username) {
+                                view.showUserWallet(walletAddr, bcInterface.getBalance(walletAddr), it)
+                            }
+                        } else {
+                            view.showUserWallet(it, bcInterface.getBalance(it))
+                        }
                     }
                     view.hideLoading()
-                })
+                }
             } catch (ex: Exception) {
                 view.hideLoading()
                 Timber.e(ex)
@@ -187,5 +198,9 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
 
     fun getUserName(): String {
         return localRepository.get(LocalRepository.CURRENT_USERNAME_KEY) ?: ""
+    }
+
+    fun isManagedMode(): Boolean {
+        return this.managedMode
     }
 }
