@@ -41,7 +41,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val bcInterface = BlockchainInterface()
     private val dbInterface = WalletDBInterface()
     private val settings = settingsRepository.get(serverUrl)
-    val managedMode = settings.isWalletManaged()
+    private val managedMode = settings.isWalletManaged()
 
 
     /**
@@ -103,6 +103,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                             val privateKey = walletInfo[2]
                             val publicKey = walletInfo[3]
                             walletAddress = walletInfo[0]
+
+                            // Save walletAddress to RC profile so outside REST API calls can access it
+                            updateWalletAddress(walletAddress)
 
                             dbInterface.createWallet(userId, balance, mnemonic, password, privateKey, publicKey, walletAddress) {
                                 Toast.makeText(c, R.string.wallet_creation_success, Toast.LENGTH_LONG).show()
@@ -216,6 +219,47 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                 } catch (ex: Exception) {
                     Timber.e(ex)
                 }
+            }
+        }
+    }
+
+    /**
+     * Change the walletAddress field in the current user's customFields field
+     *
+     * @param address user's new wallet address
+     *
+     * NOTE: this function directly calls the REST API, which normally should be
+     *          done in the Kotlin SDK
+     */
+    private fun updateWalletAddress(address: String) {
+        launchUI(strategy) {
+            try {
+                val httpUrl = restUrl?.newBuilder()
+                        ?.addPathSegment("api")
+                        ?.addPathSegment("v1")
+                        ?.addPathSegment("users.update")
+                        ?.build()
+
+                val me = retryIO("me") { client.me() }
+                val payloadBody = "{\"userId\":\"${me.id}\",\"data\":{\"customFields\":{\"walletAddress\":\"$address\"}}}"
+                val body = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), payloadBody)
+                val builder = Request.Builder().url(httpUrl)
+
+                val token: Token? = tokenRepository.get(serverUrl)
+                token?.let {
+                    builder.addHeader("X-Auth-Token", token.authToken)
+                            .addHeader("X-User-Id", token.userId)
+                }
+                val request = builder.post(body).build()
+
+                val httpClient = OkHttpClient()
+                httpClient.newCall(request).enqueue(object : Callback {
+                    override fun onFailure(call: Call, e: IOException) { Timber.d("ERROR: request call failed!")}
+                    override fun onResponse(call: Call, response: Response) {}
+                })
+            } catch (ex: Exception) {
+                Timber.e(ex)
+                view.showManagedWalletNotSyncedWithRCProfile(ex.message)
             }
         }
     }

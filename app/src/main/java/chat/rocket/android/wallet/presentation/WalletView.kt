@@ -59,4 +59,6 @@ interface WalletView {
 
     fun hideComplexSendToOptions(view: View)
 
+    fun showManagedWalletNotSyncedWithRCProfile(error: String?)
+
 }

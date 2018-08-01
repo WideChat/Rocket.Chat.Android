@@ -245,6 +245,10 @@ class WalletFragment : Fragment(), WalletView {
         view.recipient_address_editText.isVisible = false
     }
 
+    override fun showManagedWalletNotSyncedWithRCProfile(error: String?) {
+        showToast("Wallet failed to sync with your profile. Message: $error", Toast.LENGTH_LONG)
+    }
+
     private fun enableUserInput(value: Boolean) {
         ui {
             button_create_wallet.isEnabled = value
