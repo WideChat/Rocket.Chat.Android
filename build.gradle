@@ -22,7 +22,6 @@ buildscript {
 }
 
 allprojects {
-    System.out.println("Debin's Hello from Gradle!");
     repositories {
         google()
         jcenter()

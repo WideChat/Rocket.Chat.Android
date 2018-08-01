@@ -12,12 +12,9 @@ import chat.rocket.android.R
 
 object CustomTab {
     fun openCustomTab(context: Context, url: String, fallback: CustomTabFallback?, setBackButton: Boolean = false) {
-        Log.e("Debin_1000", "url = " + url)
         val uri = Uri.parse(CustomTabsHelper.convertSchemeToLower(url))
-        Log.e("Debin_1001", "uri = " + uri)
 
         val customTabIntentBuilder = CustomTabsIntent.Builder()
-        // debin added: customTabIntentBuilder.setInstantAppsEnabled(true)
         customTabIntentBuilder.setToolbarColor(ResourcesCompat.getColor(context.resources, R.color.colorPrimary, context.theme))
 
         //Set action on clicking bookmark
@@ -33,21 +30,16 @@ object CustomTab {
         }
 
         val customTabIntent = customTabIntentBuilder.build()
-        Log.e("Debin 1002", "Debin-4")
         val packageName = CustomTabsHelper.getPackageNameToUse(context)
-        Log.e("Debin 1003: packageName: ", packageName)
 
         if (packageName == null) {
-            Log.e("Debin 1004", "fail to get pkg name")
             fallback?.openUri(context, uri)
         } else {
             customTabIntent.intent.`package` = packageName
-            Log.e("Debin 1005", "set intent package name, launching url")
-            CustomTabsIntent.setAlwaysUseBrowserUI(customTabIntent.intent)
-            Log.e("Debin 1005.1", "set intent package name, launching url")
+            // CustomTabsIntent.setAlwaysUseBrowserUI(customTabIntent.intent)
             customTabIntent.launchUrl(context, uri)
             val shouldAlwaysUseBrowserUI: Boolean = CustomTabsIntent.shouldAlwaysUseBrowserUI(customTabIntent.intent)
-            Log.e("Debin 1006", if (shouldAlwaysUseBrowserUI) {"yes"} else {"no"}) 
+            Log.e("Viasat: UserBrowserUI: ", if (shouldAlwaysUseBrowserUI) {"yes"} else {"no"}) 
         }
     }
 
