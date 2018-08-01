@@ -44,6 +44,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val dbInterface = WalletDBInterface()
 
     private lateinit var settings: PublicSettings
+
     /**
      * Get transaction history associated with the user's wallet
      */
