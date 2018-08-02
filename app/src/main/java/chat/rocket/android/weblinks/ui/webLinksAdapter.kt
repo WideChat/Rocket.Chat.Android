@@ -1,10 +1,10 @@
 package chat.rocket.android.weblinks.ui
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.app.RocketChatApplication
 import chat.rocket.android.dagger.DaggerAppComponent

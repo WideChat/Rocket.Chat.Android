@@ -1,6 +1,6 @@
 package chat.rocket.android.wallet.ui
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
 import chat.rocket.android.R

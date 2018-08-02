@@ -1,6 +1,6 @@
 package chat.rocket.android.weblinks.di
 
-import android.arch.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import chat.rocket.android.dagger.scope.PerFragment
 import chat.rocket.android.weblinks.presentation.WebLinksView
 import chat.rocket.android.weblinks.ui.WebLinksFragment
@@ -8,7 +8,6 @@ import dagger.Module
 import dagger.Provides
 
 @Module
-@PerFragment
 class WebLinksFragmentModule {
 
     @Provides
@@ -17,6 +16,7 @@ class WebLinksFragmentModule {
     }
 
     @Provides
+    @PerFragment
     fun provideLifecycleOwner(frag: WebLinksFragment): LifecycleOwner {
         return frag
     }

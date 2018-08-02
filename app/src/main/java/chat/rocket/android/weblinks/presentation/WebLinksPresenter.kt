@@ -11,12 +11,12 @@ import javax.inject.Inject
 
 class WebLinksPresenter @Inject constructor(private val view: WebLinksView,
                                             private val strategy: CancelStrategy,
-                                            private val webLinksDao: WebLinkDao) {
+                                            private val webLinkDao: WebLinkDao) {
 
     fun loadWebLinks() {
         async {
-            Observable.just(webLinksDao.getWebLinks())
-                    .subscribe({
+            Observable.just(webLinkDao.getWebLinks())
+                    .subscribe {
                         launchUI(strategy) {
                             try {
                                 if (!it.isEmpty())
@@ -27,7 +27,7 @@ class WebLinksPresenter @Inject constructor(private val view: WebLinksView,
                                 Timber.e(e)
                             }
                         }
-                    })
+                    }
         }
     }
 }

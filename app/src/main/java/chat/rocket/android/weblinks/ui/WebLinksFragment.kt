@@ -1,12 +1,12 @@
 package chat.rocket.android.weblinks.ui
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.room.weblink.WebLinkEntity
@@ -65,12 +65,12 @@ class WebLinksFragment : Fragment(), WebLinksView {
                     resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
             recycler_view.itemAnimator = DefaultItemAnimator()
             // TODO - use a ViewModel Mapper instead of using settings on the adapter
-            recycler_view.adapter = WebLinksAdapter(this,
-                    { webLink ->
-                        run {
-                            startActivity(this.webViewIntent(webLink.link, if (!webLink.title.isEmpty()) webLink.title else resources.getString(R.string.url_preview_title)))
-                        }
-                    })
+            recycler_view.adapter = WebLinksAdapter(this
+            ) { webLink ->
+                run {
+                    startActivity(this.webViewIntent(webLink.link, if (!webLink.title.isEmpty()) webLink.title else resources.getString(R.string.url_preview_title)))
+                }
+            }
         }
     }
 

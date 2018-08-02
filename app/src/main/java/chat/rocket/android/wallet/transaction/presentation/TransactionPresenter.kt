@@ -18,8 +18,6 @@ import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
 import okhttp3.*
 import org.json.JSONObject
-import org.spongycastle.asn1.x500.style.RFC4519Style.l
-import org.spongycastle.crypto.tls.ConnectionEnd.client
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject

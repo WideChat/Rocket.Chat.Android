@@ -2,8 +2,8 @@ package chat.rocket.android.wallet.create.ui
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.view.ActionMode
+import androidx.fragment.app.Fragment
+import androidx.appcompat.view.ActionMode
 import android.view.*
 import android.widget.Toast
 import android.util.Log
@@ -21,7 +21,7 @@ import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_create_wallet.*
 import timber.log.Timber
 
-class CreateWalletFragment:  Fragment(), CreateWalletView, android.support.v7.view.ActionMode.Callback {
+class CreateWalletFragment:  Fragment(), CreateWalletView, ActionMode.Callback {
     @Inject lateinit var presenter: CreateWalletPresenter
     private var actionMode: ActionMode? = null
     private val disposables = CompositeDisposable()

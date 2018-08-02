@@ -12,10 +12,10 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
-import android.support.annotation.RequiresApi
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.NotificationManagerCompat
-import android.support.v4.app.RemoteInput
+import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
+import androidx.core.app.RemoteInput
 import android.text.Html
 import android.text.Spanned
 import chat.rocket.android.R
@@ -48,7 +48,8 @@ class PushManager @Inject constructor(
         private val getSettingsInteractor: GetSettingsInteractor,
         private val context: Context
 ) {
-    private val randomizer = Random()
+
+    private val random = Random()
 
     /**
      * Handles a receiving push by creating and displaying an appropriate notification based
@@ -59,7 +60,7 @@ class PushManager @Inject constructor(
         val message = data["message"] as String?
         val ejson = data["ejson"] as String?
         val title = data["title"] as String?
-        val notId = data["notId"] as String? ?: randomizer.nextInt().toString()
+        val notId = data["notId"] as String? ?: random.nextInt().toString()
         val image = data["image"] as String?
         val style = data["style"] as String?
         val summaryText = data["summaryText"] as String?
@@ -67,9 +68,13 @@ class PushManager @Inject constructor(
 
         try {
             val adapter = moshi.adapter<PushInfo>(PushInfo::class.java)
-            val info = adapter.fromJson(ejson)
 
-            val pushMessage = PushMessage(title!!, message!!, info!!, image, count, notId, summaryText, style)
+            val pushMessage = if (ejson != null) {
+                val info = adapter.fromJson(ejson)
+                PushMessage(title!!, message!!, info!!, image, count, notId, summaryText, style)
+            } else {
+                PushMessage(title!!, message!!, PushInfo.EMPTY, image, count, notId, summaryText, style)
+            }
 
             Timber.d("Received push message: $pushMessage")
 
@@ -82,13 +87,17 @@ class PushManager @Inject constructor(
 
     @SuppressLint("NewApi")
     suspend fun showNotification(pushMessage: PushMessage) {
-        if (!hasAccount(pushMessage.info.host)) {
-            Timber.d("ignoring push message: $pushMessage")
+        val notId = pushMessage.notificationId.toInt()
+        val host = pushMessage.info.host
+
+        if (!hasAccount(host)) {
+            createSingleNotification(pushMessage)?.let {
+                NotificationManagerCompat.from(context).notify(notId, it)
+            }
+            Timber.d("ignoring push message: $pushMessage (maybe a test notification?)")
             return
         }
 
-        val notId = pushMessage.notificationId.toInt()
-        val host = pushMessage.info.host
         val groupTuple = getGroupForHost(host)
 
         groupTuple.second.incrementAndGet()
@@ -103,7 +112,7 @@ class PushManager @Inject constructor(
         val pushMessageList = groupedPushes.hostToPushMessageList[host]
 
         notification?.let {
-            manager.notify(notId, notification)
+            manager.notify(notId, it)
         }
 
         pushMessageList?.let {
@@ -182,7 +191,7 @@ class PushManager @Inject constructor(
             if (style == null || "inbox" == style) {
                 val pushMessageList = groupedPushes.hostToPushMessageList.get(host)
 
-                pushMessageList?.let {
+                if (pushMessageList != null) {
                     val userMessages = pushMessageList.filter {
                         it.notificationId == pushMessage.notificationId
                     }
@@ -206,6 +215,12 @@ class PushManager @Inject constructor(
                                 .bigText(message.fromHtml())
                         builder.setStyle(bigTextStyle)
                     }
+                } else {
+                    // We don't know which kind of push is this - maybe a test push, so just show it
+                    val bigTextStyle = NotificationCompat.BigTextStyle()
+                            .bigText(message.fromHtml())
+                    builder.setStyle(bigTextStyle)
+                    return builder.build()
                 }
             } else {
                 val bigTextStyle = NotificationCompat.BigTextStyle()
@@ -213,8 +228,7 @@ class PushManager @Inject constructor(
                 builder.setStyle(bigTextStyle)
             }
 
-            return builder.addReplyAction(pushMessage)
-                    .build()
+            return builder.addReplyAction(pushMessage).build()
         }
     }
 
@@ -235,13 +249,27 @@ class PushManager @Inject constructor(
                     .setContentIntent(contentIntent)
                     .setMessageNotification()
 
+            if (host.isEmpty()) {
+                builder.setContentIntent(deleteIntent)
+            }
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                val channel = NotificationChannel(host, host, NotificationManager.IMPORTANCE_HIGH)
+                val channelId: String
+                val channelName: String
+                if (host.isEmpty()) {
+                    channelName = "Test Notification"
+                    channelId = "test-channel"
+                } else {
+                    channelName = host
+                    channelId = host
+                }
+                val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_HIGH)
                 channel.lockscreenVisibility = Notification.VISIBILITY_PUBLIC
                 channel.enableLights(false)
                 channel.enableVibration(true)
                 channel.setShowBadge(true)
                 manager.createNotificationChannel(channel)
+                builder.setChannelId(channelId)
             }
 
             //TODO: Get Site_Name PublicSetting from cache
@@ -271,12 +299,12 @@ class PushManager @Inject constructor(
     }
 
     private fun getContentIntent(context: Context, notificationId: Int, pushMessage: PushMessage, grouped: Boolean = false): PendingIntent {
-        val notificationIntent = context.changeServerIntent(pushMessage.info.host)
+        val notificationIntent = context.changeServerIntent(pushMessage.info.host, chatRoomId = pushMessage.info.roomId)
         // TODO - add support to go directly to the chatroom
-        /*if (!grouped) {
+        /*if (!isGrouped) {
             notificationIntent.putExtra(EXTRA_ROOM_ID, pushMessage.info.roomId)
         }*/
-        return PendingIntent.getActivity(context, randomizer.nextInt(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        return PendingIntent.getActivity(context, random.nextInt(), notificationIntent, PendingIntent.FLAG_UPDATE_CURRENT)
     }
 
     // CharSequence extensions
@@ -291,7 +319,7 @@ class PushManager @Inject constructor(
                 .setLabel(replyTextHint)
                 .build()
         val pendingIntent = getReplyPendingIntent(pushMessage)
-        val replyAction = NotificationCompat.Action.Builder(R.drawable.ic_reply_black_24px, replyTextHint, pendingIntent)
+        val replyAction = NotificationCompat.Action.Builder(R.drawable.ic_action_message_reply_24dp, replyTextHint, pendingIntent)
                 .addRemoteInput(replyRemoteInput)
                 .setAllowGeneratedReplies(true)
                 .build()
@@ -318,14 +346,14 @@ class PushManager @Inject constructor(
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             PendingIntent.getBroadcast(
                     context,
-                    randomizer.nextInt(),
+                    random.nextInt(),
                     replyIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT
             )
         } else {
             PendingIntent.getActivity(
                     context,
-                    randomizer.nextInt(),
+                    random.nextInt(),
                     replyIntent,
                     PendingIntent.FLAG_UPDATE_CURRENT
             )
@@ -359,6 +387,7 @@ data class PushMessage(
         val summaryText: String? = null,
         val style: String? = null
 ) : Parcelable {
+
     constructor(parcel: Parcel) : this(
             parcel.readString(),
             parcel.readString(),
@@ -438,6 +467,9 @@ data class PushInfo @KotshiConstructor constructor(
     }
 
     companion object CREATOR : Parcelable.Creator<PushInfo> {
+        val EMPTY = PushInfo(hostname = "", roomId = "", type = roomTypeOf(RoomType.CHANNEL), name = "",
+                sender = null)
+
         override fun createFromParcel(parcel: Parcel): PushInfo {
             return PushInfo(parcel)
         }

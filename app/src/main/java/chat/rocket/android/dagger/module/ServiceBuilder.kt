@@ -1,13 +1,13 @@
 package chat.rocket.android.dagger.module
 
-import chat.rocket.android.customtab.ActionBroadcastReceiver
-import chat.rocket.android.customtab.ActionBroadcastReceiverProvider
 import chat.rocket.android.chatroom.di.MessageServiceProvider
 import chat.rocket.android.chatroom.service.MessageService
+import chat.rocket.android.customtab.ActionBroadcastReceiver
+import chat.rocket.android.customtab.ActionBroadcastReceiverProvider
+import chat.rocket.android.push.FirebaseMessagingService
 import chat.rocket.android.push.FirebaseTokenService
-import chat.rocket.android.push.GcmListenerService
+import chat.rocket.android.push.di.FirebaseMessagingServiceProvider
 import chat.rocket.android.push.di.FirebaseTokenServiceProvider
-import chat.rocket.android.push.di.GcmListenerServiceProvider
 import dagger.Module
 import dagger.android.ContributesAndroidInjector
 
@@ -17,12 +17,12 @@ abstract class ServiceBuilder {
     @ContributesAndroidInjector(modules = [FirebaseTokenServiceProvider::class])
     abstract fun bindFirebaseTokenService(): FirebaseTokenService
 
-    @ContributesAndroidInjector(modules = [ActionBroadcastReceiverProvider::class])
-    abstract fun bindActionBroadcastReceiver(): ActionBroadcastReceiver
-
-    @ContributesAndroidInjector(modules = [GcmListenerServiceProvider::class])
-    abstract fun bindGcmListenerService(): GcmListenerService
+    @ContributesAndroidInjector(modules = [FirebaseMessagingServiceProvider::class])
+    abstract fun bindGcmListenerService(): FirebaseMessagingService
 
     @ContributesAndroidInjector(modules = [MessageServiceProvider::class])
     abstract fun bindMessageService(): MessageService
+
+    @ContributesAndroidInjector(modules = [ActionBroadcastReceiverProvider::class])
+    abstract fun bindActionBroadcastReceiver(): ActionBroadcastReceiver
 }

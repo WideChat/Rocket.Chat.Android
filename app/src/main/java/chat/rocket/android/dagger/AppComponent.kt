@@ -33,13 +33,13 @@ interface AppComponent {
 
     fun inject(service: FirebaseTokenService)
 
+    fun inject(service: MessageService)
+
     fun inject(broadcastReceiver: BroadcastReceiver)
 
     fun inject(webLinksAdapter: WebLinksAdapter)
 
     fun inject(webViewActivity: WebViewActivity)
-
-    fun inject(service: MessageService)
 
     /*@Component.Builder
     abstract class Builder : AndroidInjector.Builder<RocketChatApplication>()*/

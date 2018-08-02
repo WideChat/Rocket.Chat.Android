@@ -3,9 +3,9 @@ package chat.rocket.android.wallet.ui
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
+import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -180,7 +180,13 @@ class WalletFragment : Fragment(), WalletView {
                             }
                             dialog.dismiss()
                         } else {
-                            showToast("No wallet address found or invalid address format", Toast.LENGTH_LONG)
+                            presenter.loadWalletAddress(dialogLayout.search_users_autoCompleteTextView.textContent) {
+                                if (it.isNotEmpty()) {
+                                    directToDmRoom(dialogLayout.search_users_autoCompleteTextView.textContent)
+                                } else {
+                                    showToast("No wallet address found or invalid address format", Toast.LENGTH_LONG)
+                                }
+                            }
                         }
                     }
 

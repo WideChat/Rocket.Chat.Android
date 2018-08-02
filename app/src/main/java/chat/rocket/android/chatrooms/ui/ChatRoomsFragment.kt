@@ -1,41 +1,48 @@
 package chat.rocket.android.chatrooms.ui
 
 import android.app.AlertDialog
-import android.content.Context
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.util.DiffUtil
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
 import android.view.*
 import android.widget.CheckBox
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.isVisible
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProviders
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.LinearLayoutManager
 import chat.rocket.android.R
+import chat.rocket.android.chatrooms.adapter.RoomsAdapter
+import chat.rocket.android.chatrooms.infrastructure.ChatRoomsRepository
 import chat.rocket.android.chatrooms.presentation.ChatRoomsPresenter
 import chat.rocket.android.chatrooms.presentation.ChatRoomsView
-import chat.rocket.android.customtab.CustomTab
-import chat.rocket.android.customtab.WebViewFallback
+import chat.rocket.android.chatrooms.viewmodel.ChatRoomsViewModel
+import chat.rocket.android.chatrooms.viewmodel.ChatRoomsViewModelFactory
+import chat.rocket.android.db.DatabaseManager
 import chat.rocket.android.helper.ChatRoomsSortOrder
 import chat.rocket.android.helper.Constants
+import chat.rocket.android.util.extensions.inflate
+import chat.rocket.android.util.extensions.showToast
+import chat.rocket.android.util.extensions.ui
+import chat.rocket.android.util.extensions.fadeIn
+import chat.rocket.android.util.extensions.fadeOut
+import chat.rocket.android.customtab.CustomTab
+import chat.rocket.android.customtab.WebViewFallback
 import chat.rocket.android.helper.SharedPreferenceHelper
 import chat.rocket.android.room.weblink.WebLinkEntity
-import chat.rocket.android.infrastructure.LocalRepository
-import chat.rocket.android.server.domain.GetCurrentServerInteractor
-import chat.rocket.android.server.domain.SettingsRepository
 import chat.rocket.android.util.extensions.*
 import chat.rocket.android.weblinks.presentation.WebLinksPresenter
 import chat.rocket.android.weblinks.presentation.WebLinksView
 import chat.rocket.android.weblinks.ui.WebLinksAdapter
 import chat.rocket.android.webview.weblink.ui.webViewIntent
 import chat.rocket.android.widget.DividerItemDecoration
-import chat.rocket.common.model.RoomType
 import chat.rocket.core.internal.realtime.socket.model.State
+import chat.rocket.common.model.RoomType
 import chat.rocket.core.model.ChatRoom
 import com.facebook.drawee.view.SimpleDraweeView
 import com.leocardz.link.preview.library.LinkPreviewCallback
@@ -44,56 +51,80 @@ import com.leocardz.link.preview.library.TextCrawler
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_chat_rooms.*
 import kotlinx.android.synthetic.main.item_web_link.*
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.NonCancellable.isActive
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 import javax.inject.Inject
 
+private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
+
 class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
-    @Inject lateinit var presenter: ChatRoomsPresenter
-    @Inject lateinit var serverInteractor: GetCurrentServerInteractor
-    @Inject lateinit var settingsRepository: SettingsRepository
-    @Inject lateinit var localRepository: LocalRepository
-    @Inject lateinit var webLinksPresenter: WebLinksPresenter
+    @Inject
+    lateinit var presenter: ChatRoomsPresenter
+    @Inject
+    lateinit var factory: ChatRoomsViewModelFactory
+    @Inject
+    lateinit var dbManager: DatabaseManager // TODO - remove when moving ChatRoom screen to DB
+
+    lateinit var viewModel: ChatRoomsViewModel
+
+    @Inject
+    lateinit var webLinksPresenter: WebLinksPresenter
 
     private lateinit var preferences: SharedPreferences
     private var searchView: SearchView? = null
     private val handler = Handler()
 
     private var listJob: Job? = null
-    private var sectionedAdapter: SimpleSectionedRecyclerViewAdapter? = null
+    private var chatRoomId: String? = null
 
     companion object {
-        fun newInstance() = ChatRoomsFragment()
+        fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
+            return ChatRoomsFragment().apply {
+                arguments = Bundle(1).apply {
+                    putString(BUNDLE_CHAT_ROOM_ID, chatRoomId)
+                }
+            }
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
         setHasOptionsMenu(true)
-        preferences = context?.getSharedPreferences("temp", Context.MODE_PRIVATE)!!
+        val bundle = arguments
+        if (bundle != null) {
+            chatRoomId = bundle.getString(BUNDLE_CHAT_ROOM_ID)
+            chatRoomId?.let {
+                // TODO - bring back support to load a room from id.
+                //presenter.goToChatRoomWithId(it)
+                chatRoomId = null
+            }
+        }
     }
 
     override fun onDestroy() {
         handler.removeCallbacks(dismissStatus)
-        presenter.disconnect()
         super.onDestroy()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = container?.inflate(R.layout.fragment_chat_rooms)
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
+    ): View? = container?.inflate(R.layout.fragment_chat_rooms)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        viewModel = ViewModelProviders.of(this, factory).get(ChatRoomsViewModel::class.java)
+        subscribeUi()
+
         setupToolbar()
-        setupRecyclerView()
         setupWebLinksRecyclerView()
         setupWebSearch()
         setupWebLinksExpandButton()
-        presenter.loadChatRooms()
     }
 
     override fun onResume() {
@@ -104,6 +135,42 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     override fun onDestroyView() {
         listJob?.cancel()
         super.onDestroyView()
+    }    
+        
+    private fun subscribeUi() {
+        ui {
+
+            val adapter = RoomsAdapter { roomId ->
+                launch(UI) {
+                    dbManager.getRoom(roomId)?.let { room ->
+                        ui {
+                            presenter.loadChatRoom(room)
+                        }
+                    }
+
+                }
+            }
+
+            recycler_view.layoutManager = LinearLayoutManager(it)
+            recycler_view.addItemDecoration(DividerItemDecoration(it,
+                    resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_start),
+                    resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
+            recycler_view.itemAnimator = DefaultItemAnimator()
+            recycler_view.adapter = adapter
+
+            viewModel.getChatRooms().observe(viewLifecycleOwner, Observer { rooms ->
+                rooms?.let {
+                    Timber.d("Got items: $it")
+                    adapter.values = it
+                }
+            })
+
+            viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
+                status?.let { showConnectionState(status) }
+            })
+
+            updateSort()
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -111,7 +178,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         inflater.inflate(R.menu.chatrooms, menu)
 
         val searchItem = menu.findItem(R.id.action_search)
-        searchView = searchItem?.actionView as SearchView
+        searchView = searchItem?.actionView as? SearchView
+        searchView?.setIconifiedByDefault(false)
         searchView?.maxWidth = Integer.MAX_VALUE
         searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(query: String?): Boolean {
@@ -126,6 +194,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+        // TODO - simplify this
             R.id.action_sort -> {
                 val dialogLayout = layoutInflater.inflate(R.layout.chatroom_sort_dialog, null)
                 val sortType = SharedPreferenceHelper.getInt(Constants.CHATROOM_SORT_TYPE_KEY, ChatRoomsSortOrder.ACTIVITY)
@@ -138,34 +207,57 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                     0 -> R.id.radio_sort_alphabetical
                     else -> R.id.radio_sort_activity
                 })
-                radioGroup.setOnCheckedChangeListener({ _, checkedId ->
+                radioGroup.setOnCheckedChangeListener { _, checkedId ->
                     run {
                         SharedPreferenceHelper.putInt(Constants.CHATROOM_SORT_TYPE_KEY, when (checkedId) {
                             R.id.radio_sort_alphabetical -> 0
                             R.id.radio_sort_activity -> 1
                             else -> 1
                         })
-                        presenter.updateSortedChatRooms()
-                        invalidateQueryOnSearch()
                     }
-                })
+                }
 
                 groupByTypeCheckBox.isChecked = groupByType
-                groupByTypeCheckBox.setOnCheckedChangeListener({ _, isChecked ->
+                groupByTypeCheckBox.setOnCheckedChangeListener { _, isChecked ->
                     SharedPreferenceHelper.putBoolean(Constants.CHATROOM_GROUP_BY_TYPE_KEY, isChecked)
-                    presenter.updateSortedChatRooms()
-                    invalidateQueryOnSearch()
-                })
+                }
 
-                val dialogSort = AlertDialog.Builder(context)
-                        .setTitle(R.string.dialog_sort_title)
-                        .setView(dialogLayout)
-                        .setPositiveButton("Done", { dialog, _ -> dialog.dismiss() })
-
-                dialogSort.show()
+                AlertDialog.Builder(context)
+                    .setTitle(R.string.dialog_sort_title)
+                    .setView(dialogLayout)
+                    .setPositiveButton("Done") { dialog, _ ->
+                        invalidateQueryOnSearch()
+                        updateSort()
+                        dialog.dismiss()
+                    }.show()
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun updateSort() {
+        val sortType = SharedPreferenceHelper.getInt(Constants.CHATROOM_SORT_TYPE_KEY, ChatRoomsSortOrder.ACTIVITY)
+        val grouped = SharedPreferenceHelper.getBoolean(Constants.CHATROOM_GROUP_BY_TYPE_KEY, false)
+
+        val order = when (sortType) {
+            ChatRoomsSortOrder.ALPHABETICAL -> {
+                if (grouped) {
+                    ChatRoomsRepository.Order.GROUPED_NAME
+                } else {
+                    ChatRoomsRepository.Order.NAME
+                }
+            }
+            ChatRoomsSortOrder.ACTIVITY -> {
+                if (grouped) {
+                    ChatRoomsRepository.Order.GROUPED_ACTIVITY
+                } else {
+                    ChatRoomsRepository.Order.ACTIVITY
+                }
+            }
+            else -> ChatRoomsRepository.Order.ACTIVITY
+        }
+
+        viewModel.setOrdering(order)
     }
 
     private fun invalidateQueryOnSearch() {
@@ -176,38 +268,19 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         }
     }
 
-    override suspend fun updateChatRooms(newDataSet: List<ChatRoom>) {
-        listJob?.cancel()
-        listJob = ui {
-            val adapter = recycler_view.adapter as SimpleSectionedRecyclerViewAdapter
-            // FIXME https://fabric.io/rocketchat3/android/apps/chat.rocket.android/issues/5ac2916c36c7b235275ccccf
-            // TODO - fix this bug to re-enable DiffUtil
-            /*val diff = async(CommonPool) {
-                DiffUtil.calculateDiff(RoomsDiffCallback(adapter.baseAdapter.dataSet, newDataSet))
-            }.await()*/
-
-            if (isActive) {
-                adapter.baseAdapter.updateRooms(newDataSet)
-                // TODO - fix crash to re-enable diff.dispatchUpdatesTo(adapter)
-                adapter.notifyDataSetChanged()
-
-                //Set sections always after data set is updated
-                setSections()
-            }
-        }
-    }
+    override suspend fun updateChatRooms(newDataSet: List<ChatRoom>) {}
 
     override fun showNoChatRoomsToDisplay() {
-        ui { text_no_data_to_display.setVisible(true) }
+        ui { text_no_data_to_display.isVisible = true }
     }
 
-    override fun showLoading(){
-        ui { view_loading.setVisible(true) }
+    override fun showLoading() {
+        ui { view_loading.isVisible = true }
     }
 
     override fun hideLoading() {
         ui {
-            view_loading.setVisible(false)
+            view_loading.isVisible = false
         }
     }
 
@@ -251,6 +324,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     }
 
     override suspend fun updateWebLinks(newDataSet: List<WebLinkEntity>) {
+
         if (!newDataSet.isEmpty()){
             web_links_expand_button.visibility = View.VISIBLE
         }
@@ -277,26 +351,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
     }
 
-    private fun setupRecyclerView() {
-        ui {
-            recycler_view.layoutManager = LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
-            recycler_view.addItemDecoration(DividerItemDecoration(it,
-                    resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_start),
-                    resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
-            recycler_view.itemAnimator = DefaultItemAnimator()
-            // TODO - use a ViewModel Mapper instead of using settings on the adapter
-
-            val baseAdapter = ChatRoomsAdapter(it,
-                    settingsRepository.get(serverInteractor.get()!!), localRepository) {
-                chatRoom -> presenter.loadChatRoom(chatRoom)
-            }
-
-            sectionedAdapter = SimpleSectionedRecyclerViewAdapter(it,
-                    R.layout.item_chatroom_header, R.id.text_chatroom_header, baseAdapter)
-            recycler_view.adapter = sectionedAdapter
-        }
-    }
-
     private fun setupWebLinksRecyclerView() {
         ui {
             web_links_recycler_view.layoutManager = LinearLayoutManager(it, LinearLayoutManager.VERTICAL, false)
@@ -305,12 +359,12 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                     resources.getDimensionPixelSize(R.dimen.divider_item_decorator_bound_end)))
             web_links_recycler_view.itemAnimator = DefaultItemAnimator()
 
-            web_links_recycler_view.adapter = WebLinksAdapter(it,
-                { webLink ->
-                    run {
-                        startActivity(it.webViewIntent(webLink.link, if (!webLink.title.isEmpty()) webLink.title else resources.getString(R.string.url_preview_title)))
-                    }
-            })
+            web_links_recycler_view.adapter = WebLinksAdapter(it
+            ) { webLink ->
+                run {
+                    startActivity(it.webViewIntent(webLink.link, if (!webLink.title.isEmpty()) webLink.title else resources.getString(R.string.url_preview_title)))
+                }
+            }
         }
     }
 
@@ -328,38 +382,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         }
     }
 
-    private fun setSections() {
-        //Don't add section if not grouping by RoomType
-        if (!SharedPreferenceHelper.getBoolean(Constants.CHATROOM_GROUP_BY_TYPE_KEY, false)) {
-            sectionedAdapter?.clearSections()
-            return
-        }
-
-        val sections = ArrayList<SimpleSectionedRecyclerViewAdapter.Section>()
-
-        sectionedAdapter?.baseAdapter?.dataSet?.let {
-            var previousChatRoomType = ""
-
-            for ((position, chatRoom) in it.withIndex()) {
-                val type = chatRoom.type.toString()
-                if (type != previousChatRoomType) {
-                    val title = when (type) {
-                        RoomType.CHANNEL.toString() -> resources.getString(R.string.header_channel)
-                        RoomType.PRIVATE_GROUP.toString() -> resources.getString(R.string.header_private_groups)
-                        RoomType.DIRECT_MESSAGE.toString() -> resources.getString(R.string.header_direct_messages)
-                        RoomType.LIVECHAT.toString() -> resources.getString(R.string.header_live_chats)
-                        else -> resources.getString(R.string.header_unknown)
-                    }
-                    sections.add(SimpleSectionedRecyclerViewAdapter.Section(position, title))
-                }
-                previousChatRoomType = chatRoom.type.toString()
-            }
-        }
-
-        val dummy = arrayOfNulls<SimpleSectionedRecyclerViewAdapter.Section>(sections.size)
-        sectionedAdapter?.setSections(sections.toArray(dummy))
-    }
-
     private fun setupWebSearch() {
         //val link = "http://bizzbyster.github.io/search/"
 
@@ -373,10 +395,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                 imageUrl, image_web_link,
                 link, text_link)
 
-        web_search.setOnClickListener({
+        web_search.setOnClickListener {
             //CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
             startActivity(this.activity?.webViewIntent(link, if (!title.isEmpty()) title else resources.getString(R.string.url_preview_title)))
-        })
+        }
 
         val linkPreviewCallback = object : LinkPreviewCallback {
 
@@ -407,10 +429,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                         SharedPreferenceHelper.putString("web_search_link", link)
                     }
                 }
-//        val textCrawler = TextCrawler()
-//        textCrawler.makePreview(linkPreviewCallback, link)
             }
         }
+//        val textCrawler = TextCrawler()
+//        textCrawler.makePreview(linkPreviewCallback, link)
     }
 
     private fun updateUI(title: String, textViewTitle: TextView,
@@ -447,31 +469,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     }
 
     private fun queryChatRoomsByName(name: String?): Boolean {
-        presenter.chatRoomsByName(name ?: "")
+        //presenter.chatRoomsByName(name ?: "")
         return true
-    }
-
-    class RoomsDiffCallback(private val oldRooms: List<ChatRoom>,
-                            private val newRooms: List<ChatRoom>) : DiffUtil.Callback() {
-
-        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldRooms[oldItemPosition].id == newRooms[newItemPosition].id
-        }
-
-        override fun getOldListSize(): Int {
-            return oldRooms.size
-        }
-
-        override fun getNewListSize(): Int {
-            return newRooms.size
-        }
-
-        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
-            return oldRooms[oldItemPosition].updatedAt == newRooms[newItemPosition].updatedAt
-        }
-
-        override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-            return newRooms[newItemPosition]
-        }
     }
 }

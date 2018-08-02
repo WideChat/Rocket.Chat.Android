@@ -5,11 +5,6 @@ import chat.rocket.core.model.Value
 
 typealias PublicSettings = Map<String, Value<Any>>
 
-interface SettingsRepository {
-    fun save(url: String, settings: PublicSettings)
-    fun get(url: String): PublicSettings
-}
-
 // Authentication methods.
 const val LDAP_ENABLE = "LDAP_Enable"
 const val CAS_ENABLE = "CAS_enabled"
@@ -26,6 +21,7 @@ const val ACCOUNT_METEOR = "Accounts_OAuth_Meteor"
 const val ACCOUNT_TWITTER = "Accounts_OAuth_Twitter"
 const val ACCOUNT_WORDPRESS = "Accounts_OAuth_Wordpress"
 const val ACCOUNT_GITLAB = "Accounts_OAuth_Gitlab"
+const val ACCOUNT_GITLAB_URL = "API_Gitlab_URL"
 
 const val SITE_URL = "Site_Url"
 const val SITE_NAME = "Site_Name"
@@ -50,6 +46,8 @@ const val SHOW_EDITED_STATUS = "Message_ShowEditedStatus"
 const val ALLOW_MESSAGE_PINNING = "Message_AllowPinning"
 const val WALLET_MODE_MANAGED = "Wallet_Mode_Managed"
 const val WALLET_TOGGLE_ON = "Wallet_Toggle_On"
+const val ALLOW_MESSAGE_STARRING = "Message_AllowStarring"
+const val STORE_LAST_MESSAGE = "Store_Last_Message"
 
 /*
  * Extension functions for Public Settings.
@@ -58,6 +56,7 @@ const val WALLET_TOGGLE_ON = "Wallet_Toggle_On"
  * ServerPresenter.kt and a extension function to access it
  */
 fun PublicSettings.isLdapAuthenticationEnabled(): Boolean = this[LDAP_ENABLE]?.value == true
+
 fun PublicSettings.isCasAuthenticationEnabled(): Boolean = this[CAS_ENABLE]?.value == true
 fun PublicSettings.casLoginUrl(): String = this[CAS_LOGIN_URL]?.value.toString()
 fun PublicSettings.isRegistrationEnabledForNewUsers(): Boolean = this[ACCOUNT_REGISTRATION]?.value == "Public"
@@ -70,9 +69,11 @@ fun PublicSettings.isLinkedinAuthenticationEnabled(): Boolean = this[ACCOUNT_LIN
 fun PublicSettings.isMeteorAuthenticationEnabled(): Boolean = this[ACCOUNT_METEOR]?.value == true
 fun PublicSettings.isTwitterAuthenticationEnabled(): Boolean = this[ACCOUNT_TWITTER]?.value == true
 fun PublicSettings.isGitlabAuthenticationEnabled(): Boolean = this[ACCOUNT_GITLAB]?.value == true
+fun PublicSettings.gitlabUrl(): String? = this[ACCOUNT_GITLAB_URL]?.value as String?
 fun PublicSettings.isWordpressAuthenticationEnabled(): Boolean = this[ACCOUNT_WORDPRESS]?.value == true
 
 fun PublicSettings.useRealName(): Boolean = this[USE_REALNAME]?.value == true
+fun PublicSettings.useSpecialCharsOnRoom(): Boolean = this[ALLOW_ROOM_NAME_SPECIAL_CHARS]?.value == true
 fun PublicSettings.faviconLarge(): String? = this[FAVICON_512]?.value as String?
 fun PublicSettings.favicon(): String? = this[FAVICON_196]?.value as String?
 fun PublicSettings.wideTile(): String? = this[WIDE_TILE_310]?.value as String?
@@ -81,25 +82,46 @@ fun PublicSettings.wideTile(): String? = this[WIDE_TILE_310]?.value as String?
 fun PublicSettings.showDeletedStatus(): Boolean = this[SHOW_DELETED_STATUS]?.value == true
 fun PublicSettings.showEditedStatus(): Boolean = this[SHOW_EDITED_STATUS]?.value == true
 fun PublicSettings.allowedMessagePinning(): Boolean = this[ALLOW_MESSAGE_PINNING]?.value == true
+fun PublicSettings.allowedMessageStarring(): Boolean = this[ALLOW_MESSAGE_STARRING]?.value == true
 fun PublicSettings.allowedMessageEditing(): Boolean = this[ALLOW_MESSAGE_EDITING]?.value == true
 fun PublicSettings.allowedMessageDeleting(): Boolean = this[ALLOW_MESSAGE_DELETING]?.value == true
 
-fun PublicSettings.uploadMimeTypeFilter(): Array<String> {
-    val values = this[UPLOAD_WHITELIST_MIMETYPES]?.value
-    values?.let { it as String }?.split(",")?.let {
-        return it.mapToTypedArray { it.trim() }
-    }
+fun PublicSettings.hasShowLastMessage(): Boolean = this[STORE_LAST_MESSAGE] != null
+fun PublicSettings.showLastMessage(): Boolean = this[STORE_LAST_MESSAGE]?.value == true
 
-    return arrayOf("*/*")
+fun PublicSettings.uploadMimeTypeFilter(): Array<String>? {
+    val values = this[UPLOAD_WHITELIST_MIMETYPES]?.value as String?
+    if (!values.isNullOrBlank()) {
+        return values!!.split(",").mapToTypedArray { it.trim() }
+    }
+    return null
 }
 
 fun PublicSettings.uploadMaxFileSize(): Int {
     return this[UPLOAD_MAX_FILE_SIZE]?.value?.let { it as Int } ?: Int.MAX_VALUE
 }
 
-fun PublicSettings.baseUrl(): String? = this[SITE_URL]?.value as String?
+fun PublicSettings.baseUrl(): String = this[SITE_URL]?.value as String
 fun PublicSettings.siteName(): String? = this[SITE_NAME]?.value as String?
 
 // Wallet settings
 fun PublicSettings.isWalletEnabled(): Boolean = true // TODO this[WALLET_TOGGLE_ON]?.value == true
 fun PublicSettings.isWalletManaged(): Boolean = true // TODO this[WALLET_MODE_MANAGED]?.value == true
+
+/**
+
+this.add('Wallet_Mode_Managed', false, {
+        type: 'boolean',
+        'public': true
+});
+this.add('Wallet_Toggle_On', false, {
+        type: 'boolean',
+        'public': true
+});
+
+ */
+
+interface SettingsRepository {
+    fun save(url: String, settings: PublicSettings)
+    fun get(url: String): PublicSettings
+}

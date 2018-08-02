@@ -1,11 +1,11 @@
 package chat.rocket.android.wallet.transaction.ui
 
 import android.os.Bundle
-import android.support.v4.app.Fragment
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.support.v7.view.ActionMode
+import androidx.appcompat.view.ActionMode
 import android.view.*
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -23,7 +23,7 @@ import kotlinx.coroutines.experimental.async
 import java.math.BigDecimal
 
 
-class TransactionFragment: Fragment(), TransactionView, android.support.v7.view.ActionMode.Callback {
+class TransactionFragment: Fragment(), TransactionView, ActionMode.Callback {
     @Inject lateinit var presenter: TransactionPresenter
     private var actionMode: ActionMode? = null
     private var recipientUserName: String = ""

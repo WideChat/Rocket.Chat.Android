@@ -4,21 +4,32 @@ import android.content.Context
 import android.view.View
 import android.widget.Toast
 import chat.rocket.android.R
+import chat.rocket.android.chatrooms.infrastructure.ChatRoomsRepository
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.main.presentation.MainNavigator
-import chat.rocket.android.server.domain.*
+import chat.rocket.android.server.domain.ChatRoomsInteractor
+import chat.rocket.android.server.domain.TokenRepository
+import chat.rocket.android.server.domain.SettingsRepository
+import chat.rocket.android.server.domain.GetCurrentServerInteractor
+import chat.rocket.android.server.domain.isWalletManaged
 import chat.rocket.android.server.infraestructure.RocketChatClientFactory
 import chat.rocket.android.util.extensions.launchUI
+import chat.rocket.android.util.livedata.transform
 import chat.rocket.android.util.retryIO
 import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.WalletDBInterface
 import chat.rocket.common.RocketChatException
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.Token
+import chat.rocket.common.model.roomTypeOf
 import chat.rocket.core.RocketChatClient
 import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.experimental.newSingleThreadContext
+import me.henrytao.livedataktx.distinct
+import me.henrytao.livedataktx.nonNull
+import me.henrytao.livedataktx.observe
 import okhttp3.*
 import org.json.JSONObject
 import timber.log.Timber
@@ -29,8 +40,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val strategy: CancelStrategy,
                                            private val navigator: MainNavigator,
                                            private val localRepository: LocalRepository,
-                                           private val getChatRoomsInteractor: GetChatRoomsInteractor,
+                                           private val chatRoomsInteractor: ChatRoomsInteractor,
                                            private val tokenRepository: TokenRepository,
+                                           private val chatRoomsRepository: ChatRoomsRepository,
                                            settingsRepository: SettingsRepository,
                                            serverInteractor: GetCurrentServerInteractor,
                                            factory: RocketChatClientFactory) {
@@ -42,7 +54,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val dbInterface = WalletDBInterface()
     private val settings = settingsRepository.get(serverUrl)
     private val managedMode = settings.isWalletManaged()
-
+    private val runContext = newSingleThreadContext("wallet-query-chat-rooms")
 
     /**
      * Get transaction history associated with the user's wallet
@@ -274,9 +286,16 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     fun loadDMRooms() {
         launchUI(strategy) {
             try {
-                val roomList = getChatRoomsInteractor.getByName(serverUrl, "")
-                val directMessageRoomList = roomList.filter( {it.type.javaClass == RoomType.DIRECT_MESSAGE.javaClass} )
-                view.setupSendToDialog(directMessageRoomList.map({room -> room.name}))
+                val allRoomsQuery = chatRoomsRepository.getChatRooms(ChatRoomsRepository.Order.ACTIVITY)
+                allRoomsQuery.observe {
+                    val rooms = it ?: emptyList()
+                    view.setupSendToDialog(rooms.filter {
+                        roomTypeOf(it.chatRoom.type) is RoomType.DirectMessage
+                    }.map {
+                        it.chatRoom.name
+                    })
+                }
+
             } catch (ex: RocketChatException) {
                 Timber.e(ex)
             }
@@ -290,17 +309,24 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     fun loadDMRoomByName(name: String) {
         launchUI(strategy) {
             try {
-                val roomList = getChatRoomsInteractor.getByName(serverUrl, name)
-                val directMessageRoomList = roomList.filter {it.type.javaClass == RoomType.DIRECT_MESSAGE.javaClass}
-
-                if (directMessageRoomList.isEmpty()) {
-                    view.showRoomFailedToLoadMessage(name)
-                } else {
-                    val room = directMessageRoomList.first()
-                    navigator.toChatRoom(room.id, room.name, room.type.toString(),
-                            room.readonly ?: false,
-                            room.lastSeen ?: -1,
-                            room.open, true)
+                val allRoomsQuery = chatRoomsRepository.getChatRooms(ChatRoomsRepository.Order.ACTIVITY)
+                allRoomsQuery.observe {
+                    val rooms = it ?: emptyList()
+                    rooms.forEach {room ->
+                        if (room.chatRoom.name == name && roomTypeOf(room.chatRoom.type) is RoomType.DirectMessage) {
+                            navigator.toChatRoom(
+                                    chatRoomId =  room.chatRoom.id,
+                                    chatRoomName = room.chatRoom.name,
+                                    chatRoomType = room.chatRoom.type,
+                                    isReadOnly = room.chatRoom.readonly ?: false,
+                                    chatRoomLastSeen = room.chatRoom.lastSeen ?: -1,
+                                    isSubscribed = room.chatRoom.open,
+                                    isFromWallet = true,
+                                    isCreator = true,
+                                    isFavorite = room.chatRoom.favorite ?: false
+                            )
+                        }
+                    }
                 }
             } catch (ex: RocketChatException) {
                 Timber.e(ex)

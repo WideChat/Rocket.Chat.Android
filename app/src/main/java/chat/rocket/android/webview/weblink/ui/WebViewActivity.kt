@@ -3,21 +3,17 @@ package chat.rocket.android.webview.weblink.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import android.view.Gravity
-import android.view.LayoutInflater
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import chat.rocket.android.R
 import chat.rocket.android.app.RocketChatApplication
+import chat.rocket.android.dagger.DaggerAppComponent
 import chat.rocket.android.customtab.CustomTab
 import chat.rocket.android.customtab.WebViewFallback
-import chat.rocket.android.dagger.DaggerAppComponent
 import chat.rocket.android.helper.ToastHelper
 import chat.rocket.android.helper.UrlHelper
 import chat.rocket.android.room.weblink.WebLinkDao
@@ -59,7 +55,7 @@ class WebViewActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web_view)
-        DaggerAppComponent.builder().application(RocketChatApplication.application).build().inject(this)
+        //DaggerAppComponent.builder().application(RocketChatApplication.application).build().inject(this)
 
         webPageUrl = intent.getStringExtra(INTENT_WEB_PAGE_URL)
         webPageTitle = intent.getStringExtra(INTENT_WEB_PAGE_TITLE)
@@ -161,7 +157,7 @@ class WebViewActivity : AppCompatActivity() {
         Observable.just(string)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe({
-                    Toast.makeText(RocketChatApplication.getAppContext(), string, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(RocketChatApplication.application.applicationContext, string, Toast.LENGTH_SHORT).show()
                 })
     }
 
