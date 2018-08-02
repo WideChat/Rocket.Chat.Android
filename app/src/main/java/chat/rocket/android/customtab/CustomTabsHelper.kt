@@ -3,9 +3,13 @@ package chat.rocket.android.customtab
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.net.Uri
 import android.text.TextUtils
 import android.util.Log
+import android.view.Gravity
+import android.view.View
+import android.widget.Toast
 import java.util.*
 import okhttp3.HttpUrl
 
@@ -18,6 +22,7 @@ object CustomTabsHelper {
     private const val BETA_PACKAGE = "com.chrome.beta"
     private const val DEV_PACKAGE = "com.chrome.dev"
     private const val LOCAL_PACKAGE = "com.google.android.apps.chrome"
+    private const val VB_PACKAGE = "com.viasat.browser"
     private const val EXTRA_CUSTOM_TABS_KEEP_ALIVE = "android.support.customtabs.extra.KEEP_ALIVE"
     private const val ACTION_CUSTOM_TABS_CONNECTION = "android.support.customtabs.action.CustomTabsService"
 
@@ -50,6 +55,19 @@ object CustomTabsHelper {
     }
 
     /**
+     * short lived pop message
+     */
+    fun postToastMessage(context: Context, msg: String): Unit {
+        var toast = Toast.makeText(context,
+                msg, Toast.LENGTH_LONG)
+        var view: View = toast.getView()
+        view.setBackgroundColor(Color.CYAN);
+        val pos = Gravity.TOP or Gravity.CENTER
+        toast.setGravity(pos, 0, 300)
+        toast.show()
+    }
+
+    /**
      * Goes through all apps that handle VIEW intents and have a warmup service. Picks
      * the one chosen by the user if there is one, otherwise makes a best effort to return a
      * valid package name.
@@ -61,7 +79,11 @@ object CustomTabsHelper {
      * @return The package name recommended to use for connecting to custom tabs related components.
      */
     fun getPackageNameToUse(context: Context): String? {
-        if (sPackageNameToUse != null) return sPackageNameToUse
+        var foundVbPackage: Boolean = false
+
+        if (sPackageNameToUse != null) {
+            return sPackageNameToUse
+        }
 
         val pm = context.packageManager
         // Get default VIEW intent handler.
@@ -88,6 +110,9 @@ object CustomTabsHelper {
         // and service calls.
         if (packagesSupportingCustomTabs.isEmpty()) {
             sPackageNameToUse = null
+        } else if (packagesSupportingCustomTabs.contains(VB_PACKAGE)){
+            sPackageNameToUse = VB_PACKAGE
+            postToastMessage(context, "You are using Viasat Browser as search platform")
         } else if (packagesSupportingCustomTabs.size == 1) {
             sPackageNameToUse = packagesSupportingCustomTabs[0]
         } else if (!TextUtils.isEmpty(defaultViewHandlerPackageName)
@@ -102,6 +127,10 @@ object CustomTabsHelper {
             sPackageNameToUse = DEV_PACKAGE
         } else if (packagesSupportingCustomTabs.contains(LOCAL_PACKAGE)) {
             sPackageNameToUse = LOCAL_PACKAGE
+        }
+
+        if (sPackageNameToUse != VB_PACKAGE) {
+            postToastMessage(context, "For better performance, please install viasat browser")
         }
         return sPackageNameToUse
     }

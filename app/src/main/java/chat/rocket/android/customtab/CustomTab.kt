@@ -5,13 +5,13 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.res.ResourcesCompat
 import chat.rocket.android.R
 
 object CustomTab {
     fun openCustomTab(context: Context, url: String, fallback: CustomTabFallback?, setBackButton: Boolean = false) {
-
         val uri = Uri.parse(CustomTabsHelper.convertSchemeToLower(url))
 
         val customTabIntentBuilder = CustomTabsIntent.Builder()
@@ -26,7 +26,7 @@ object CustomTab {
         customTabIntentBuilder.setShowTitle(true)
 
         if (setBackButton) {
-            customTabIntentBuilder.setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_arrow_back))
+           customTabIntentBuilder.setCloseButtonIcon(BitmapFactory.decodeResource(context.resources, R.drawable.ic_arrow_back))
         }
 
         val customTabIntent = customTabIntentBuilder.build()
@@ -36,7 +36,10 @@ object CustomTab {
             fallback?.openUri(context, uri)
         } else {
             customTabIntent.intent.`package` = packageName
+            // CustomTabsIntent.setAlwaysUseBrowserUI(customTabIntent.intent)
             customTabIntent.launchUrl(context, uri)
+            val shouldAlwaysUseBrowserUI: Boolean = CustomTabsIntent.shouldAlwaysUseBrowserUI(customTabIntent.intent)
+            Log.e("Viasat: UserBrowserUI: ", if (shouldAlwaysUseBrowserUI) {"yes"} else {"no"}) 
         }
     }
 

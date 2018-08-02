@@ -4,6 +4,7 @@ import android.app.AlertDialog
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import android.view.*
 import android.widget.CheckBox
 import android.widget.RadioGroup
@@ -56,6 +57,9 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 import javax.inject.Inject
+
+import java.io.PrintWriter
+import java.io.StringWriter
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 
@@ -117,7 +121,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
         viewModel = ViewModelProviders.of(this, factory).get(ChatRoomsViewModel::class.java)
         subscribeUi()
 
@@ -387,21 +390,21 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
         val title = SharedPreferenceHelper.getString("web_search_title", "Internet Search")
         val description = SharedPreferenceHelper.getString("web_search_desc", "Faster web with the Viasat Browser")
-        val imageUrl = SharedPreferenceHelper.getString("web_search_image", "http://www.verandaweb.com/search/browser.png")
+        val imageUrl = SharedPreferenceHelper.getString("web_search_image", "")
         val link = SharedPreferenceHelper.getString("web_search_link", "https://www.google.com")
-
+    
         updateUI(title, text_title,
                 description, text_description,
                 imageUrl, image_web_link,
                 link, text_link)
 
+
         web_search.setOnClickListener {
-            //CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
+            CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
             startActivity(this.activity?.webViewIntent(link, if (!title.isEmpty()) title else resources.getString(R.string.url_preview_title)))
         }
 
         val linkPreviewCallback = object : LinkPreviewCallback {
-
             override fun onPre() {
                 //Do nothing
             }
@@ -421,7 +424,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                             newDescription, text_description,
                             newImageUrl, image_web_link,
                             link, text_link)
-
                     launch {
                         SharedPreferenceHelper.putString("web_search_title", newTitle)
                         SharedPreferenceHelper.putString("web_search_desc", newDescription)
@@ -460,7 +462,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
             imageView.visibility = View.VISIBLE
             imageView.setImageURI(imageUrl)
         } else {
-            imageView.setActualImageResource(R.drawable.ic_link_black_24dp)
+            Log.e("Viasat-veranda", "get VB logo")
+            imageView.setActualImageResource(R.drawable.product_logo_32)
         }
 
         if (!link.isEmpty()) {
