@@ -837,7 +837,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
             }
 
             if (roomTypeOf(chatRoomType).toString() == RoomType.DIRECT_MESSAGE) {
-                button_send_tokens.setVisible(true)
+                if(presenter.isWalletEnabled()) button_send_tokens.setVisible(true)
                 button_send_tokens.setOnClickListener {
                     handler.postDelayed({
                         presenter.sendTokens()
@@ -880,7 +880,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
 
     private fun openEmojiKeyboardPopup() {
         if (!emojiKeyboardPopup.isShowing) {
-            // If keyboard is visible, simply show the  popup
+            // If keyboard is visible, simply show the popup
             if (emojiKeyboardPopup.isKeyboardOpen) {
                 emojiKeyboardPopup.showAtBottom()
             } else {

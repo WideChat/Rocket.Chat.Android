@@ -14,8 +14,8 @@ import androidx.annotation.IdRes
 import androidx.drawerlayout.widget.DrawerLayout
 import chat.rocket.android.BuildConfig
 import chat.rocket.android.R
-import chat.rocket.android.main.adapter.AccountsAdapter
 import chat.rocket.android.main.adapter.Selector
+import chat.rocket.android.main.adapter.AccountsAdapter
 import chat.rocket.android.main.presentation.MainPresenter
 import chat.rocket.android.main.presentation.MainView
 import chat.rocket.android.main.uimodel.NavHeaderUiModel
@@ -203,6 +203,12 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     }
 
     private fun setupNavigationView() {
+
+        if (!presenter.isWalletEnabled()){
+            val wallet = view_navigation.menu.findItem(R.id.action_wallet)
+            wallet.isVisible = false
+        }
+
         view_navigation.setNavigationItemSelectedListener { menuItem ->
             menuItem.isChecked = true
             closeDrawer()

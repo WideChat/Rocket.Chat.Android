@@ -244,4 +244,8 @@ class MainPresenter @Inject constructor(
         val model = navHeaderMapper.mapToUiModel(myself)
         view.setupNavHeader(model, getAccountsInteractor.get())
     }
+
+    fun isWalletEnabled() : Boolean{
+        return settings.isWalletEnabled()
+    }
 }

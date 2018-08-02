@@ -25,6 +25,7 @@ import chat.rocket.android.server.domain.PermissionsInteractor
 import chat.rocket.android.server.domain.PublicSettings
 import chat.rocket.android.server.domain.RoomRepository
 import chat.rocket.android.server.domain.UsersRepository
+import chat.rocket.android.server.domain.isWalletEnabled
 import chat.rocket.android.server.domain.isWalletManaged
 import chat.rocket.android.server.domain.uploadMaxFileSize
 import chat.rocket.android.server.domain.uploadMimeTypeFilter
@@ -971,6 +972,10 @@ class ChatRoomPresenter @Inject constructor(
 
     fun isWalletManaged(): Boolean {
         return settings.isWalletManaged()
+    }
+
+    fun isWalletEnabled(): Boolean {
+        return settings.isWalletEnabled()
     }
 
 }
