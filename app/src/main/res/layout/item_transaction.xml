@@ -34,7 +34,8 @@
         android:layout_marginEnd="8dp"
         android:text="+0.0000 ETH"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/text_timestamp" />
 
     <TextView
         android:id="@+id/text_timestamp"

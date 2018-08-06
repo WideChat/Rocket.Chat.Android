@@ -156,7 +156,7 @@ class TransactionFragment: Fragment(), TransactionView, ActionMode.Callback {
             val amountText = amount_tokens.textContent
 
             if (recipientAddress.isNotEmpty() &&
-                    (presenter.isManagedMode() || wallet_password_editText.textContent.isNotEmpty()) &&
+                    (presenter.isWalletManaged() || wallet_password_editText.textContent.isNotEmpty()) &&
                     (amountText.isNotEmpty() && amountText != "." && amountText.toDouble() > 0.0))
                 startActionMode()
             else

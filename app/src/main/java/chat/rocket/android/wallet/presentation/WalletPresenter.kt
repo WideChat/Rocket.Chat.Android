@@ -54,7 +54,6 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val dbInterface = WalletDBInterface()
     private val settings = settingsRepository.get(serverUrl)
     private val managedMode = settings.isWalletManaged()
-    private val runContext = newSingleThreadContext("wallet-query-chat-rooms")
 
     /**
      * Get transaction history associated with the user's wallet
@@ -340,5 +339,9 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
 
     fun getSendToDialogTitle(): String {
         return if (managedMode) "Search Users" else "Find Recipient"
+    }
+
+    fun isWalletManaged(): Boolean {
+        return managedMode
     }
 }

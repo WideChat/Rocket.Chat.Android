@@ -198,7 +198,7 @@ class TransactionPresenter @Inject constructor (private val view: TransactionVie
         return localRepository.get(LocalRepository.CURRENT_USERNAME_KEY) ?: ""
     }
 
-    fun isManagedMode(): Boolean {
+    fun isWalletManaged(): Boolean {
         return this.managedMode
     }
 }

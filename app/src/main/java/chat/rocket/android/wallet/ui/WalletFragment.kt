@@ -65,7 +65,7 @@ class WalletFragment : Fragment(), WalletView {
         val transactionsRecyclerView = view.findViewById<RecyclerView>(R.id.transactions_recyclerView)
         val linearLayoutManager = LinearLayoutManager(this.activity)
         transactionsRecyclerView.layoutManager = linearLayoutManager
-        val adapter = WalletAdapter()
+        val adapter = WalletAdapter(presenter.isWalletManaged())
         transactionsRecyclerView.adapter = adapter
     }
 
@@ -128,7 +128,7 @@ class WalletFragment : Fragment(), WalletView {
     }
 
     override fun setupSendToDialog(names: List<String>) {
-        button_sendToken.setOnClickListener {
+        button_sendToken?.setOnClickListener {
             val dialogLayout = layoutInflater.inflate(R.layout.wallet_send_to_dialog, null)
             presenter.loadSendToDialogUI(dialogLayout)
             val adapter: ArrayAdapter<String> = ArrayAdapter(activity, android.R.layout.simple_dropdown_item_1line, names)
