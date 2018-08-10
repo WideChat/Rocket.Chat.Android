@@ -30,6 +30,7 @@ import java.util.List;
 
 import chat.rocket.android.util.OwnWalletUtils;
 import chat.rocket.android.wallet.ui.TransactionViewModel;
+import rx.Observable;
 import timber.log.Timber;
 
 
@@ -70,10 +71,12 @@ public class BlockchainInterface {
             return new ArrayList<>();
         }
 
+        userWalletAddress = addAddressPrefix(userWalletAddress);
+
         // Map the Transaction objects to TransactionViewModels
         List<TransactionViewModel> txModels = new ArrayList<>();
         for (Transaction tx: transactions) {
-            Boolean sentFromUser = tx.getFrom().substring(2).equals(userWalletAddress);
+            Boolean sentFromUser = tx.getFrom().equals(userWalletAddress);
             txModels.add(new TransactionViewModel(tx.getHash(),
                     Convert.fromWei(tx.getValue().toString(), Convert.Unit.ETHER),
                     getTimeStamp(tx).longValue(),
@@ -248,7 +251,7 @@ public class BlockchainInterface {
         RawTransaction rawTransaction = RawTransaction.createEtherTransaction(
                 nonce,
                 web3.ethGasPrice().send().getGasPrice(),
-                BigInteger.valueOf(8000000),
+                BigInteger.valueOf(4000000),
                 addAddressPrefix(recipient),
                 Convert.toWei(BigDecimal.valueOf(amount), Convert.Unit.ETHER).toBigInteger());
 
@@ -304,6 +307,10 @@ public class BlockchainInterface {
     public Boolean isValidAddress(String address) {
         return (address.startsWith("0x") && address.length() == 42) ||
                 (address.length() == 40);
+    }
+
+    public Observable<Transaction> setupSubscription() {
+        return web3.transactionObservable().asObservable();
     }
 
     /**

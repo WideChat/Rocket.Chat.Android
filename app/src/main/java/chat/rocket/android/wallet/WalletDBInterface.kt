@@ -160,11 +160,15 @@ class WalletDBInterface {
         }
     }
 
-    fun getTransactionList(accountId:String, callback: (List<String>?) -> Unit){
-
+    fun getTransactionList( accountId:String, callback: (List<String>?) -> Unit) {
         thread(true) {
-
-            val transactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, accountId)
+            // accountId is the user's wallet address
+            val address = if (accountId.startsWith("0x")) {
+                accountId.substring(2)
+            } else {
+                accountId
+            }
+            val transactionRecords = dynamoDBMapper?.load(TransactionRecordsDO::class.java, address)
             runOnUiThread {
                 callback(transactionRecords?.transactions)
             }

@@ -8,14 +8,12 @@ import chat.rocket.android.chatrooms.infrastructure.ChatRoomsRepository
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.main.presentation.MainNavigator
-import chat.rocket.android.server.domain.ChatRoomsInteractor
 import chat.rocket.android.server.domain.TokenRepository
 import chat.rocket.android.server.domain.SettingsRepository
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.server.domain.isWalletManaged
 import chat.rocket.android.server.infraestructure.RocketChatClientFactory
 import chat.rocket.android.util.extensions.launchUI
-import chat.rocket.android.util.livedata.transform
 import chat.rocket.android.util.retryIO
 import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.WalletDBInterface
@@ -26,12 +24,10 @@ import chat.rocket.common.model.roomTypeOf
 import chat.rocket.core.RocketChatClient
 import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.newSingleThreadContext
-import me.henrytao.livedataktx.distinct
-import me.henrytao.livedataktx.nonNull
 import me.henrytao.livedataktx.observe
 import okhttp3.*
 import org.json.JSONObject
+import rx.Subscription
 import timber.log.Timber
 import java.io.IOException
 import javax.inject.Inject
@@ -40,7 +36,6 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                                            private val strategy: CancelStrategy,
                                            private val navigator: MainNavigator,
                                            private val localRepository: LocalRepository,
-                                           private val chatRoomsInteractor: ChatRoomsInteractor,
                                            private val tokenRepository: TokenRepository,
                                            private val chatRoomsRepository: ChatRoomsRepository,
                                            settingsRepository: SettingsRepository,
@@ -54,6 +49,33 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
     private val dbInterface = WalletDBInterface()
     private val settings = settingsRepository.get(serverUrl)
     private val managedMode = settings.isWalletManaged()
+    lateinit var subscription: Subscription
+
+    private fun setupBlockchainSubscription(address: String) {
+        val addr = if (address.startsWith("0x")) address else "0x$address"
+        async {
+            subscription = bcInterface.setupSubscription().subscribe({ tx ->
+                if (tx.from == addr || tx.to == addr) {
+                    updateWalletView(addr)
+                }
+            }, { onError ->
+                onError.printStackTrace()
+            })
+        }
+    }
+
+    private fun updateWalletView(address: String) {
+        launchUI(strategy) {
+            view.showBalance(bcInterface.getBalance(address).toDouble())
+            loadTransactions(address)
+        }
+    }
+
+    fun shutdownBlockchainSubscription() {
+        async {
+            subscription.unsubscribe()
+        }
+    }
 
     /**
      * Get transaction history associated with the user's wallet
@@ -123,6 +145,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
 
                         view.showWallet(true, bcInterface.getBalance(walletAddress).toDouble())
                         loadTransactions(walletAddress)
+                        setupBlockchainSubscription(walletAddress)
                         view.hideLoading()
                     }
 
@@ -138,6 +161,7 @@ class WalletPresenter @Inject constructor (private val view: WalletView,
                         if (bcInterface.isValidAddress(it) && bcInterface.walletFileExists(it, c)) {
                             view.showWallet(true, bcInterface.getBalance(it).toDouble())
                             loadTransactions(it)
+                            setupBlockchainSubscription(it)
                         } else {
                             view.showWallet(false)
                         }

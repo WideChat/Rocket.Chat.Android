@@ -1,5 +1,6 @@
 package chat.rocket.android.wallet.ui
 
+import android.graphics.Color
 import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
@@ -35,11 +36,18 @@ class WalletAdapter(private val isManaged: Boolean) : RecyclerView.Adapter<Walle
             } else {
                 text_hash.textContent = tx.txHash
             }
+            if (tx.timestamp == "Pending...") {
+                text_timestamp.setTextColor(Color.RED)
+            } else {
+                text_timestamp.setTextColor(Color.DKGRAY)
+            }
             text_timestamp.textContent = tx.timestamp
             if (tx.outgoingTx) {
                 text_amount.textContent = "- " + tx.value
+                text_amount.setTextColor(resources.getColor(R.color.colorUserStatusBusy))
             } else {
                 text_amount.textContent = "+ " + tx.value
+                text_amount.setTextColor(resources.getColor(R.color.colorUserStatusOnline))
             }
         }
     }

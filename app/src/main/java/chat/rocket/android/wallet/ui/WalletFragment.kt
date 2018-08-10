@@ -16,7 +16,6 @@ import androidx.core.view.isVisible
 import chat.rocket.android.R
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.*
-import chat.rocket.android.wallet.BlockchainInterface
 import chat.rocket.android.wallet.create.ui.CreateWalletActivity
 import chat.rocket.android.wallet.presentation.WalletPresenter
 import chat.rocket.android.wallet.presentation.WalletView
@@ -31,7 +30,6 @@ import javax.inject.Inject
 class WalletFragment : Fragment(), WalletView {
     @Inject lateinit var presenter: WalletPresenter
 
-    private var bcInterface: BlockchainInterface? = null
     private val NEW_WALLET_REQUEST = 1
     private val RESULT_OK = -1
 
@@ -46,8 +44,6 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        bcInterface = BlockchainInterface()
         setupToolbar()
 
         // Set up transaction list (recycler view)
@@ -90,6 +86,11 @@ class WalletFragment : Fragment(), WalletView {
         super.onResume()
         // Update the wallet (currently mainly the balance)
         presenter.loadWallet(this.activity as MainActivity)
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.shutdownBlockchainSubscription()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -213,7 +214,7 @@ class WalletFragment : Fragment(), WalletView {
 
     override fun showBalance(bal: Double) {
         // TODO eventually allow user to have/access multiple wallets
-        textView_balance.textContent = bal.toString()
+        textView_balance?.textContent = bal.toString()
     }
 
     override fun showWallet(value: Boolean, bal: Double) {
