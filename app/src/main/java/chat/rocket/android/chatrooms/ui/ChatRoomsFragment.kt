@@ -400,7 +400,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
 
         web_search.setOnClickListener {
-            CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
+//            CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
             startActivity(this.activity?.webViewIntent(link, if (!title.isEmpty()) title else resources.getString(R.string.url_preview_title)))
         }
 
