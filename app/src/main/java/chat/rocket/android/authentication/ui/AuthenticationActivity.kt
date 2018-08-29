@@ -10,6 +10,7 @@ import chat.rocket.android.authentication.domain.model.LoginDeepLinkInfo
 import chat.rocket.android.authentication.domain.model.getLoginDeepLinkInfo
 import chat.rocket.android.authentication.presentation.AuthenticationPresenter
 import chat.rocket.android.authentication.server.ui.ServerFragment
+import chat.rocket.android.authentication.server.ui.TAG_SERVER_FRAGMENT
 import chat.rocket.android.util.extensions.addFragment
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -56,9 +57,7 @@ class AuthenticationActivity : AppCompatActivity(), HasSupportFragmentInjector {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         val currentFragment = supportFragmentManager.findFragmentById(R.id.fragment_container)
-        if (currentFragment != null) {
-            currentFragment.onActivityResult(requestCode, resultCode, data)
-        }
+        currentFragment?.onActivityResult(requestCode, resultCode, data)
     }
 
     override fun supportFragmentInjector(): AndroidInjector<Fragment> {
@@ -66,7 +65,7 @@ class AuthenticationActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
     fun showServerInput(deepLinkInfo: LoginDeepLinkInfo?) {
-        addFragment("ServerFragment", R.id.fragment_container, allowStateLoss = true) {
+        addFragment(TAG_SERVER_FRAGMENT, R.id.fragment_container, allowStateLoss = true) {
             ServerFragment.newInstance(deepLinkInfo)
         }
     }

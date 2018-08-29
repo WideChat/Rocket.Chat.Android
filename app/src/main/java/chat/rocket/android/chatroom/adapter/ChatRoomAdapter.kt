@@ -1,27 +1,28 @@
 package chat.rocket.android.chatroom.adapter
 
-import android.app.AlertDialog
-import android.content.Context
 import androidx.recyclerview.widget.RecyclerView
 import android.view.MenuItem
+import android.view.View
 import android.view.ViewGroup
 import chat.rocket.android.R
-import chat.rocket.android.chatroom.presentation.ChatRoomPresenter
 import chat.rocket.android.chatroom.uimodel.*
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.emoji.EmojiReactionListener
+import chat.rocket.android.util.extensions.openTabbedUrl
+import chat.rocket.core.model.attachment.actions.Action
+import chat.rocket.core.model.attachment.actions.ButtonAction
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.isSystemMessage
 import timber.log.Timber
 import java.security.InvalidParameterException
 
 class ChatRoomAdapter(
+    private val roomId: String? = null,
     private val roomType: String? = null,
     private val roomName: String? = null,
-    private val presenter: ChatRoomPresenter? = null,
+    private val actionSelectListener: OnActionSelected? = null,
     private val enableActions: Boolean = true,
-    private val reactionListener: EmojiReactionListener? = null,
-    private val context: Context? = null
+    private val reactionListener: EmojiReactionListener? = null
 ) : RecyclerView.Adapter<BaseViewHolder<*>>() {
     private val dataSet = ArrayList<BaseUiModel<*>>()
 
@@ -70,8 +71,12 @@ class ChatRoomAdapter(
             BaseUiModel.ViewType.MESSAGE_REPLY -> {
                 val view = parent.inflate(R.layout.item_message_reply)
                 MessageReplyViewHolder(view, actionsListener, reactionListener) { roomName, permalink ->
-                    presenter?.openDirectMessage(roomName, permalink)
+                    actionSelectListener?.openDirectMessage(roomName, permalink)
                 }
+            }
+            BaseUiModel.ViewType.ACTIONS_ATTACHMENT -> {
+                val view = parent.inflate(R.layout.item_actions_attachment)
+                ActionsAttachmentViewHolder(view, actionsListener, reactionListener, actionAttachmentOnClickListener)
             }
             else -> {
                 throw InvalidParameterException("TODO - implement for ${viewType.toViewType()}")
@@ -126,6 +131,8 @@ class ChatRoomAdapter(
                 holder.bind(dataSet[position] as GenericFileAttachmentUiModel)
             is MessageReplyViewHolder ->
                 holder.bind(dataSet[position] as MessageReplyUiModel)
+            is ActionsAttachmentViewHolder ->
+                holder.bind(dataSet[position] as ActionsAttachmentUiModel)
         }
     }
 
@@ -137,6 +144,11 @@ class ChatRoomAdapter(
             is AuthorAttachmentUiModel -> model.id
             else -> return position.toLong()
         }
+    }
+
+    fun clearData() {
+        dataSet.clear()
+        notifyDataSetChanged()
     }
 
     fun appendData(dataSet: List<BaseUiModel<*>>) {
@@ -199,6 +211,33 @@ class ChatRoomAdapter(
         }
     }
 
+    private val actionAttachmentOnClickListener = object : ActionAttachmentOnClickListener {
+        override fun onActionClicked(view: View, action: Action) {
+            val temp = action as ButtonAction
+            if (temp.url != null && temp.isWebView != null) {
+                if (temp.isWebView == true) {
+                    //TODO: Open in a configurable sizable webview
+                    Timber.d("Open in a configurable sizable webview")
+                } else {
+                    //Open in chrome custom tab
+                    temp.url?.let { view.openTabbedUrl(it) }
+                }
+            } else if (temp.message != null && temp.isMessageInChatWindow != null) {
+                if (temp.isMessageInChatWindow == true) {
+                    //Send to chat window
+                    temp.message?.let {
+                        if (roomId != null) {
+                            actionSelectListener?.sendMessage(roomId, it)
+                        }
+                    }
+                } else {
+                    //TODO: Send to bot but not in chat window
+                    Timber.d("Send to bot but not in chat window")
+                }
+            }
+        }
+    }
+
     private val actionsListener = object : BaseViewHolder.ActionsListener {
 
         override fun isActionsEnabled(): Boolean = enableActions
@@ -206,50 +245,55 @@ class ChatRoomAdapter(
         override fun onActionSelected(item: MenuItem, message: Message) {
             message.apply {
                 when (item.itemId) {
+                    R.id.action_message_info -> {
+                        actionSelectListener?.showMessageInfo(id)
+                    }
                     R.id.action_message_reply -> {
                         if (roomName != null && roomType != null) {
-                            presenter?.citeMessage(roomName, roomType, id, true)
+                            actionSelectListener?.citeMessage(roomName, roomType, id, true)
                         }
                     }
                     R.id.action_message_quote -> {
                         if (roomName != null && roomType != null) {
-                            presenter?.citeMessage(roomName, roomType, id, false)
+                            actionSelectListener?.citeMessage(roomName, roomType, id, false)
                         }
                     }
                     R.id.action_message_copy -> {
-                        presenter?.copyMessage(id)
+                        actionSelectListener?.copyMessage(id)
                     }
                     R.id.action_message_edit -> {
-                        presenter?.editMessage(roomId, id, message.message)
+                        actionSelectListener?.editMessage(roomId, id, message.message)
                     }
                     R.id.action_message_star -> {
-                        if (!item.isChecked) {
-                            presenter?.starMessage(id)
-                        } else {
-                            presenter?.unstarMessage(id)
-                        }
+                        actionSelectListener?.toogleStar(id, !item.isChecked)
                     }
                     R.id.action_message_unpin -> {
-                        if (!item.isChecked) {
-                            presenter?.pinMessage(id)
-                        } else {
-                            presenter?.unpinMessage(id)
-                        }
+                        actionSelectListener?.tooglePin(id, !item.isChecked)
                     }
                     R.id.action_message_delete -> {
-                        context?.let {
-                            val builder = AlertDialog.Builder(it)
-                            builder.setTitle(it.getString(R.string.msg_delete_message))
-                                    .setMessage(it.getString(R.string.msg_delete_description))
-                                    .setPositiveButton(it.getString(R.string.msg_ok)) { _, _ -> presenter?.deleteMessage(roomId, id) }
-                                    .setNegativeButton(it.getString(R.string.msg_cancel)) { _, _ ->  }
-                                    .show()
-                        }
+                        actionSelectListener?.deleteMessage(roomId, id)
                     }
-                    R.id.action_menu_msg_react -> presenter?.showReactions(id)
-                    else -> TODO("Not implemented")
+                    R.id.action_menu_msg_react -> {
+                        actionSelectListener?.showReactions(id)
+                    }
+                    else -> {
+                        TODO("Not implemented")
+                    }
                 }
             }
         }
+    }
+
+    interface OnActionSelected {
+        fun showMessageInfo(id: String)
+        fun citeMessage(roomName: String, roomType: String, messageId: String, mentionAuthor: Boolean)
+        fun copyMessage(id: String)
+        fun editMessage(roomId: String, messageId: String, text: String)
+        fun toogleStar(id: String, star: Boolean)
+        fun tooglePin(id: String, pin: Boolean)
+        fun deleteMessage(roomId: String, id: String)
+        fun showReactions(id: String)
+        fun openDirectMessage(roomName: String, message: String)
+        fun sendMessage(chatRoomId: String, text: String)
     }
 }

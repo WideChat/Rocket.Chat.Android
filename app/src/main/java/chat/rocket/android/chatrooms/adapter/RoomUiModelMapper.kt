@@ -10,6 +10,7 @@ import chat.rocket.android.chatrooms.adapter.model.RoomUiModel
 import chat.rocket.android.db.model.ChatRoom
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.infrastructure.checkIfMyself
+import chat.rocket.android.server.domain.GetCurrentUserInteractor
 import chat.rocket.android.server.domain.PublicSettings
 import chat.rocket.android.server.domain.showLastMessage
 import chat.rocket.android.server.domain.useRealName
@@ -18,13 +19,16 @@ import chat.rocket.android.util.extensions.avatarUrl
 import chat.rocket.android.util.extensions.date
 import chat.rocket.android.util.extensions.localDateTime
 import chat.rocket.common.model.RoomType
+import chat.rocket.common.model.User
 import chat.rocket.common.model.roomTypeOf
 import chat.rocket.common.model.userStatusOf
+import chat.rocket.core.model.Room
+import chat.rocket.core.model.SpotlightResult
 
 class RoomUiModelMapper(
     private val context: Application,
     private val settings: PublicSettings,
-    private val localRepository: LocalRepository,
+    private val userInteractor: GetCurrentUserInteractor,
     private val serverUrl: String
 ) {
     private val nameUnreadColor = ContextCompat.getColor(context, R.color.colorPrimaryText)
@@ -34,7 +38,11 @@ class RoomUiModelMapper(
     private val messageUnreadColor = ContextCompat.getColor(context, android.R.color.primary_text_light)
     private val messageColor = ContextCompat.getColor(context, R.color.colorSecondaryText)
 
-    fun map(rooms: List<ChatRoom>, grouped: Boolean): List<ItemHolder<*>> {
+    private val currentUser by lazy {
+        userInteractor.get()
+    }
+
+    fun map(rooms: List<ChatRoom>, grouped: Boolean = false): List<ItemHolder<*>> {
         val list = ArrayList<ItemHolder<*>>(rooms.size + 4)
         var lastType: String? = null
         rooms.forEach { room ->
@@ -48,12 +56,56 @@ class RoomUiModelMapper(
         return list
     }
 
+    fun map(spotlight: SpotlightResult): List<ItemHolder<*>> {
+        val list = ArrayList<ItemHolder<*>>(spotlight.users.size + spotlight.rooms.size)
+        spotlight.users.filterNot { it.username.isNullOrEmpty() }.forEach { user ->
+            list.add(RoomItemHolder(mapUser(user)))
+        }
+        spotlight.rooms.filterNot { it.name.isNullOrEmpty() }.forEach { room ->
+            list.add(RoomItemHolder(mapRoom(room)))
+        }
+
+        return list
+    }
+
+    private fun mapUser(user: User): RoomUiModel {
+        return with(user) {
+            val name = mapName(user.username!!, user.name, false)
+            val status = user.status
+            val avatar = serverUrl.avatarUrl(user.username!!)
+            val username = user.username!!
+
+            RoomUiModel(
+                id = user.id,
+                name = name,
+                type = roomTypeOf(RoomType.DIRECT_MESSAGE),
+                avatar = avatar,
+                status = status,
+                username = username
+            )
+        }
+    }
+
+    private fun mapRoom(room: Room): RoomUiModel {
+        return with(room) {
+            RoomUiModel(
+                id = id,
+                name = name!!,
+                type = type,
+                avatar = serverUrl.avatarUrl(name!!, isGroupOrChannel = true),
+                lastMessage = mapLastMessage(lastMessage?.sender?.id, lastMessage?.sender?.username,
+                        lastMessage?.sender?.name, lastMessage?.message,
+                        isDirectMessage = type is RoomType.DirectMessage)
+            )
+        }
+    }
+
     fun map(chatRoom: ChatRoom): RoomUiModel {
         return with(chatRoom.chatRoom) {
             val isUnread = alert || unread > 0
             val type = roomTypeOf(type)
             val status = chatRoom.status?.let { userStatusOf(it) }
-            val roomName = mapName(name, chatRoom.userFullname, isUnread)
+            val roomName = mapName(name, fullname, isUnread)
             val timestamp = mapDate(lastMessageTimestamp ?: updatedAt, isUnread)
             val avatar = if (type is RoomType.DirectMessage) {
                 serverUrl.avatarUrl(name)
@@ -61,19 +113,23 @@ class RoomUiModelMapper(
                 serverUrl.avatarUrl(name, isGroupOrChannel = true)
             }
             val unread = mapUnread(unread)
-            val lastMessage = mapLastMessage(chatRoom.lastMessageUserName,
-                    chatRoom.lastMessageUserFullName, lastMessageText, isUnread)
+            val lastMessage = mapLastMessage(lastMessageUserId, chatRoom.lastMessageUserName,
+                    chatRoom.lastMessageUserFullName, lastMessageText, isUnread,
+                    type is RoomType.DirectMessage)
+            val open = open
 
             RoomUiModel(
                 id = id,
                 name = roomName,
                 type = type,
                 avatar = avatar,
+                open = open,
                 date = timestamp,
                 unread = unread,
                 alert = isUnread,
                 lastMessage = lastMessage,
-                status = status
+                status = status,
+                username = if (type is RoomType.DirectMessage) name else null
             )
         }
     }
@@ -89,14 +145,16 @@ class RoomUiModelMapper(
         }
     }
 
-    private fun mapLastMessage(name: String?, fullName: String?, text: String?, unread: Boolean): CharSequence? {
+    private fun mapLastMessage(userId: String?, name: String?, fullName: String?, text: String?,
+                               unread: Boolean = false,
+                               isDirectMessage: Boolean = false): CharSequence? {
         return if (!settings.showLastMessage()) {
             null
         } else if (name != null && text != null) {
-            val user = if (localRepository.checkIfMyself(name)) {
+            val user = if (currentUser != null && currentUser!!.id == userId) {
                 "${context.getString(R.string.msg_you)}: "
             } else {
-                "${mapName(name, fullName, unread)}: "
+                if (isDirectMessage) "" else "${mapName(name, fullName, unread)}: "
             }
 
             val color = if (unread) messageUnreadColor else messageColor

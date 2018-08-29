@@ -8,6 +8,7 @@ import android.graphics.RectF
 import android.net.Uri
 import android.text.Spanned
 import android.text.style.ClickableSpan
+import android.text.style.ImageSpan
 import android.text.style.ReplacementSpan
 import android.util.Patterns
 import android.view.View
@@ -20,10 +21,14 @@ import chat.rocket.android.emoji.EmojiRepository
 import chat.rocket.android.emoji.EmojiTypefaceSpan
 import chat.rocket.android.server.domain.PublicSettings
 import chat.rocket.android.server.domain.useRealName
+import chat.rocket.android.util.extensions.openTabbedUrl
 import chat.rocket.common.model.SimpleUser
 import chat.rocket.core.model.Message
 import org.commonmark.node.AbstractVisitor
 import org.commonmark.node.Document
+import org.commonmark.node.ListItem
+import org.commonmark.node.Node
+import org.commonmark.node.OrderedList
 import org.commonmark.node.Text
 import ru.noties.markwon.Markwon
 import ru.noties.markwon.SpannableBuilder
@@ -58,11 +63,11 @@ class MessageParser @Inject constructor(
             }
         }
         val builder = SpannableBuilder()
-        val content = EmojiRepository.shortnameToUnicode(text, true)
+        val content = EmojiRepository.shortnameToUnicode(text)
         val parentNode = parser.parse(toLenientMarkdown(content))
-        parentNode.accept(SpannableMarkdownVisitor(configuration, builder))
+        parentNode.accept(MarkdownVisitor(configuration, builder))
         parentNode.accept(LinkVisitor(builder))
-        parentNode.accept(EmojiVisitor(configuration, builder))
+        parentNode.accept(EmojiVisitor(context, configuration, builder))
         message.mentions?.let {
             parentNode.accept(MentionVisitor(context, builder, mentions, selfUsername))
         }
@@ -124,17 +129,61 @@ class MessageParser @Inject constructor(
     }
 
     class EmojiVisitor(
+        private val context: Context,
         configuration: SpannableConfiguration,
         private val builder: SpannableBuilder
     ) : SpannableMarkdownVisitor(configuration, builder) {
 
+        private val emojiSize = context.resources.getDimensionPixelSize(R.dimen.radius_mention)
+
         override fun visit(document: Document) {
-            val spannable = EmojiParser.parse(builder.text())
+            val spannable = EmojiParser.parse(context, builder.text())
             if (spannable is Spanned) {
-                val spans = spannable.getSpans(0, spannable.length, EmojiTypefaceSpan::class.java)
-                spans.forEach {
-                    builder.setSpan(it, spannable.getSpanStart(it), spannable.getSpanEnd(it), 0)
+                val emojiOneTypefaceSpans = spannable.getSpans(0, spannable.length,
+                    EmojiTypefaceSpan::class.java)
+                val emojiImageSpans = spannable.getSpans(0, spannable.length, ImageSpan::class.java)
+
+                emojiOneTypefaceSpans.forEach {
+                    builder.setSpan(it, spannable.getSpanStart(it), spannable.getSpanEnd(it),
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 }
+
+                emojiImageSpans.forEach {
+                    it.drawable?.setBounds(0, 0, emojiSize, emojiSize)
+                    builder.setSpan(it, spannable.getSpanStart(it), spannable.getSpanEnd(it),
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                }
+            }
+        }
+    }
+
+    class MarkdownVisitor(
+        configuration: SpannableConfiguration,
+        val builder: SpannableBuilder
+    ) : SpannableMarkdownVisitor(configuration, builder) {
+
+        /**
+         * NOOP
+         */
+        override fun visit(orderedList: OrderedList) {
+            var number = orderedList.startNumber
+            val delimiter = orderedList.delimiter
+            var node: Node? = orderedList.firstChild
+            while (node != null) {
+                if (node is ListItem) {
+                    newLine()
+                    builder.append("$number$delimiter ")
+                    super.visitChildren(node)
+                    newLine()
+                }
+                number++
+                node = node.next
+            }
+        }
+
+        private fun newLine() {
+            if (builder.length() > 0 && '\n' != builder.lastChar()) {
+                builder.append('\n')
             }
         }
     }
@@ -153,12 +202,7 @@ class MessageParser @Inject constructor(
                     builder.setSpan(object : ClickableSpan() {
                         override fun onClick(view: View) {
                             with (view) {
-                                if (link.startsWith("http://www.requiresinternet.com")) {
-                                    ToastHelper.showCustomToast(context,
-                                            "Can I help you get access to this content?")
-                                } else {
-                                    CustomTab.openCustomTab(context, link, WebViewFallback())
-                                }
+                            CustomTab.openCustomTab(context, link, WebViewFallback())
                             }
                         }
                     }, matcher.start(0), matcher.end(0))
@@ -175,7 +219,6 @@ class MessageParser @Inject constructor(
             }
             return uri
         }
-
     }
 
     class MentionSpan(

@@ -1,5 +1,6 @@
-
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="chat.rocket.android">
 
     <uses-permission android:name="android.permission.INTERNET" />
@@ -8,6 +9,7 @@
 
     <application
         android:name=".app.RocketChatApplication"
+        tools:replace="android:name"
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_config"
         android:icon="@mipmap/ic_launcher"
@@ -68,25 +70,21 @@
             android:name=".webview.oauth.ui.OauthWebViewActivity"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
-            
+
         <activity
-            android:name=".webview.weblink.ui.WebViewActivity"
-            android:theme="@style/AppTheme.Translucent"
+            android:name=".chatroom.ui.ChatRoomActivity"
+            android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+
+        <activity
+            android:name=".chatinformation.ui.MessageInfoActivity"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
+
+        <!-- TODO: Change to fragment-->
         <activity
             android:name=".settings.password.ui.PasswordActivity"
             android:theme="@style/AppTheme" />
-
-        <!-- TODO: Change to fragment -->
-        <activity
-            android:name=".chatroom.ui.ChatRoomActivity"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden"
-            android:theme="@style/AppTheme.Translucent" />
-
-        <activity
-            android:name=".chatroom.ui.PinnedMessagesActivity"
-            android:theme="@style/AppTheme"
-            android:windowSoftInputMode="adjustResize|stateAlwaysHidden" />
 
         <receiver
             android:name=".push.DirectReplyReceiver"
@@ -98,23 +96,6 @@
         </receiver>
 
         <service
-            android:name=".push.FirebaseTokenService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".push.FirebaseMessagingService"
-            android:enabled="true"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <service
             android:name=".chatroom.service.MessageService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
@@ -122,9 +103,6 @@
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="12ac6e94f850aaffcdff52001af77ca415d06a43" />
-
-        <receiver android:name=".customtab.ActionBroadcastReceiver" />
-
     </application>
 
 </manifest>

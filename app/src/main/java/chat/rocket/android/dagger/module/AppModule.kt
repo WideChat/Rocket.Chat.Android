@@ -24,6 +24,34 @@ import chat.rocket.android.push.PushManager
 import chat.rocket.android.room.weblink.WebLinkDao
 import chat.rocket.android.server.domain.*
 import chat.rocket.android.server.infraestructure.*
+import chat.rocket.android.server.domain.AccountsRepository
+import chat.rocket.android.server.domain.ActiveUsersRepository
+import chat.rocket.android.server.domain.AnalyticsTrackingRepository
+import chat.rocket.android.server.domain.ChatRoomsRepository
+import chat.rocket.android.server.domain.CurrentServerRepository
+import chat.rocket.android.server.domain.GetAccountInteractor
+import chat.rocket.android.server.domain.GetCurrentServerInteractor
+import chat.rocket.android.server.domain.GetSettingsInteractor
+import chat.rocket.android.server.domain.JobSchedulerInteractor
+import chat.rocket.android.server.domain.MessagesRepository
+import chat.rocket.android.server.domain.MultiServerTokenRepository
+import chat.rocket.android.server.domain.PermissionsRepository
+import chat.rocket.android.server.domain.RoomRepository
+import chat.rocket.android.server.domain.SettingsRepository
+import chat.rocket.android.server.domain.TokenRepository
+import chat.rocket.android.server.domain.UsersRepository
+import chat.rocket.android.server.infraestructure.JobSchedulerInteractorImpl
+import chat.rocket.android.server.infraestructure.MemoryActiveUsersRepository
+import chat.rocket.android.server.infraestructure.MemoryChatRoomsRepository
+import chat.rocket.android.server.infraestructure.MemoryRoomRepository
+import chat.rocket.android.server.infraestructure.MemoryUsersRepository
+import chat.rocket.android.server.infraestructure.SharedPreferencesAccountsRepository
+import chat.rocket.android.server.infraestructure.SharedPreferencesMessagesRepository
+import chat.rocket.android.server.infraestructure.SharedPreferencesPermissionsRepository
+import chat.rocket.android.server.infraestructure.SharedPreferencesSettingsRepository
+import chat.rocket.android.server.infraestructure.SharedPrefsAnalyticsTrackingRepository
+import chat.rocket.android.server.infraestructure.SharedPrefsConnectingServerRepository
+import chat.rocket.android.server.infraestructure.SharedPrefsCurrentServerRepository
 import chat.rocket.android.util.AppJsonAdapterFactory
 import chat.rocket.android.util.HttpLoggingInterceptor
 import chat.rocket.android.util.TimberLogger
@@ -105,18 +133,6 @@ class AppModule {
     }
 
     @Provides
-    @Named("currentServer")
-    fun provideCurrentServer(currentServerInteractor: GetCurrentServerInteractor): String {
-        return currentServerInteractor.get()!!
-    }
-
-    @Provides
-    fun provideDatabaseManager(factory: DatabaseManagerFactory,
-                               @Named("currentServer") currentServer: String): DatabaseManager {
-        return factory.create(currentServer)
-    }
-
-    @Provides
     @Singleton
     fun provideDraweeConfig(): DraweeConfig {
         return DraweeConfig.newBuilder().build()
@@ -155,6 +171,12 @@ class AppModule {
     @Singleton
     fun provideCurrentServerRepository(prefs: SharedPreferences): CurrentServerRepository {
         return SharedPrefsCurrentServerRepository(prefs)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAnalyticsTrackingRepository(prefs: SharedPreferences): AnalyticsTrackingRepository {
+        return SharedPrefsAnalyticsTrackingRepository(prefs)
     }
 
     @Provides
@@ -243,14 +265,20 @@ class AppModule {
     fun provideConfiguration(context: Application): SpannableConfiguration {
         val res = context.resources
         return SpannableConfiguration.builder(context)
-                .theme(SpannableTheme.builder()
-                        .linkColor(res.getColor(R.color.colorAccent))
-                        .build())
-                .build()
+            .theme(SpannableTheme.builder()
+                .blockMargin(0)
+                .linkColor(res.getColor(R.color.colorAccent))
+                .build())
+            .build()
     }
 
     @Provides
-    fun provideMessageParser(context: Application, configuration: SpannableConfiguration, serverInteractor: GetCurrentServerInteractor, settingsInteractor: GetSettingsInteractor): MessageParser {
+    fun provideMessageParser(
+        context: Application,
+        configuration: SpannableConfiguration,
+        serverInteractor: GetCurrentServerInteractor,
+        settingsInteractor: GetSettingsInteractor
+    ): MessageParser {
         val url = serverInteractor.get()!!
         return MessageParser(context, configuration, settingsInteractor.get(url))
     }
@@ -296,5 +324,19 @@ class AppModule {
     @Provides
     fun provideJobSchedulerInteractor(jobScheduler: JobScheduler, jobInfo: JobInfo): JobSchedulerInteractor {
         return JobSchedulerInteractorImpl(jobScheduler, jobInfo)
+    }
+
+    @Provides
+    @Named("currentServer")
+    fun provideCurrentServer(currentServerInteractor: GetCurrentServerInteractor): String {
+        return currentServerInteractor.get()!!
+    }
+
+    @Provides
+    fun provideDatabaseManager(
+        factory: DatabaseManagerFactory,
+        @Named("currentServer") currentServer: String
+    ): DatabaseManager {
+        return factory.create(currentServer)
     }
 }

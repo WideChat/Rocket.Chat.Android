@@ -13,7 +13,6 @@ import chat.rocket.android.dagger.DaggerAppComponent
 import chat.rocket.android.dagger.qualifier.ForMessages
 import chat.rocket.android.helper.CrashlyticsTree
 import chat.rocket.android.infrastructure.LocalRepository
-import chat.rocket.android.infrastructure.installCrashlyticsWrapper
 import chat.rocket.android.server.domain.AccountsRepository
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.server.domain.GetSettingsInteractor
@@ -22,8 +21,7 @@ import chat.rocket.android.server.domain.TokenRepository
 import chat.rocket.android.emoji.EmojiRepository
 import chat.rocket.common.model.Token
 import chat.rocket.core.model.Value
-import com.crashlytics.android.Crashlytics
-import com.crashlytics.android.core.CrashlyticsCore
+import chat.rocket.android.util.setupFabric
 import com.facebook.drawee.backends.pipeline.DraweeConfig
 import com.facebook.drawee.backends.pipeline.Fresco
 import com.facebook.imagepipeline.core.ImagePipelineConfig
@@ -34,7 +32,6 @@ import dagger.android.DispatchingAndroidInjector
 import dagger.android.HasActivityInjector
 import dagger.android.HasBroadcastReceiverInjector
 import dagger.android.HasServiceInjector
-import io.fabric.sdk.android.Fabric
 import timber.log.Timber
 import java.lang.ref.WeakReference
 import javax.inject.Inject
@@ -95,9 +92,8 @@ class RocketChatApplication : Application(), HasActivityInjector, HasServiceInje
         context = WeakReference(applicationContext)
 
         AndroidThreeTen.init(this)
-        EmojiRepository.load(this)
 
-        setupCrashlytics()
+        setupFabric(this)
         setupFresco()
         setupTimber()
 
@@ -131,15 +127,6 @@ class RocketChatApplication : Application(), HasActivityInjector, HasServiceInje
             val message = "Server $currentServer SITE_URL"
             Timber.d(IllegalStateException(message), message)
         }
-    }
-
-    private fun setupCrashlytics() {
-        val core = CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()
-        Fabric.with(this, Crashlytics.Builder().core(core).build())
-
-        installCrashlyticsWrapper(this@RocketChatApplication,
-                getCurrentServerInteractor, settingsInteractor,
-                accountRepository, localRepository)
     }
 
     private fun setupFresco() {

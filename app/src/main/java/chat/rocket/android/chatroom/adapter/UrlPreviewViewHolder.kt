@@ -10,6 +10,7 @@ import chat.rocket.android.customtab.CustomTab
 import chat.rocket.android.customtab.WebViewFallback
 import chat.rocket.android.emoji.EmojiReactionListener
 import chat.rocket.android.util.extensions.content
+import chat.rocket.android.util.extensions.openTabbedUrl
 import kotlinx.android.synthetic.main.message_url_preview.view.*
 
 class UrlPreviewViewHolder(itemView: View,

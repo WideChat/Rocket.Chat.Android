@@ -3,14 +3,15 @@ package chat.rocket.android.util.extensions
 import android.graphics.Color
 import android.util.Patterns
 import chat.rocket.common.model.Token
+import okhttp3.HttpUrl
 import timber.log.Timber
 
 fun String.removeTrailingSlash(): String {
-    return if (isNotEmpty() && this[length - 1] == '/') {
-        this.substring(0, length - 1)
-    } else {
-        this
+    var removed = this
+    while (removed.isNotEmpty() && removed[removed.length - 1] == '/') {
+        removed = removed.substring(0, removed.length - 1)
     }
+    return removed
 }
 
 fun String.sanitize(): String {
@@ -50,6 +51,8 @@ fun String.termsOfServiceUrl() = "${removeTrailingSlash()}/terms-of-service"
 
 fun String.privacyPolicyUrl() = "${removeTrailingSlash()}/privacy-policy"
 
+fun String.adminPanelUrl() = "${removeTrailingSlash()}/admin/info?layout=embedded"
+
 fun String.isValidUrl(): Boolean = Patterns.WEB_URL.matcher(this).matches()
 
 fun String.parseColor(): Int {
@@ -64,4 +67,11 @@ fun String.parseColor(): Int {
 
 fun String.userId(userId: String?): String? {
     return userId?.let { this.replace(it, "") }
+}
+
+fun String.lowercaseUrl(): String? {
+    val httpUrl = HttpUrl.parse(this)
+    val newScheme = httpUrl?.scheme()?.toLowerCase()
+
+    return httpUrl?.newBuilder()?.scheme(newScheme)?.build()?.toString()
 }
