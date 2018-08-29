@@ -84,12 +84,9 @@ class RocketChatApplication : Application(), HasActivityInjector, HasServiceInje
             .inject(this)
         Stetho.initializeWithDefaults(this)
 
-        Stetho.initializeWithDefaults(this)
-
         ProcessLifecycleOwner.get()
             .lifecycle
             .addObserver(appLifecycleObserver)
-        application = this
 
         application = this
         context = WeakReference(applicationContext)
