@@ -217,7 +217,7 @@ class MainPresenter @Inject constructor(
             val account = getAccountInteractor.get(server)!!
             val userName = account.userName
 
-            val defaultMessage = "Hey! I’m on Rocket.Chat. \nMy username is “$userName” on server $server "
+            val defaultMessage = "Hey! I’m on Veranda and if you sign up for free we can chat! \nMy username is “$userName” on server $server "
 
             //Dialog
             val layoutInflater = LayoutInflater.from(context)

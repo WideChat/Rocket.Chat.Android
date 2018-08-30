@@ -10,7 +10,7 @@ ext {
 
             // For app
             kotlin                : '1.2.61',
-            coroutine             : '0.24.0',
+            coroutine             : '0.25.0',
 
             appCompat             : '1.0.0-beta01',
             recyclerview          : '1.0.0-beta01',
