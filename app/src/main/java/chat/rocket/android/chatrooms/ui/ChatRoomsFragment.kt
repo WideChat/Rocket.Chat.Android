@@ -1,7 +1,9 @@
 package chat.rocket.android.chatrooms.ui
 
 import android.app.AlertDialog
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -391,7 +393,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         val title = SharedPreferenceHelper.getString("web_search_title", "Internet Search")
         val description = SharedPreferenceHelper.getString("web_search_desc", "Faster web with the Viasat Browser")
         val imageUrl = SharedPreferenceHelper.getString("web_search_image", "")
-        val link = SharedPreferenceHelper.getString("web_search_link", "https://www.google.com")
+        val link = SharedPreferenceHelper.getString("web_search_link", "viasat-native://newtab")
     
         updateUI(title, text_title,
                 description, text_description,
@@ -400,9 +402,17 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
 
         web_search.setOnClickListener {
-            // The following line creates CCT after clicking "Internet Search", which is not what we want
-            // CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
-            startActivity(this.activity?.webViewIntent(link, if (!title.isEmpty()) title else resources.getString(R.string.url_preview_title)))
+            // start Viasat Browser and have it open new tab page in a custom tab
+            CustomTab.openCustomTab(context!!, link, WebViewFallback(), true)
+
+            // alternative: start Viasat Browser as a new intent - causes Viasat Browser
+            // to be the foreground app open to new tab page
+ 
+            //val intent = Intent(Intent.ACTION_VIEW,
+            //Uri.parse("viasat-native://newtab"))
+            //intent.setPackage("com.viasat.browser")
+
+            //startActivity(intent)
         }
 
         val linkPreviewCallback = object : LinkPreviewCallback {
