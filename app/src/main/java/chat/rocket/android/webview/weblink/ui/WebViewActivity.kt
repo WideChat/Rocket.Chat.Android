@@ -3,9 +3,7 @@ package chat.rocket.android.webview.weblink.ui
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -118,32 +116,22 @@ class WebViewActivity : AppCompatActivity() {
     private fun setupWebView() {
         web_view.settings.javaScriptEnabled = true
         web_view.webViewClient = object : WebViewClient() {
-
             override fun onPageFinished(view: WebView?, url: String?) {
-//                super.onPageFinished(view, url)
-//                view_loading.hide()
+                super.onPageFinished(view, url)
+                view_loading.hide()
             }
 
-            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?) : Boolean {
-                   Log.e("Viasat-Veranda", "shouldOverride")
-
-               try {
-val intent = Intent(Intent.ACTION_VIEW,
-                Uri.parse("viasat://newtab"))
-    // some code
-
-    // handler
-
- intent.setPackage("com.viasat.browser")
-        startActivity(intent)
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                if (request?.url.toString().startsWith("https://www.google.com/search", ignoreCase = true))
+                    return false
+                if (request?.url.toString().startsWith("https://www.aa.com", ignoreCase = true)) {
+                    ToastHelper.showCustomToast(view?.context,
+                            "Can I help you get access to this content?")
+                    return true
+                }
+                return isNewUrl(request?.url.toString())
             }
-catch (e: Exception) {
-Log.e("Viasat-Veranda", e.message)
-}
-            return true
-            }
-            }
-
+        }
         web_view.loadUrl(webPageUrl)
     }
 
