@@ -5,10 +5,8 @@ import android.text.Spanned
 import android.text.TextUtils
 import android.util.Base64
 import android.util.Patterns
-import android.widget.EditText
 import android.widget.TextView
 import chat.rocket.android.emoji.EmojiParser
-import chat.rocket.android.emoji.EmojiTypefaceSpan
 import org.json.JSONObject
 import ru.noties.markwon.Markwon
 import java.net.URLDecoder
@@ -19,21 +17,6 @@ fun String.ifEmpty(value: String): String {
         return value
     }
     return this
-}
-
-fun CharSequence.ifEmpty(value: String): CharSequence {
-    if (isEmpty()) {
-        return value
-    }
-    return this
-}
-
-fun EditText.erase() {
-    this.text.clear()
-    val spans = this.text.getSpans(0, text.length, EmojiTypefaceSpan::class.java)
-    spans.forEach {
-        text.removeSpan(it)
-    }
 }
 
 fun String.isEmail(): Boolean = Patterns.EMAIL_ADDRESS.matcher(this).matches()
@@ -83,20 +66,15 @@ var TextView.content: CharSequence?
         Markwon.unscheduleDrawables(this)
         Markwon.unscheduleTableRows(this)
         if (value is Spanned) {
-            val result = EmojiParser.parse(value.toString()) as Spannable
+            val context = this.context
+            val result = EmojiParser.parse(context, value.toString()) as Spannable
             val end = if (value.length > result.length) result.length else value.length
             TextUtils.copySpansFrom(value, 0, end, Any::class.java, result, 0)
             text = result
         } else {
-            val result = EmojiParser.parse(value.toString()) as Spannable
+            val result = EmojiParser.parse(context, value.toString()) as Spannable
             text = result
         }
         Markwon.scheduleDrawables(this)
         Markwon.scheduleTableRows(this)
-    }
-
-var TextView.spanned: CharSequence?
-    get() = text
-    set(value) {
-        text = spanned
     }

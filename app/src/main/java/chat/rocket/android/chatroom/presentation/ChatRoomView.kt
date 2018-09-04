@@ -1,6 +1,5 @@
 package chat.rocket.android.chatroom.presentation
 
-import android.net.Uri
 import chat.rocket.android.chatroom.uimodel.BaseUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.ChatRoomSuggestionUiModel
 import chat.rocket.android.chatroom.uimodel.suggestion.CommandSuggestionUiModel
@@ -23,8 +22,16 @@ interface ChatRoomView : LoadingView, MessageView {
      * Shows the chat room messages.
      *
      * @param dataSet The data set to show.
+     * @param clearDataSet If true it will clear the previous data set.
      */
-    fun showMessages(dataSet: List<BaseUiModel<*>>)
+    fun showMessages(dataSet: List<BaseUiModel<*>>, clearDataSet: Boolean)
+
+    /**
+     * Shows the chat room messages in the basis of a search term.
+     *
+     * @param dataSet The data set to show.
+     */
+    fun showSearchedMessages(dataSet: List<BaseUiModel<*>>)
 
     /**
      * Send a message to a chat room.
@@ -51,13 +58,6 @@ interface ChatRoomView : LoadingView, MessageView {
     fun showFileSelection(filter: Array<String>?)
 
     /**
-     * Uploads a file to a chat room.
-     *
-     * @param uri The file URI to send.
-     */
-    fun uploadFile(uri: Uri)
-
-    /**
      * Shows a invalid file message.
      */
     fun showInvalidFileMessage()
@@ -67,7 +67,7 @@ interface ChatRoomView : LoadingView, MessageView {
      *
      * @param message The (recent) message sent to a chat room.
      */
-    fun showNewMessage(message: List<BaseUiModel<*>>)
+    fun showNewMessage(message: List<BaseUiModel<*>>, isMessageReceived: Boolean)
 
     /**
      * Dispatch to the recycler views adapter that we should remove a message.
@@ -118,7 +118,7 @@ interface ChatRoomView : LoadingView, MessageView {
     /**
      * Clears the message composition.
      */
-    fun clearMessageComposition()
+    fun clearMessageComposition(deleteMessage: Boolean)
 
     fun showInvalidFileSize(fileSize: Int, maxFileSize: Int)
 
@@ -148,9 +148,4 @@ interface ChatRoomView : LoadingView, MessageView {
      */
     fun onRoomUpdated(userCanPost: Boolean, channelIsBroadcast: Boolean, userCanMod: Boolean)
 
-    /**
-     * Open a DM with the user in the given [chatRoom] and pass the [permalink] for the message
-     * to reply.
-     */
-    fun openDirectMessage(chatRoom: ChatRoom, permalink: String)
 }

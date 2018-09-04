@@ -2,6 +2,7 @@ package chat.rocket.android.chatrooms.ui
 
 import android.app.AlertDialog
 import android.content.SharedPreferences
+import android.app.ProgressDialog
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -19,11 +20,12 @@ import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
 import chat.rocket.android.R
 import chat.rocket.android.chatrooms.adapter.RoomsAdapter
-import chat.rocket.android.chatrooms.infrastructure.ChatRoomsRepository
 import chat.rocket.android.chatrooms.presentation.ChatRoomsPresenter
 import chat.rocket.android.chatrooms.presentation.ChatRoomsView
 import chat.rocket.android.chatrooms.viewmodel.ChatRoomsViewModel
 import chat.rocket.android.chatrooms.viewmodel.ChatRoomsViewModelFactory
+import chat.rocket.android.chatrooms.viewmodel.LoadingState
+import chat.rocket.android.chatrooms.viewmodel.Query
 import chat.rocket.android.db.DatabaseManager
 import chat.rocket.android.helper.ChatRoomsSortOrder
 import chat.rocket.android.helper.Constants
@@ -57,9 +59,14 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import timber.log.Timber
 import javax.inject.Inject
-
 import java.io.PrintWriter
 import java.io.StringWriter
+import chat.rocket.android.server.domain.AnalyticsTrackingInteractor
+import chat.rocket.android.util.extension.onQueryTextListener
+import chat.rocket.android.util.helper.analytics.AnalyticsManager
+import chat.rocket.android.util.helper.analytics.event.ScreenViewEvent
+
+internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 
@@ -70,18 +77,20 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     lateinit var factory: ChatRoomsViewModelFactory
     @Inject
     lateinit var dbManager: DatabaseManager // TODO - remove when moving ChatRoom screen to DB
-
+    @Inject
+    lateinit var analyticsTrackingInteractor: AnalyticsTrackingInteractor
     lateinit var viewModel: ChatRoomsViewModel
-
     @Inject
     lateinit var webLinksPresenter: WebLinksPresenter
 
     private lateinit var preferences: SharedPreferences
-    private var searchView: SearchView? = null
-    private val handler = Handler()
 
+    private var searchView: SearchView? = null
+    private var sortView: MenuItem? = null
+    private val handler = Handler()
     private var listJob: Job? = null
     private var chatRoomId: String? = null
+    private var progressDialog: ProgressDialog? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -133,6 +142,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     override fun onResume() {
         super.onResume()
         webLinksPresenter.loadWebLinks()
+
+        if (analyticsTrackingInteractor.get()) {
+            AnalyticsManager.logScreenView(ScreenViewEvent.ChatRooms)
+        }
     }
 
     override fun onDestroyView() {
@@ -142,16 +155,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         
     private fun subscribeUi() {
         ui {
-
-            val adapter = RoomsAdapter { roomId ->
-                launch(UI) {
-                    dbManager.getRoom(roomId)?.let { room ->
-                        ui {
-                            presenter.loadChatRoom(room)
-                        }
-                    }
-
-                }
+            val adapter = RoomsAdapter { room ->
+                presenter.loadChatRoom(room)
             }
 
             recycler_view.layoutManager = LinearLayoutManager(it)
@@ -165,6 +170,23 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                 rooms?.let {
                     Timber.d("Got items: $it")
                     adapter.values = it
+                    if (rooms.isNotEmpty()) {
+                        text_no_data_to_display.isVisible = false
+                    }
+                }
+            })
+
+            viewModel.loadingState.observe(viewLifecycleOwner, Observer { state ->
+                when(state) {
+                    is LoadingState.Loading -> if (state.count == 0L) showLoading()
+                    is LoadingState.Loaded -> {
+                        hideLoading()
+                        if (state.count == 0L) showNoChatRoomsToDisplay()
+                    }
+                    is LoadingState.Error -> {
+                        hideLoading()
+                        showGenericErrorMessage()
+                    }
                 }
             })
 
@@ -180,19 +202,28 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.chatrooms, menu)
 
+        sortView = menu.findItem(R.id.action_sort)
+
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
         searchView?.maxWidth = Integer.MAX_VALUE
-        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                return queryChatRoomsByName(query)
+        searchView?.onQueryTextListener { queryChatRoomsByName(it) }
+
+        val expandListener = object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                // Simply setting sortView to visible won't work, so we invalidate the options
+                // to recreate the entire menu...
+                activity?.invalidateOptionsMenu()
+                return true
             }
 
-            override fun onQueryTextChange(newText: String?): Boolean {
-                return queryChatRoomsByName(newText)
+            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+                sortView?.isVisible = false
+                return true
             }
-        })
+        }
+        searchItem?.setOnActionExpandListener(expandListener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -228,7 +259,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
                 AlertDialog.Builder(context)
                     .setTitle(R.string.dialog_sort_title)
                     .setView(dialogLayout)
-                    .setPositiveButton("Done") { dialog, _ ->
+                    .setPositiveButton(R.string.dialog_button_done) { dialog, _ ->
                         invalidateQueryOnSearch()
                         updateSort()
                         dialog.dismiss()
@@ -242,25 +273,17 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         val sortType = SharedPreferenceHelper.getInt(Constants.CHATROOM_SORT_TYPE_KEY, ChatRoomsSortOrder.ACTIVITY)
         val grouped = SharedPreferenceHelper.getBoolean(Constants.CHATROOM_GROUP_BY_TYPE_KEY, false)
 
-        val order = when (sortType) {
+        val query = when(sortType) {
             ChatRoomsSortOrder.ALPHABETICAL -> {
-                if (grouped) {
-                    ChatRoomsRepository.Order.GROUPED_NAME
-                } else {
-                    ChatRoomsRepository.Order.NAME
-                }
+                Query.ByName(grouped)
             }
             ChatRoomsSortOrder.ACTIVITY -> {
-                if (grouped) {
-                    ChatRoomsRepository.Order.GROUPED_ACTIVITY
-                } else {
-                    ChatRoomsRepository.Order.ACTIVITY
-                }
+                Query.ByActivity(grouped)
             }
-            else -> ChatRoomsRepository.Order.ACTIVITY
+            else -> Query.ByActivity()
         }
 
-        viewModel.setOrdering(order)
+        viewModel.setQuery(query)
     }
 
     private fun invalidateQueryOnSearch() {
@@ -271,20 +294,16 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
         }
     }
 
-    override suspend fun updateChatRooms(newDataSet: List<ChatRoom>) {}
-
-    override fun showNoChatRoomsToDisplay() {
+    private fun showNoChatRoomsToDisplay() {
         ui { text_no_data_to_display.isVisible = true }
     }
 
     override fun showLoading() {
-        ui { view_loading.isVisible = true }
+        view_loading.isVisible = true
     }
 
     override fun hideLoading() {
-        ui {
-            view_loading.isVisible = false
-        }
+        view_loading.isVisible = false
     }
 
     override fun showMessage(resId: Int) {
@@ -301,28 +320,38 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
 
     override fun showGenericErrorMessage() = showMessage(getString(R.string.msg_generic_error))
 
-    override fun showConnectionState(state: State) {
+    override fun showLoadingRoom(name: CharSequence) {
+        ui {
+            progressDialog = ProgressDialog.show(activity, "Rocket.Chat", "Loading room $name")
+        }
+    }
+
+    override fun hideLoadingRoom() {
+        progressDialog?.dismiss()
+    }
+
+    private fun showConnectionState(state: State) {
         Timber.d("Got new state: $state")
         ui {
-            connection_status_text.fadeIn()
+            text_connection_status.fadeIn()
             handler.removeCallbacks(dismissStatus)
             when (state) {
                 is State.Connected -> {
-                    connection_status_text.text = getString(R.string.status_connected)
+                    text_connection_status.text = getString(R.string.status_connected)
                     handler.postDelayed(dismissStatus, 2000)
                 }
-                is State.Disconnected -> connection_status_text.text = getString(R.string.status_disconnected)
-                is State.Connecting -> connection_status_text.text = getString(R.string.status_connecting)
-                is State.Authenticating -> connection_status_text.text = getString(R.string.status_authenticating)
-                is State.Disconnecting -> connection_status_text.text = getString(R.string.status_disconnecting)
-                is State.Waiting -> connection_status_text.text = getString(R.string.status_waiting, state.seconds)
+                is State.Disconnected -> text_connection_status.text = getString(R.string.status_disconnected)
+                is State.Connecting -> text_connection_status.text = getString(R.string.status_connecting)
+                is State.Authenticating -> text_connection_status.text = getString(R.string.status_authenticating)
+                is State.Disconnecting -> text_connection_status.text = getString(R.string.status_disconnecting)
+                is State.Waiting -> text_connection_status.text = getString(R.string.status_waiting, state.seconds)
             }
         }
     }
 
     private val dismissStatus = {
-        if (connection_status_text != null) {
-            connection_status_text.fadeOut()
+        if (text_connection_status != null) {
+            text_connection_status.fadeOut()
         }
     }
 
@@ -473,7 +502,11 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView, WebLinksView {
     }
 
     private fun queryChatRoomsByName(name: String?): Boolean {
-        //presenter.chatRoomsByName(name ?: "")
+        if (name.isNullOrEmpty()) {
+            updateSort()
+        } else {
+            viewModel.setQuery(Query.Search(name!!))
+        }
         return true
     }
 }

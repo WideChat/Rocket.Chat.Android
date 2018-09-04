@@ -2,7 +2,7 @@ package chat.rocket.android.weblinks.presentation
 
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.room.weblink.WebLinkDao
-import chat.rocket.android.util.extensions.launchUI
+import chat.rocket.android.util.extension.launchUI
 import chat.rocket.common.RocketChatException
 import io.reactivex.Observable
 import kotlinx.coroutines.experimental.async

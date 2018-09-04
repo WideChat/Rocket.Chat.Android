@@ -124,11 +124,7 @@ class WebViewActivity : AppCompatActivity() {
             override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
                 if (request?.url.toString().startsWith("https://www.google.com/search", ignoreCase = true))
                     return false
-                if (request?.url.toString().startsWith("https://www.aa.com", ignoreCase = true)) {
-                    ToastHelper.showCustomToast(view?.context,
-                            "Can I help you get access to this content?")
-                    return true
-                }
+
                 return isNewUrl(request?.url.toString())
             }
         }

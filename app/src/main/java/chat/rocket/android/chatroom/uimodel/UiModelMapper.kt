@@ -4,32 +4,39 @@ import DateTimeHelper
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
-import androidx.core.content.ContextCompat
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
 import android.text.style.StyleSpan
+import androidx.core.content.ContextCompat
 import androidx.core.text.bold
 import androidx.core.text.buildSpannedString
 import androidx.core.text.color
 import androidx.core.text.scale
 import chat.rocket.android.R
+import chat.rocket.android.chatinformation.viewmodel.ReadReceiptViewModel
 import chat.rocket.android.chatroom.domain.MessageReply
 import chat.rocket.android.dagger.scope.PerFragment
+import chat.rocket.android.db.DatabaseManager
+import chat.rocket.android.emoji.EmojiParser
 import chat.rocket.android.helper.MessageHelper
 import chat.rocket.android.helper.MessageParser
+import chat.rocket.android.helper.UserHelper
 import chat.rocket.android.infrastructure.LocalRepository
-import chat.rocket.android.server.domain.ChatRoomsInteractor
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.server.domain.GetSettingsInteractor
 import chat.rocket.android.server.domain.TokenRepository
 import chat.rocket.android.server.domain.baseUrl
+import chat.rocket.android.server.domain.messageReadReceiptEnabled
+import chat.rocket.android.server.domain.messageReadReceiptStoreUsers
 import chat.rocket.android.server.domain.useRealName
+import chat.rocket.android.server.infraestructure.ConnectionManagerFactory
 import chat.rocket.android.util.extensions.avatarUrl
 import chat.rocket.android.util.extensions.isNotNullNorEmpty
-import chat.rocket.android.emoji.EmojiParser
+import chat.rocket.common.model.roomTypeOf
 import chat.rocket.core.model.ChatRoom
 import chat.rocket.core.model.Message
 import chat.rocket.core.model.MessageType
+import chat.rocket.core.model.ReadReceipt
 import chat.rocket.core.model.attachment.Attachment
 import chat.rocket.core.model.attachment.AudioAttachment
 import chat.rocket.core.model.attachment.AuthorAttachment
@@ -39,27 +46,34 @@ import chat.rocket.core.model.attachment.GenericFileAttachment
 import chat.rocket.core.model.attachment.ImageAttachment
 import chat.rocket.core.model.attachment.MessageAttachment
 import chat.rocket.core.model.attachment.VideoAttachment
+import chat.rocket.core.model.attachment.actions.ActionsAttachment
 import chat.rocket.core.model.isSystemMessage
 import chat.rocket.core.model.url.Url
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.withContext
 import okhttp3.HttpUrl
 import java.security.InvalidParameterException
+import java.util.*
+import java.util.Collections.emptyList
 import javax.inject.Inject
 
 @PerFragment
 class UiModelMapper @Inject constructor(
     private val context: Context,
     private val parser: MessageParser,
-    private val roomsInteractor: ChatRoomsInteractor,
+    private val dbManager: DatabaseManager,
     private val messageHelper: MessageHelper,
+    private val userHelper: UserHelper,
     tokenRepository: TokenRepository,
     serverInteractor: GetCurrentServerInteractor,
     getSettingsInteractor: GetSettingsInteractor,
-    localRepository: LocalRepository
+    localRepository: LocalRepository,
+    factory: ConnectionManagerFactory
 ) {
 
     private val currentServer = serverInteractor.get()!!
+    private val manager = factory.create(currentServer)
+    private val client = manager.client
     private val settings = getSettingsInteractor.get(currentServer)
     private val baseUrl = currentServer
     private val token = tokenRepository.get(currentServer)
@@ -90,6 +104,23 @@ class UiModelMapper @Inject constructor(
             return@withContext list
         }
 
+    suspend fun map(
+        readReceipts: List<ReadReceipt>
+    ): List<ReadReceiptViewModel> = withContext(CommonPool) {
+        val list = arrayListOf<ReadReceiptViewModel>()
+
+        readReceipts.forEach {
+            list.add(
+                ReadReceiptViewModel(
+                    avatar = baseUrl.avatarUrl(it.user.username ?: ""),
+                    name = userHelper.displayName(it.user),
+                    time = DateTimeHelper.getTime(DateTimeHelper.getLocalDateTime(it.timestamp))
+                )
+            )
+        }
+        return@withContext list
+    }
+
     private suspend fun translate(
         message: Message,
         roomUiModel: RoomUiModel
@@ -117,10 +148,11 @@ class UiModelMapper @Inject constructor(
             for (i in list.size - 1 downTo 0) {
                 val next = if (i - 1 < 0) null else list[i - 1]
                 list[i].nextDownStreamMessage = next
+                mapVisibleActions(list[i])
             }
 
             if (isBroadcastReplyAvailable(roomUiModel, message)) {
-                roomsInteractor.getById(currentServer, message.roomId)?.let { chatRoom ->
+                getChatRoomAsync(message.roomId)?.let { chatRoom ->
                     val replyUiModel = mapMessageReply(message, chatRoom)
                     list.first().nextDownStreamMessage = replyUiModel
                     list.add(0, replyUiModel)
@@ -129,6 +161,48 @@ class UiModelMapper @Inject constructor(
 
             return@withContext list
         }
+
+    // TODO: move this to new interactor or FetchChatRoomsInteractor?
+    private suspend fun getChatRoomAsync(roomId: String): ChatRoom? = withContext(CommonPool) {
+        return@withContext dbManager.chatRoomDao().get(roomId)?.let {
+            with(it.chatRoom) {
+                ChatRoom(
+                    id = id,
+                    subscriptionId = subscriptionId,
+                    type = roomTypeOf(type),
+                    unread = unread,
+                    broadcast = broadcast ?: false,
+                    alert = alert,
+                    fullName = fullname,
+                    name = name ?: "",
+                    favorite = favorite ?: false,
+                    default = isDefault ?: false,
+                    readonly = readonly,
+                    open = open,
+                    lastMessage = null,
+                    archived = false,
+                    status = null,
+                    user = null,
+                    userMentions = userMentions,
+                    client = client,
+                    announcement = null,
+                    description = null,
+                    groupMentions = groupMentions,
+                    roles = null,
+                    topic = null,
+                    lastSeen = this.lastSeen,
+                    timestamp = timestamp,
+                    updatedAt = updatedAt
+                )
+            }
+        }
+    }
+
+    private fun mapVisibleActions(viewModel: BaseUiModel<*>) {
+        if (!settings.messageReadReceiptStoreUsers()) {
+            viewModel.menuItemsToHide.add(R.id.action_message_info)
+        }
+    }
 
     private suspend fun translateAsNotReversed(
         message: Message,
@@ -164,7 +238,7 @@ class UiModelMapper @Inject constructor(
             }
 
             if (isBroadcastReplyAvailable(roomUiModel, message)) {
-                roomsInteractor.getById(currentServer, message.roomId)?.let { chatRoom ->
+                getChatRoomAsync(message.roomId)?.let { chatRoom ->
                     val replyUiModel = mapMessageReply(message, chatRoom)
                     list.first().nextDownStreamMessage = replyUiModel
                     list.add(0, replyUiModel)
@@ -183,8 +257,8 @@ class UiModelMapper @Inject constructor(
     private fun isBroadcastReplyAvailable(roomUiModel: RoomUiModel, message: Message): Boolean {
         val senderUsername = message.sender?.username
         return roomUiModel.isRoom && roomUiModel.isBroadcast &&
-                !message.isSystemMessage() &&
-                senderUsername != currentUsername
+            !message.isSystemMessage() &&
+            senderUsername != currentUsername
     }
 
     private fun mapMessageReply(message: Message, chatRoom: ChatRoom): MessageReplyUiModel {
@@ -192,6 +266,10 @@ class UiModelMapper @Inject constructor(
         val roomName =
             if (settings.useRealName() && name != null) name else message.sender?.username ?: ""
         val permalink = messageHelper.createPermalink(message, chatRoom)
+
+        val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+        val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
         return MessageReplyUiModel(
             messageId = message.id,
             isTemporary = false,
@@ -199,7 +277,10 @@ class UiModelMapper @Inject constructor(
             message = message,
             preview = mapMessagePreview(message),
             rawData = MessageReply(roomName = roomName, permalink = permalink),
-            nextDownStreamMessage = null
+            nextDownStreamMessage = null,
+            unread = message.unread,
+            currentDayMarkerText = dayMarkerText,
+            showDayMarker = false
         )
     }
 
@@ -211,8 +292,12 @@ class UiModelMapper @Inject constructor(
         val title = url.meta?.title
         val description = url.meta?.description
 
+        val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+        val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
         return UrlPreviewUiModel(message, url, message.id, title, hostname, description, thumb,
-            getReactions(message), preview = message.copy(message = url.url))
+            getReactions(message), preview = message.copy(message = url.url), unread = message.unread,
+            showDayMarker = false, currentDayMarkerText = dayMarkerText)
     }
 
     private fun mapAttachment(message: Message, attachment: Attachment): BaseUiModel<*>? {
@@ -221,7 +306,23 @@ class UiModelMapper @Inject constructor(
             is MessageAttachment -> mapMessageAttachment(message, attachment)
             is AuthorAttachment -> mapAuthorAttachment(message, attachment)
             is ColorAttachment -> mapColorAttachment(message, attachment)
+            is ActionsAttachment -> mapActionsAttachment(message, attachment)
             else -> null
+        }
+    }
+
+    private fun mapActionsAttachment(message: Message, attachment: ActionsAttachment): BaseUiModel<*>? {
+        return with(attachment) {
+            val content = stripMessageQuotes(message)
+
+            val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+            val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
+            ActionsAttachmentUiModel(attachmentUrl = url, title = title,
+                    actions = actions, buttonAlignment = buttonAlignment, message = message, rawData = attachment,
+                    messageId = message.id, reactions = getReactions(message),
+                    preview = message.copy(message = content.message), unread = message.unread,
+                    showDayMarker = false, currentDayMarkerText = dayMarkerText)
         }
     }
 
@@ -230,10 +331,14 @@ class UiModelMapper @Inject constructor(
             val content = stripMessageQuotes(message)
             val id = attachmentId(message, attachment)
 
+            val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+            val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
             ColorAttachmentUiModel(attachmentUrl = url, id = id, color = color.color,
                 text = text, message = message, rawData = attachment,
                 messageId = message.id, reactions = getReactions(message),
-                preview = message.copy(message = content.message))
+                preview = message.copy(message = content.message), unread = message.unread,
+                showDayMarker = false, currentDayMarkerText = dayMarkerText)
         }
     }
 
@@ -258,10 +363,14 @@ class UiModelMapper @Inject constructor(
             }
             val id = attachmentId(message, attachment)
 
+            val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+            val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
             AuthorAttachmentUiModel(attachmentUrl = url, id = id, name = authorName,
                 icon = authorIcon, fields = fieldsText, message = message, rawData = attachment,
                 messageId = message.id, reactions = getReactions(message),
-                preview = message.copy(message = content.message))
+                preview = message.copy(message = content.message), unread = message.unread,
+                showDayMarker = false, currentDayMarkerText = dayMarkerText)
         }
     }
 
@@ -275,30 +384,46 @@ class UiModelMapper @Inject constructor(
             is GenericFileAttachment -> context.getString(R.string.msg_preview_file)
             else -> attachment.text ?: ""
         }
+
+        val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+        val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
         val content = stripMessageQuotes(message)
+
         return MessageAttachmentUiModel(message = content, rawData = message,
             messageId = message.id, time = time, senderName = attachmentAuthor,
             content = attachmentText, isPinned = message.pinned, reactions = getReactions(message),
-            preview = message.copy(message = content.message))
+            preview = message.copy(message = content.message), unread = message.unread,
+            currentDayMarkerText = dayMarkerText, showDayMarker = false)
     }
 
     private fun mapFileAttachment(message: Message, attachment: FileAttachment): BaseUiModel<*>? {
         val attachmentUrl = attachmentUrl(attachment)
         val attachmentTitle = attachmentTitle(attachment)
+        val attachmentText = attachmentText(attachment)
+        val attachmentDescription = attachmentDescription(attachment)
         val id = attachmentId(message, attachment)
+
+        val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+        val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
+
         return when (attachment) {
             is ImageAttachment -> ImageAttachmentUiModel(message, attachment, message.id,
-                attachmentUrl, attachmentTitle, id, getReactions(message),
-                preview = message.copy(message = context.getString(R.string.msg_preview_photo)))
+                attachmentUrl, attachmentTitle, attachmentText, attachmentDescription, id, getReactions(message),
+                preview = message.copy(message = context.getString(R.string.msg_preview_photo)), unread = message.unread,
+                showDayMarker = false, currentDayMarkerText = dayMarkerText)
             is VideoAttachment -> VideoAttachmentUiModel(message, attachment, message.id,
                 attachmentUrl, attachmentTitle, id, getReactions(message),
-                preview = message.copy(message = context.getString(R.string.msg_preview_video)))
+                preview = message.copy(message = context.getString(R.string.msg_preview_video)), unread = message.unread,
+                showDayMarker = false, currentDayMarkerText = dayMarkerText)
             is AudioAttachment -> AudioAttachmentUiModel(message, attachment, message.id,
                 attachmentUrl, attachmentTitle, id, getReactions(message),
-                preview = message.copy(message = context.getString(R.string.msg_preview_audio)))
+                preview = message.copy(message = context.getString(R.string.msg_preview_audio)), unread = message.unread,
+                showDayMarker = false, currentDayMarkerText = dayMarkerText)
             is GenericFileAttachment -> GenericFileAttachmentUiModel(message, attachment,
                 message.id, attachmentUrl, attachmentTitle, id, getReactions(message),
-                preview = message.copy(message = context.getString(R.string.msg_preview_file)))
+                preview = message.copy(message = context.getString(R.string.msg_preview_file)), unread = message.unread,
+                showDayMarker = false, currentDayMarkerText = dayMarkerText)
             else -> null
         }
     }
@@ -338,18 +463,35 @@ class UiModelMapper @Inject constructor(
         }
     }
 
+    private fun attachmentText(attachment: FileAttachment): String? {
+        return attachment.text
+    }
+
+    private fun attachmentDescription(attachment: FileAttachment): String? {
+        return attachment.description
+    }
+
     private suspend fun mapMessage(message: Message): MessageUiModel = withContext(CommonPool) {
         val sender = getSenderName(message)
         val time = getTime(message.timestamp)
         val avatar = getUserAvatar(message)
         val preview = mapMessagePreview(message)
         val isTemp = message.isTemporary ?: false
+        val unread = if (settings.messageReadReceiptEnabled()) {
+            message.unread ?: false
+        } else {
+            null
+        }
+
+        val localDateTime = DateTimeHelper.getLocalDateTime(message.timestamp)
+        val dayMarkerText = DateTimeHelper.getFormattedDateForMessages(localDateTime, context)
 
         val content = getContent(stripMessageQuotes(message))
         MessageUiModel(message = stripMessageQuotes(message), rawData = message,
             messageId = message.id, avatar = avatar!!, time = time, senderName = sender,
-            content = content, isPinned = message.pinned, reactions = getReactions(message),
-            isFirstUnread = false, preview = preview, isTemporary = isTemp)
+            content = content, isPinned = message.pinned, currentDayMarkerText = dayMarkerText,
+            showDayMarker = false, reactions = getReactions(message), isFirstUnread = false,
+            preview = preview, isTemporary = isTemp, unread = unread)
     }
 
     private fun mapMessagePreview(message: Message): Message {
@@ -368,7 +510,7 @@ class UiModelMapper @Inject constructor(
                 list.add(
                     ReactionUiModel(messageId = message.id,
                         shortname = shortname,
-                        unicode = EmojiParser.parse(shortname),
+                        unicode = EmojiParser.parse(context, shortname),
                         count = count,
                         usernames = usernames)
                 )
@@ -412,7 +554,7 @@ class UiModelMapper @Inject constructor(
         }
 
         val username = message.sender?.username ?: "?"
-        return baseUrl?.let {
+        return baseUrl.let {
             baseUrl.avatarUrl(username)
         }
     }
