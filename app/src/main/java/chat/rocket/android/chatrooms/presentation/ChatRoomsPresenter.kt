@@ -54,7 +54,7 @@ class ChatRoomsPresenter @Inject constructor(
                 } else {
                     val id = if (isDirectMessage && !open) {
                         retryIO("createDirectMessage($name)") {
-                            client.createDirectMessage(name)
+                            client.createDirectMessage(name, { _, _ -> })
                         }
                         val fromTo = mutableListOf(myself.id, id).apply {
                             sort()

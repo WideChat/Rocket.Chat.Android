@@ -105,8 +105,8 @@ fun PublicSettings.baseUrl(): String = this[SITE_URL]?.value as String
 fun PublicSettings.siteName(): String? = this[SITE_NAME]?.value as String?
 
 // Wallet settings
-fun PublicSettings.isWalletEnabled(): Boolean = this[WALLET_ENABLED]?.value == true
-fun PublicSettings.isWalletManaged(): Boolean = this[WALLET_MODE_MANAGED]?.value == true
+fun PublicSettings.isWalletEnabled(): Boolean = true//this[WALLET_ENABLED]?.value == true
+fun PublicSettings.isWalletManaged(): Boolean = false//this[WALLET_MODE_MANAGED]?.value == true
 
 interface SettingsRepository {
     fun save(url: String, settings: PublicSettings)
