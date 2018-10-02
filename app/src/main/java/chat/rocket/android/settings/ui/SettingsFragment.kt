@@ -21,6 +21,9 @@ import chat.rocket.android.settings.presentation.SettingsView
 import chat.rocket.android.util.extensions.addFragmentBackStack
 import chat.rocket.android.util.extensions.inflate
 import dagger.android.support.AndroidSupportInjection
+// EAR >> need this for back button in setupToolbar
+import kotlinx.android.synthetic.main.app_bar.*
+
 import kotlinx.android.synthetic.main.fragment_settings.*
 import javax.inject.Inject
 import kotlin.reflect.KClass
@@ -51,8 +54,17 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
 
     override fun onResume() {
         // FIXME - gambiarra ahead. will fix when moving to new androidx Navigation
-        (activity as? MainActivity)?.setupNavigationView()
+        // EAR >> this disables the reactivation of the nav drawer
+        //(activity as? MainActivity)?.setupNavigationView()
         super.onResume()
+    }
+
+    // EAR >> adding this method to remove the back button upon returning to chatrooms view
+    override fun onDestroyView() {
+        with((activity as MainActivity).toolbar) {
+            setNavigationIcon(null)
+        }
+        super.onDestroyView()
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
@@ -83,8 +95,14 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
     }
 
     private fun setupToolbar() {
-        (activity as AppCompatActivity?)?.supportActionBar?.title =
-                getString(R.string.title_settings)
+        //(activity as AppCompatActivity?)?.supportActionBar?.title =
+        //        getString(R.string.title_settings)
+        // EAR >> added this to get the back button
+        with((activity as MainActivity).toolbar) {
+            title = getString(R.string.title_settings)
+            setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+            setNavigationOnClickListener { activity?.onBackPressed() }
+        }
     }
 
     private fun startNewActivity(classType: KClass<out AppCompatActivity>) {

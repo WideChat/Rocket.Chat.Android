@@ -47,6 +47,13 @@ import kotlinx.android.synthetic.main.fragment_chat_rooms.*
 import timber.log.Timber
 import javax.inject.Inject
 
+// EAR >> testing
+import chat.rocket.android.settings.ui.SettingsFragment
+import chat.rocket.android.settings.ui.TAG_SETTINGS_FRAGMENT
+import chat.rocket.android.util.extensions.addFragment
+
+
+
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
@@ -63,6 +70,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     lateinit var viewModel: ChatRoomsViewModel
     private var searchView: SearchView? = null
     private var sortView: MenuItem? = null
+    private var settingsView: MenuItem? = null
     private val handler = Handler()
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
@@ -168,6 +176,12 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         inflater.inflate(R.menu.chatrooms, menu)
 
         sortView = menu.findItem(R.id.action_sort)
+        // EAR>> test
+        sortView?.isVisible = false
+
+        // EAR> add my button views here???  Need to add the R.id's to the xml file that describes the view!!!
+        settingsView = menu.findItem(R.id.action_settings)
+        //profileView = ???
 
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
@@ -185,6 +199,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 sortView?.isVisible = false
+                settingsView?.isVisible = false
                 return true
             }
         }
@@ -241,6 +256,22 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                         updateSort()
                         dialog.dismiss()
                     }.show()
+            }
+
+            // EAR> put my listener for the profile button here???
+            //R.id.action_profile -> {
+                // Call the presenter here??  Just like it does in the current nav drawer
+
+            //}
+
+            // EAR> listener for setings button here???
+            R.id.action_settings -> {
+                val newFragment = SettingsFragment()
+                val fragmentManager = fragmentManager
+                val fragmentTransaction = fragmentManager!!.beginTransaction()
+                fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                fragmentTransaction.addToBackStack(null)
+                fragmentTransaction.commit()
             }
         }
         return super.onOptionsItemSelected(item)
