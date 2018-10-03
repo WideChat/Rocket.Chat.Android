@@ -54,7 +54,7 @@ internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 
 // EAR >> temporary flag hack, need to do this the right way!
-private const val WIDECHAT = false
+private const val WIDECHAT = true
 
 class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject
@@ -68,10 +68,11 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     lateinit var viewModel: ChatRoomsViewModel
     private var searchView: SearchView? = null
     private var sortView: MenuItem? = null
-    private var settingsView: MenuItem? = null
     private val handler = Handler()
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
+    // WIDECHAT
+    private var settingsView: MenuItem? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -173,12 +174,15 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.chatrooms, menu)
 
-        sortView = menu.findItem(R.id.action_sort)        
+        sortView = menu.findItem(R.id.action_sort)
+        // WIDECHAT
+        settingsView = menu.findItem(R.id.action_settings)
 
         if (WIDECHAT) {
             sortView?.isVisible = false
-            settingsView = menu.findItem(R.id.action_settings)
             //profileView = ???
+        } else {
+            settingsView?.isVisible = false
         }
 
         val searchItem = menu.findItem(R.id.action_search)

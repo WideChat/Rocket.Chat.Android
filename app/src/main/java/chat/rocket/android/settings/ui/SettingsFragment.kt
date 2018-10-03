@@ -21,7 +21,7 @@ import chat.rocket.android.settings.presentation.SettingsView
 import chat.rocket.android.util.extensions.addFragmentBackStack
 import chat.rocket.android.util.extensions.inflate
 import dagger.android.support.AndroidSupportInjection
-// EAR >> need this for back button in setupToolbar
+// WIDECHAT - need this for back button in setupToolbar
 import kotlinx.android.synthetic.main.app_bar.*
 
 import kotlinx.android.synthetic.main.fragment_settings.*
