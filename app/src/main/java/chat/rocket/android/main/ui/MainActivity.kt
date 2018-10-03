@@ -43,9 +43,6 @@ import chat.rocket.android.helper.Constants
 
 private const val CURRENT_STATE = "current_state"
 
-// EAR >> temporary flag hack, need to do this the right way!
-private const val WIDECHAT = Constants.WIDECHAT
-
 class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     HasSupportFragmentInjector {
     @Inject
@@ -80,7 +77,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         presenter.loadEmojis()
         setupToolbar()
         // WIDECHAT - Don't run this in order to hide the nav drawer
-        if (!WIDECHAT) {
+        if (!Constants.WIDECHAT) {
             setupNavigationView()
         }
     }

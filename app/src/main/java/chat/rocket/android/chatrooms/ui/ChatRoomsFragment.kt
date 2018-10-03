@@ -54,8 +54,6 @@ internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 
-private const val WIDECHAT = Constants.WIDECHAT
-
 class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject
     lateinit var presenter: ChatRoomsPresenter
@@ -178,7 +176,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         // WIDECHAT
         settingsView = menu.findItem(R.id.action_settings)
 
-        if (WIDECHAT) {
+        if (Constants.WIDECHAT) {
             sortView?.isVisible = false
             //profileView = ???
         } else {
@@ -265,7 +263,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             // Call the presenter here??  Just like it does in the current nav drawer
 
         //}
-        if (WIDECHAT) {
+        if (Constants.WIDECHAT) {
             when (item.itemId) {
                 R.id.action_settings -> {
                     val newFragment = SettingsFragment()

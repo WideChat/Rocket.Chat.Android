@@ -31,9 +31,6 @@ import kotlinx.android.synthetic.main.app_bar.* // need this for back button in 
 
 internal const val TAG_SETTINGS_FRAGMENT = "SettingsFragment"
 
-// EAR >> temporary flag hack, need to do this the right way!
-private const val WIDECHAT = Constants.WIDECHAT
-
 class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListener {
     @Inject
     lateinit var analyticsManager: AnalyticsManager
@@ -59,7 +56,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
     override fun onResume() {
         // FIXME - gambiarra ahead. will fix when moving to new androidx Navigation
         // WIDECHAT - do not recreate the nav drawer upon resume
-        if (!WIDECHAT) {
+        if (!Constants.WIDECHAT) {
             (activity as? MainActivity)?.setupNavigationView()
         }
         super.onResume()
@@ -67,7 +64,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
 
     // WIDECHAT - removes the back button when leaving the fragment
     override fun onDestroyView() {
-        if (WIDECHAT) {
+        if (Constants.WIDECHAT) {
             with((activity as MainActivity).toolbar) {
                 setNavigationIcon(null)
             }
@@ -103,7 +100,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
     }
 
     private fun setupToolbar() {
-        if (WIDECHAT){
+        if (Constants.WIDECHAT){
             // WIDECHAT - added this to get the back button
             with((activity as MainActivity).toolbar) {
                 title = getString(R.string.title_settings)
