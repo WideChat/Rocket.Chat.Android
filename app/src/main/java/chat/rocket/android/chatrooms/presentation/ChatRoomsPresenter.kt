@@ -41,8 +41,6 @@ class ChatRoomsPresenter @Inject constructor(
     private val client = manager.client
     private val settings = settingsRepository.get(currentServer)
 
-    
-
     fun loadChatRoom(chatRoom: RoomUiModel) {
         launchUI(strategy) {
             view.showLoadingRoom(chatRoom.name)

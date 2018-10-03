@@ -46,17 +46,16 @@ import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_chat_rooms.*
 import timber.log.Timber
 import javax.inject.Inject
-
-// EAR >> testing
+// WIDECHAT
 import chat.rocket.android.settings.ui.SettingsFragment
-import chat.rocket.android.settings.ui.TAG_SETTINGS_FRAGMENT
-import chat.rocket.android.util.extensions.addFragment
-
-
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
+
+// EAR >> temporary flag hack, need to do this the right way!
+private const val WIDECHAT = false
+
 
 class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject
@@ -175,13 +174,13 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.chatrooms, menu)
 
-        sortView = menu.findItem(R.id.action_sort)
-        // EAR>> test
-        sortView?.isVisible = false
+        sortView = menu.findItem(R.id.action_sort)        
 
-        // EAR> add my button views here???  Need to add the R.id's to the xml file that describes the view!!!
-        settingsView = menu.findItem(R.id.action_settings)
-        //profileView = ???
+        if (WIDECHAT) {
+            sortView?.isVisible = false
+            settingsView = menu.findItem(R.id.action_settings)
+            //profileView = ???
+        }
 
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
@@ -199,7 +198,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 sortView?.isVisible = false
-                settingsView?.isVisible = false
                 return true
             }
         }
@@ -257,21 +255,23 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                         dialog.dismiss()
                     }.show()
             }
+        }
 
-            // EAR> put my listener for the profile button here???
-            //R.id.action_profile -> {
-                // Call the presenter here??  Just like it does in the current nav drawer
+        // EAR> put my listener for the profile button here???
+        //R.id.action_profile -> {
+            // Call the presenter here??  Just like it does in the current nav drawer
 
-            //}
-
-            // EAR> listener for setings button here???
-            R.id.action_settings -> {
-                val newFragment = SettingsFragment()
-                val fragmentManager = fragmentManager
-                val fragmentTransaction = fragmentManager!!.beginTransaction()
-                fragmentTransaction.replace(R.id.fragment_container, newFragment)
-                fragmentTransaction.addToBackStack(null)
-                fragmentTransaction.commit()
+        //}
+        if (WIDECHAT) {
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    val newFragment = SettingsFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
             }
         }
         return super.onOptionsItemSelected(item)

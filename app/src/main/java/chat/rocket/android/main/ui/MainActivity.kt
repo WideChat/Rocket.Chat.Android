@@ -41,7 +41,7 @@ import javax.inject.Inject
 private const val CURRENT_STATE = "current_state"
 
 // EAR >> temporary flag hack, need to do this the right way!
-private const val VIASAT = true
+private const val WIDECHAT = false
 
 class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     HasSupportFragmentInjector {
@@ -77,7 +77,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         presenter.loadEmojis()
         setupToolbar()
         // EAR >> Don't run this in order to hide the nav drawer -> need to put this behind a flag...
-        if (!VIASAT) {
+        if (!WIDECHAT) {
             setupNavigationView()
         }
     }

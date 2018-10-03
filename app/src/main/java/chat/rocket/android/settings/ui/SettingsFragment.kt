@@ -30,6 +30,9 @@ import kotlin.reflect.KClass
 
 internal const val TAG_SETTINGS_FRAGMENT = "SettingsFragment"
 
+// EAR >> temporary flag hack, need to do this the right way!
+private const val WIDECHAT = true
+
 class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListener {
     @Inject
     lateinit var analyticsManager: AnalyticsManager
@@ -54,15 +57,19 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
 
     override fun onResume() {
         // FIXME - gambiarra ahead. will fix when moving to new androidx Navigation
-        // EAR >> this disables the reactivation of the nav drawer
-        //(activity as? MainActivity)?.setupNavigationView()
+        // WIDECHAT - do not recreate the nav drawer upon resume
+        if (!WIDECHAT) {
+            (activity as? MainActivity)?.setupNavigationView()
+        }
         super.onResume()
     }
 
-    // EAR >> adding this method to remove the back button upon returning to chatrooms view
+    // WIDECHAT - removes the back button when leaving the fragment
     override fun onDestroyView() {
-        with((activity as MainActivity).toolbar) {
-            setNavigationIcon(null)
+        if (WIDECHAT) {
+            with((activity as MainActivity).toolbar) {
+                setNavigationIcon(null)
+            }
         }
         super.onDestroyView()
     }
