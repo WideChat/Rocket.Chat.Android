@@ -102,14 +102,18 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
     }
 
     private fun setupToolbar() {
-        //(activity as AppCompatActivity?)?.supportActionBar?.title =
-        //        getString(R.string.title_settings)
-        // EAR >> added this to get the back button
-        with((activity as MainActivity).toolbar) {
-            title = getString(R.string.title_settings)
-            setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
-            setNavigationOnClickListener { activity?.onBackPressed() }
+        if (WIDECHAT){
+            // WIDECHAT - added this to get the back button
+            with((activity as MainActivity).toolbar) {
+                title = getString(R.string.title_settings)
+                setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                setNavigationOnClickListener { activity?.onBackPressed() }
+            } 
+        } else {
+            (activity as AppCompatActivity?)?.supportActionBar?.title =
+                getString(R.string.title_settings)
         }
+
     }
 
     private fun startNewActivity(classType: KClass<out AppCompatActivity>) {

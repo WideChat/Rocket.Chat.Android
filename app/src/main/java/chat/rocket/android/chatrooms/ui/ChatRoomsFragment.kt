@@ -56,7 +56,6 @@ private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 // EAR >> temporary flag hack, need to do this the right way!
 private const val WIDECHAT = false
 
-
 class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject
     lateinit var presenter: ChatRoomsPresenter
