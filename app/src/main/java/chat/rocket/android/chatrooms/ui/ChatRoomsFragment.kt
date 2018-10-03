@@ -46,6 +46,7 @@ import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.fragment_chat_rooms.*
 import timber.log.Timber
 import javax.inject.Inject
+
 // WIDECHAT
 import chat.rocket.android.settings.ui.SettingsFragment
 
@@ -53,8 +54,7 @@ internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
 
-// EAR >> temporary flag hack, need to do this the right way!
-private const val WIDECHAT = true
+private const val WIDECHAT = Constants.WIDECHAT
 
 class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject

@@ -21,17 +21,18 @@ import chat.rocket.android.settings.presentation.SettingsView
 import chat.rocket.android.util.extensions.addFragmentBackStack
 import chat.rocket.android.util.extensions.inflate
 import dagger.android.support.AndroidSupportInjection
-// WIDECHAT - need this for back button in setupToolbar
-import kotlinx.android.synthetic.main.app_bar.*
-
 import kotlinx.android.synthetic.main.fragment_settings.*
 import javax.inject.Inject
 import kotlin.reflect.KClass
 
+// WIDECHAT
+import chat.rocket.android.helper.Constants
+import kotlinx.android.synthetic.main.app_bar.* // need this for back button in setupToolbar
+
 internal const val TAG_SETTINGS_FRAGMENT = "SettingsFragment"
 
 // EAR >> temporary flag hack, need to do this the right way!
-private const val WIDECHAT = true
+private const val WIDECHAT = Constants.WIDECHAT
 
 class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListener {
     @Inject

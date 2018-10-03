@@ -38,10 +38,13 @@ import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 import javax.inject.Inject
 
+// WIDECHAT
+import chat.rocket.android.helper.Constants
+
 private const val CURRENT_STATE = "current_state"
 
 // EAR >> temporary flag hack, need to do this the right way!
-private const val WIDECHAT = true
+private const val WIDECHAT = Constants.WIDECHAT
 
 class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     HasSupportFragmentInjector {
