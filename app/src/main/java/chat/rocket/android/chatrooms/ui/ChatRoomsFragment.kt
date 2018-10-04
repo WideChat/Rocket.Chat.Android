@@ -49,6 +49,10 @@ import javax.inject.Inject
 
 // WIDECHAT
 import chat.rocket.android.settings.ui.SettingsFragment
+import chat.rocket.android.profile.ui.ProfileFragment
+//import android.graphics.Color
+//import androidx.core.view.marginRight
+import android.view.Gravity
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
@@ -71,6 +75,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var progressDialog: ProgressDialog? = null
     // WIDECHAT
     private var settingsView: MenuItem? = null
+    private var profileView: MenuItem? = null
+
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -100,6 +106,16 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     override fun onDestroy() {
         handler.removeCallbacks(dismissStatus)
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        // WIDECHAT - cleanup any titles set but other fragments
+        if (Constants.WIDECHAT) {
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
+            searchView?.clearFocus()
+            //activity?.invalidateOptionsMenu()
+        }
+        super.onResume()
     }
 
     override fun onCreateView(
@@ -175,18 +191,37 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         sortView = menu.findItem(R.id.action_sort)
         // WIDECHAT
         settingsView = menu.findItem(R.id.action_settings)
+        profileView = menu.findItem(R.id.action_profile)
 
         if (Constants.WIDECHAT) {
             sortView?.isVisible = false
-            //profileView = ???
         } else {
             settingsView?.isVisible = false
+            profileView?.isVisible = false
         }
 
         val searchItem = menu.findItem(R.id.action_search)
+        // WIDECHAT - this expands the action by default
+        if (Constants.WIDECHAT) {
+            searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        } else {
+            // WIDECHAT - using this will cover the settings icon
+            searchView?.maxWidth = Integer.MAX_VALUE
+        }
+
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
-        searchView?.maxWidth = Integer.MAX_VALUE
+        // EAR -test
+        //searchView?.onActionViewExpanded()
+        //searchView?.setIconified(false)
+        //searchView?.setFocusable(false)
+        //searchView?.isFocusableInTouchMode
+        //searchView?.clearFocus()
+        //searchView?.maxWidth = 1100
+        //searchView?.setGravity(Gravity.CENTER_HORIZONTAL)
+        //searchView?.setBackgroundColor(Color.WHITE)
+        //searchView?.marginRight
+
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
 
         val expandListener = object : MenuItem.OnActionExpandListener {
@@ -257,16 +292,21 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     }.show()
             }
         }
-
-        // EAR> put my listener for the profile button here???
-        //R.id.action_profile -> {
-            // Call the presenter here??  Just like it does in the current nav drawer
-
-        //}
+        
         if (Constants.WIDECHAT) {
             when (item.itemId) {
                 R.id.action_settings -> {
+                    searchView?.clearFocus()
                     val newFragment = SettingsFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
+                R.id.action_profile -> {
+                    searchView?.clearFocus()
+                    val newFragment = ProfileFragment()
                     val fragmentManager = fragmentManager
                     val fragmentTransaction = fragmentManager!!.beginTransaction()
                     fragmentTransaction.replace(R.id.fragment_container, newFragment)
@@ -373,7 +413,11 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     }
 
     private fun setupToolbar() {
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        if (!Constants.WIDECHAT) {
+            (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        } else {
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
+        }
     }
 
     private fun queryChatRoomsByName(name: String?): Boolean {
