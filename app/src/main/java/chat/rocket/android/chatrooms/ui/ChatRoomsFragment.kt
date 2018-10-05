@@ -78,10 +78,11 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
     // WIDECHAT
-    private var serverInteractor: GetCurrentServerInteractor? = null
-    private var userHelper: UserHelper? = null
     private var settingsView: MenuItem? = null
     private var profileButton: ImageButton? = null
+    // EAR >> these things for getting avatar??
+    //private var serverInteractor: GetCurrentServerInteractor? = null
+    //private var userHelper: UserHelper? = null
     //private var myselfName: userHelper.user()?.name ?: ""
     //private var avatarUrl: avatarUrl(myselfName)
 
