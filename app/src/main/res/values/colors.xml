@@ -3,7 +3,7 @@
 
     <!-- Main colors -->
     <color name="colorPrimary">#008085</color> <!-- Widechat color -->
-    <color name="colorPrimaryDark">#008085</color> <!-- Widechat color -->
+    <color name="colorPrimaryDark">#006366</color> <!-- Widechat color -->
     <color name="colorAccent">#FF1976D2</color> <!-- Material Blue 700 -->
 
     <!-- Text colors -->

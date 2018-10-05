@@ -6,11 +6,6 @@
     tools:ignore="AppCompatResource">
 
     <item
-        android:id="@+id/action_profile"
-        android:icon="@drawable/ic_settings_black_24dp"
-        android:title="profile"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@string/action_search"

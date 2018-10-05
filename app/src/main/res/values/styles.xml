@@ -26,7 +26,7 @@
         <item name="android:paddingStart">@dimen/edit_text_margin</item>
         <item name="android:maxLines">1</item>
         <item name="android:drawablePadding">@dimen/edit_text_drawable_padding</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFamily">@fonts/font_fontFamily_widechat</item>
         <item name="android:background">@drawable/style_edit_text_authentication</item>
     </style>
 
@@ -48,7 +48,7 @@
         <item name="android:maxLines">1</item>
         <item name="android:drawablePadding">@dimen/edit_text_drawable_padding</item>
         <item name="android:drawableTint" tools:ignore="NewApi">@color/colorDrawableTintGrey</item>
-        <item name="android:fontFamily">sans-serif</item>
+        <item name="android:fontFamily">@fonts/font_fontFamily_widechat</item>
         <item name="android:background">@drawable/style_edit_text_authentication</item>
     </style>
 
@@ -104,7 +104,7 @@
     <style name="Message.DayMarker" parent="TextAppearance.AppCompat">
         <item name="android:textSize">14sp</item>
         <item name="android:textColor">@color/colorPrimaryText</item>
-        <item name="android:fontFamily">@string/font_fontFamily_medium</item>
+        <item name="android:fontFamily">@fonts/font_fontFamily_widechat</item>
     </style>
 
     <style name="Message.Quote.TextView" parent="Message.TextView">

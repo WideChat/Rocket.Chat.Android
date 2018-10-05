@@ -50,9 +50,11 @@ import javax.inject.Inject
 // WIDECHAT
 import chat.rocket.android.settings.ui.SettingsFragment
 import chat.rocket.android.profile.ui.ProfileFragment
-//import android.graphics.Color
-//import androidx.core.view.marginRight
-import android.view.Gravity
+import android.widget.ImageButton
+import android.graphics.Color
+import chat.rocket.android.helper.UserHelper
+import chat.rocket.android.util.extensions.avatarUrl
+import chat.rocket.android.server.domain.GetCurrentServerInteractor
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
@@ -74,8 +76,13 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
     // WIDECHAT
+    private var serverInteractor: GetCurrentServerInteractor? = null
+    private var userHelper: UserHelper? = null
     private var settingsView: MenuItem? = null
-    private var profileView: MenuItem? = null
+    private var profileButton: ImageButton? = null
+    //private var myselfName: userHelper.user()?.name ?: ""
+    //private var avatarUrl: avatarUrl(myselfName)
+
 
 
     companion object {
@@ -186,18 +193,17 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+        
         inflater.inflate(R.menu.chatrooms, menu)
 
         sortView = menu.findItem(R.id.action_sort)
         // WIDECHAT
         settingsView = menu.findItem(R.id.action_settings)
-        profileView = menu.findItem(R.id.action_profile)
 
         if (Constants.WIDECHAT) {
             sortView?.isVisible = false
         } else {
             settingsView?.isVisible = false
-            profileView?.isVisible = false
         }
 
         val searchItem = menu.findItem(R.id.action_search)
@@ -303,15 +309,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     fragmentTransaction.replace(R.id.fragment_container, newFragment)
                     fragmentTransaction.addToBackStack(null)
                     fragmentTransaction.commit()
-                }
-                R.id.action_profile -> {
-                    searchView?.clearFocus()
-                    val newFragment = ProfileFragment()
-                    val fragmentManager = fragmentManager
-                    val fragmentTransaction = fragmentManager!!.beginTransaction()
-                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
-                    fragmentTransaction.addToBackStack(null)
-                    fragmentTransaction.commit()
+                    profileButton?.setVisibility(View.GONE)
                 }
             }
         }
@@ -413,10 +411,51 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     }
 
     private fun setupToolbar() {
-        if (!Constants.WIDECHAT) {
+        if (Constants.WIDECHAT) {
+            //val myselfName = userHelper?.user()?.name ?: ""
+            //val serverUrl = serverInteractor?.get()!!
+            //val avatarUrl = serverUrl.avatarUrl(myselfName)
+
+            // WIDECHAT - custom layout for profile button
+            with((activity as AppCompatActivity?)?.supportActionBar) {
+                this?.setDisplayShowCustomEnabled(true)
+                this?.setDisplayShowTitleEnabled(false)
+                this?.setCustomView(R.layout.custom_veranda_appbar_layout)
+                //this?.setIcon(R.drawable.ic_person_black_24dp)
+                //this?.setHomeButtonEnabled(true)
+                //this?.setDisplayHomeAsUpEnabled(true)
+                //this?.setDisplayShowHomeEnabled(true)
+
+                //searchView2 = this?.getCustomView()
+                profileButton = this?.getCustomView()?.findViewById(R.id.action_profile)
+                profileButton?.setOnClickListener { v ->
+                        val newFragment = ProfileFragment()
+                        val fragmentManager = fragmentManager
+                        val fragmentTransaction = fragmentManager!!.beginTransaction()
+                        fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                        fragmentTransaction.addToBackStack(null)
+                        fragmentTransaction.commit()
+                        profileButton?.setVisibility(View.GONE)
+                    }
+
+                //searchView2 = this?.getCustomView()?.findViewById(R.id.action_search)
+                //searchView2?.setOnQueryTextListener { queryChatRoomsByName(this) }
+
+
+
+                    //searchView2 = LayoutInflater.from(context).inflate(R.layout.custom_veranda_appbar_layout, null)
+                    //searchView2.setBackgroundColor(Color.WHITE)
+                    //searchView2.setIconified(false)
+                    //searchView2.clearFocus()
+                    //searchView2?.onActionViewExpanded(true)
+                    //this?.setCustomView(searchView2)
+
+                }
+
+
+            } else {
+            //(activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
             (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
-        } else {
-            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
         }
     }
 
