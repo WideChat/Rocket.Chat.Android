@@ -120,7 +120,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         if (Constants.WIDECHAT) {
             (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
             searchView?.clearFocus()
-            //activity?.invalidateOptionsMenu()
         }
         super.onResume()
     }
@@ -421,12 +420,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 this?.setDisplayShowCustomEnabled(true)
                 this?.setDisplayShowTitleEnabled(false)
                 this?.setCustomView(R.layout.custom_veranda_appbar_layout)
-                //this?.setIcon(R.drawable.ic_person_black_24dp)
-                //this?.setHomeButtonEnabled(true)
-                //this?.setDisplayHomeAsUpEnabled(true)
-                //this?.setDisplayShowHomeEnabled(true)
-
-                //searchView2 = this?.getCustomView()
+                
                 profileButton = this?.getCustomView()?.findViewById(R.id.action_profile)
                 profileButton?.setOnClickListener { v ->
                         val newFragment = ProfileFragment()
@@ -454,8 +448,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
 
             } else {
-            //(activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
-            (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+                (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
         }
     }
 
