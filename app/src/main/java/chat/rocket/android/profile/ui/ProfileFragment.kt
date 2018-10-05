@@ -88,12 +88,6 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
     }
 
     override fun onDestroyView() {
-        if (Constants.WIDECHAT) {
-            with((activity as MainActivity).toolbar) {
-                setNavigationIcon(null)
-                title = null
-            }
-        }
         super.onDestroyView()
         unsubscribeEditTexts()
     }

@@ -62,17 +62,6 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
         super.onResume()
     }
 
-    // WIDECHAT - removes the back button and the title when leaving the fragment
-    override fun onDestroyView() {
-        if (Constants.WIDECHAT) {
-            with((activity as MainActivity).toolbar) {
-                setNavigationIcon(null)
-                title = null
-            }
-        }
-        super.onDestroyView()
-    }
-
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         when (parent?.getItemAtPosition(position).toString()) {
             resources.getString(R.string.title_preferences) -> {

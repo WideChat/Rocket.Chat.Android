@@ -48,12 +48,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 // WIDECHAT
+import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.settings.ui.SettingsFragment
 import chat.rocket.android.profile.ui.ProfileFragment
 import android.widget.ImageButton
-import android.graphics.Color
+import kotlinx.android.synthetic.main.app_bar.*
+//import android.graphics.Color
 import chat.rocket.android.helper.UserHelper
-import chat.rocket.android.util.extensions.avatarUrl
+//import chat.rocket.android.util.extensions.avatarUrl
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
@@ -411,6 +413,11 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     private fun setupToolbar() {
         if (Constants.WIDECHAT) {
+            with((activity as MainActivity).toolbar) {
+                setNavigationIcon(null)
+                title = null
+            }
+
             //val myselfName = userHelper?.user()?.name ?: ""
             //val serverUrl = serverInteractor?.get()!!
             //val avatarUrl = serverUrl.avatarUrl(myselfName)
