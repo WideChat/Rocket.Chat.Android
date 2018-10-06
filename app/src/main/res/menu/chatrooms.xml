@@ -4,18 +4,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="AppCompatResource">
 
+    <!-- WIDECHAT -->
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@string/action_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
-
     <item
         android:id="@+id/action_settings"
         android:icon="@drawable/ic_settings_black_24dp"
         android:title="@string/action_settings"
         app:showAsAction="always" />
+    <!-- END WIDECHAT -->
     <item
         android:id="@+id/action_sort"
         android:icon="@drawable/ic_sort"

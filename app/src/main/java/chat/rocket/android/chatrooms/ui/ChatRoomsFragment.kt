@@ -200,7 +200,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        
         inflater.inflate(R.menu.chatrooms, menu)
 
         sortView = menu.findItem(R.id.action_sort)
