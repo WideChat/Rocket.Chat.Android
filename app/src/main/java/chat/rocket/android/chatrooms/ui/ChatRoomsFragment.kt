@@ -428,6 +428,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             with((activity as MainActivity).toolbar) {
                 setNavigationIcon(null)
                 title = null
+                setPadding(-64, 0,0,0)
             }
 
             //val user = userHelper?.user()
