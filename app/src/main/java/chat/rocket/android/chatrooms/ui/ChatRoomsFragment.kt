@@ -143,6 +143,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
         viewModel = ViewModelProviders.of(this, factory).get(ChatRoomsViewModel::class.java)
         subscribeUi()
+        // EAR test
+        viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
+            status?.let { showConnectionState(status) }
+        })
 
         setupToolbar()
 
@@ -190,9 +194,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 }
             })
 
-            viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
-                status?.let { showConnectionState(status) }
-            })
+            //viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
+            //    status?.let { showConnectionState(status) }
+            //})
 
             updateSort()
         }

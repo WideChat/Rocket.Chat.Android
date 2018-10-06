@@ -2,10 +2,12 @@
 <resources>
 
     <!-- Main colors -->
-    <!--<color name="colorPrimary">#009FE3</color> --> <!-- Material Grey 850 -->
-    <!--<color name="colorPrimaryDark">#009FE3</color> --> <!-- Material Grey 900 -->
-    <color name="colorPrimary">#008085</color> <!-- Widechat color -->
-    <color name="colorPrimaryDark">#006366</color> <!-- Widechat color -->
+    <!-- <color name="colorPrimary">#FF303030</color> --> <!-- Material Grey 850 -->
+    <!-- <color name="colorPrimaryDark">#FF212121</color> --> <!-- Material Grey 900 -->
+    <!-- <color name="colorPrimary">#008085</color> --> <!-- Widechat color -->
+    <color name="colorPrimary">#008085</color>
+    <color name="colorPrimaryDark">#0B6379</color> <!-- Widechat color -->
+    <color name="verandaStatusBar">#0E7075</color> <!-- Widechat color -->
     <color name="colorAccent">#FF1976D2</color> <!-- Material Blue 700 -->
 
     <!-- Text colors -->
