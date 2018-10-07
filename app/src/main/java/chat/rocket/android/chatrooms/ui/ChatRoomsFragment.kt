@@ -143,10 +143,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
         viewModel = ViewModelProviders.of(this, factory).get(ChatRoomsViewModel::class.java)
         subscribeUi()
-        // EAR test
-        viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
-            status?.let { showConnectionState(status) }
-        })
 
         setupToolbar()
 
@@ -194,9 +190,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 }
             })
 
-            //viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
-            //    status?.let { showConnectionState(status) }
-            //})
+            viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
+                status?.let { showConnectionState(status) }
+            })
 
             updateSort()
         }
@@ -208,11 +204,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
         sortView = menu.findItem(R.id.action_sort)
 
-        if (Constants.WIDECHAT) {
-            sortView?.isVisible = false
-            settingsView = menu.findItem(R.id.action_settings)
-        }
-
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
@@ -221,6 +212,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
          *  remove keyboard and query with close button
          */
         if (Constants.WIDECHAT) {
+            sortView?.isVisible = false
+            settingsView = menu.findItem(R.id.action_settings)
+
             searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
             searchView?.setPadding(50,0,0,0)
 
@@ -232,6 +226,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         } else {
             // WIDECHAT - using this will cover the settings icon
             searchView?.maxWidth = Integer.MAX_VALUE
+            settingsView?.isVisible = false
         }
 
         // EAR -test
