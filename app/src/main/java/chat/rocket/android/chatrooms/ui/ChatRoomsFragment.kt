@@ -51,7 +51,6 @@ import javax.inject.Inject
 import android.widget.ImageView
 import android.widget.TextView
 import android.graphics.Color
-import android.widget.LinearLayout
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.settings.ui.SettingsFragment
 import chat.rocket.android.profile.ui.ProfileFragment
@@ -83,7 +82,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var searchIcon: ImageView? = null
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
-    private var searchBar: LinearLayout? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -116,7 +114,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     }
 
     override fun onResume() {
-        // WIDECHAT - cleanup any titles set but other fragments; clear any previous search
+        // WIDECHAT - cleanup any titles set by other fragments; clear any previous search
         if (Constants.WIDECHAT) {
             (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
             searchView?.clearFocus()
@@ -215,7 +213,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             profileView?.isVisible = true
 
             searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
-            searchBar = searchView?.findViewById(R.id.search_bar)
 
             searchIcon = searchView?.findViewById(R.id.search_mag_icon)
             searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
