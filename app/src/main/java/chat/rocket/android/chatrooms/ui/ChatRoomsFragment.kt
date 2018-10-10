@@ -334,6 +334,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
      *  remove keyboard and query with close button
      */
     private fun setupWidechatMenuItemsView(menu: Menu, searchItem: MenuItem) {
+
         searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
         sortView?.isVisible = false
 
