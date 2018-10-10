@@ -48,26 +48,14 @@ import timber.log.Timber
 import javax.inject.Inject
 
 // WIDECHAT
+import android.widget.ImageView
+import android.widget.TextView
+import android.graphics.Color
+import android.widget.LinearLayout
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.settings.ui.SettingsFragment
 import chat.rocket.android.profile.ui.ProfileFragment
 import kotlinx.android.synthetic.main.app_bar.*
-import android.widget.ImageView
-import android.widget.TextView
-import android.graphics.Color
-//import android.view.ViewGroup.LayoutParams
-import android.widget.LinearLayout
-//import android.widget.LinearLayout.LayoutParams
-import androidx.appcompat.widget.LinearLayoutCompat.LayoutParams
-/**import android.content.res.Resources
-import androidx.core.R.drawable
-import chat.rocket.android.helper.UserHelper
-import chat.rocket.android.util.extensions.avatarUrl
-import chat.rocket.android.server.domain.GetCurrentServerInteractor */
-import com.facebook.drawee.view.SimpleDraweeView
-//import com.bumptech.glide.Glide
-//import chat.rocket.android.infrastructure.LocalRepository
-//import agency.tango.android.avatarview.loader.PicassoLoader
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
@@ -90,27 +78,12 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var progressDialog: ProgressDialog? = null
 
     // WIDECHAT
-    //private var avatarUri: String? = null
     private var settingsView: MenuItem? = null
     private var profileView: MenuItem? = null
     private var searchIcon: ImageView? = null
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
     private var searchBar: LinearLayout? = null
-    //private var searchFrame: LinearLayout? = null
-    private var ltp: LayoutParams? = null
-
-    //private var toolbarWidth: Int? = null
-    //private var avatarWidth: Int? = null
-    //private val avatarImagePx: Int? = null
-    // EAR >> these things for getting avatar??
-    //private var serverInteractor: GetCurrentServerInteractor? = null
-    //private var userHelper: UserHelper? = null
-    private var profileButton: SimpleDraweeView? = null
-    //private var myselfName: userHelper.user()?.name ?: ""
-    //private var avatarUrl: avatarUrl(myselfName)
-    //private var localRepository: LocalRepository? = null
-    //private val currentUsername: String? = localRepository?.get("username_")
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -232,9 +205,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
          *  remove keyboard and query with close button
          */
         if (Constants.WIDECHAT) {
-
             searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
-
             sortView?.isVisible = false
 
             settingsView = menu.findItem(R.id.action_settings)
@@ -243,44 +214,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             profileView = menu.findItem(R.id.action_profile)
             profileView?.isVisible = true
 
-            /**with((activity as MainActivity).toolbar) {
-                profileButton = profileView?.getActionView()?.findViewById(R.id.image_avatar)
-                Glide.with(this)
-                        .asDrawable()
-                        .load("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-                        .into(profileButton as ImageView)
-
-                //toolbarWidth = this.getWidth()
-                //val avatarImagePx = (44 * Resources.getSystem().displayMetrics.density).toInt()
-            }
-            with((activity as AppCompatActivity?)?.supportActionBar) {
-                val customView = this?.getCustomView()
-                avatarWidth = customView?.getWidth()
-                //val avatarImagePx = (avatarWidth * Resources.getSystem().displayMetrics.density).toInt()
-            }*/
-            //searchView?.maxWidth = toolbarWidth as Int - avatarImagePx as Int
-
-        /**    var profileButtonImage: ImageView? = null
-            profileButtonImage = profileView?.getActionView()?.findViewById(R.id.image_avatar) as ImageView
-            //val profileButtonId = profileView?.getItemId()
-            //profileButton = profileView?.getId()
-
-            //Glide.with(profileButton).asDrawable().load("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png").
-            Glide.with(this)
-                    .load("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-                    .into(profileButtonImage)
-        */
-
-            //profileView?.setIcon(profileButtonId as Int)
-
             searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
             searchBar = searchView?.findViewById(R.id.search_bar)
-            //ltp = LayoutParams(500, 81)
-            //searchView?.layoutParams = ltp
-
-            //searchFrame = searchView?.findViewById(R.id.search_edit_frame)
-            //ltp = searchFrame?.getLayoutParams()
-            //searchView?.maxWidth = 500
 
             searchIcon = searchView?.findViewById(R.id.search_mag_icon)
             searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
@@ -299,16 +234,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             // WIDECHAT - using this will cover the settings icon
             searchView?.maxWidth = Integer.MAX_VALUE
         }
-
-        // EAR -test
-        //searchView?.onActionViewExpanded()
-        //searchView?.setIconifiedByDefault(false)
-        //searchView?.setFocusable(false)
-        //searchView?.isFocusableInTouchMode
-        //searchView?.clearFocus()
-        //searchView?.maxWidth = 1000
-        //var searchPlate: View? = searchView?.findViewById(R.id.search_plate)
-
 
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
 
@@ -391,7 +316,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     fragmentTransaction.replace(R.id.fragment_container, newFragment)
                     fragmentTransaction.addToBackStack(null)
                     fragmentTransaction.commit()
-                    profileButton?.setVisibility(View.GONE)
                 }
 
                 R.id.action_profile -> {
@@ -402,7 +326,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     fragmentTransaction.replace(R.id.fragment_container, newFragment)
                     fragmentTransaction.addToBackStack(null)
                     fragmentTransaction.commit()
-                    profileButton?.setVisibility(View.GONE)
                 }
             }
         }
@@ -512,51 +435,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 //contentInsetEndWithActions
                 title = null
             }
-
-            //val user = userHelper?.user()
-            //Timber.d("########### EAR >> this is currentUsername: " + currentUsername)
-            //val myselfName = userHelper?.username()
-            //Timber.d("########### EAR >> this is myselfName: " + myselfName)
-            //val serverUrl = serverInteractor?.get()
-            //Timber.d("########### EAR >> this is serverUrl: " + serverUrl)
-            //val avatarUri = serverUrl?.avatarUrl(myselfName)
-            //Timber.d("############  EAR >> this is the avatar URI: " + avatarUri)
-
-            // WIDECHAT - custom layout for profile button
-           /** with((activity as AppCompatActivity?)?.supportActionBar) {
-            //with((activity as MainActivity).toolbar) {
-                this?.setDisplayShowCustomEnabled(true)
-                this?.setDisplayShowTitleEnabled(false)
-                //this?.setCustomView(R.layout.custom_veranda_appbar_layout)
-                this?.setCustomView(R.layout.veranda_avatar)
-                //profileButton = this?.getCustomView()?.findViewById(R.id.action_profile)
-                // EAR >> SimpleDraweeView test
-                // EAR >> need to cover the case when not connected?  or store the avatar locally?
-                //profileButton = this?.getCustomView()?.findViewById(R.id.image_avatar)
-                profileButton = this?.getCustomView()?.findViewById(R.id.image_avatar)
-
-                /**Glide.with(context)
-                        .load("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-                        .into(profileButton)*/
-
-                //var imageLoader = PicassoLoader()
-
-                profileButton?.setImageURI("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-
-                profileButton?.setOnClickListener { v ->
-                        searchView?.clearFocus()
-                        profileButton?.setVisibility(View.GONE)
-
-                        val newFragment = ProfileFragment()
-                        val fragmentManager = fragmentManager
-                        val fragmentTransaction = fragmentManager!!.beginTransaction()
-                        fragmentTransaction.replace(R.id.fragment_container, newFragment)
-                        fragmentTransaction.addToBackStack(null)
-                        fragmentTransaction.commit()
-                    }
-                }*/
-            } else {
-                (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        } else {
+            (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
         }
     }
 
