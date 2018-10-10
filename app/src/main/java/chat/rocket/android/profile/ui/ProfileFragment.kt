@@ -184,7 +184,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
         if (Constants.WIDECHAT){
             // WIDECHAT - added this to get the back button
             with((activity as MainActivity).toolbar) {
-                setPadding(-0, 0,0,0)
+                //setPadding(-0, 0,0,0)
                 title = getString(R.string.title_profile)
                 setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
                 setNavigationOnClickListener { activity?.onBackPressed() }
