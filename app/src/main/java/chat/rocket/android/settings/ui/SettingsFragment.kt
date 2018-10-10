@@ -93,7 +93,6 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
         if (Constants.WIDECHAT){
             // WIDECHAT - added this to get the back button
             with((activity as MainActivity).toolbar) {
-                //setPadding(-0, 0,0,0)
                 title = getString(R.string.title_settings)
                 setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
                 setNavigationOnClickListener {

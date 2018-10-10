@@ -12,8 +12,8 @@
         android:background="@drawable/veranda_green_gradient"
         android:minHeight="@dimen/widechat_toolbar_height"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_scrollFlags="scroll|enterAlways"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
         app:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
@@ -29,10 +29,8 @@
             android:id="@+id/toolbar_action_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:width="-200dp"
             android:gravity="end"
-            android:textSize="14sp"
-            tools:layout_editor_absoluteY="31dp" />
+            android:textSize="14sp" />
 
     </androidx.appcompat.widget.Toolbar>
 

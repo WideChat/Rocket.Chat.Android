@@ -431,8 +431,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             with((activity as MainActivity).toolbar) {
                 setNavigationIcon(null)
                 setContentInsetsAbsolute(0, 0)
-                //setContentInsetsRelative(10,contentInsetEndWithActions)
-                //contentInsetEndWithActions
                 title = null
             }
         } else {

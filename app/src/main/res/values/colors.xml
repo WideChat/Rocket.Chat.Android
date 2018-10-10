@@ -2,12 +2,14 @@
 <resources>
 
     <!-- Main colors -->
+    <!-- Widechat colors -->
     <!-- <color name="colorPrimary">#FF303030</color> --> <!-- Material Grey 850 -->
     <!-- <color name="colorPrimaryDark">#FF212121</color> --> <!-- Material Grey 900 -->
     <!-- <color name="colorPrimary">#008085</color> --> <!-- Widechat color -->
     <color name="colorPrimary">#008085</color>
     <color name="colorPrimaryDark">#0E707579</color> <!-- Widechat color -->
     <color name="verandaStatusBar">#0E7075</color> <!-- Widechat color -->
+    <!-- End Widchat Colors -->
     <color name="colorAccent">#FF1976D2</color> <!-- Material Blue 700 -->
 
     <!-- Text colors -->
