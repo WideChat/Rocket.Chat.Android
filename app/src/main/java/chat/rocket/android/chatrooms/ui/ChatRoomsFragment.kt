@@ -199,35 +199,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
 
-        /** WIDECHAT - adjust the view; expand the action by default;
-         *  remove keyboard and query with close button
-         */
         if (Constants.WIDECHAT) {
-            searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
-            sortView?.isVisible = false
-
-            settingsView = menu.findItem(R.id.action_settings)
-            settingsView?.isVisible = true
-
-            profileView = menu.findItem(R.id.action_profile)
-            profileView?.isVisible = true
-
-            searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
-
-            searchIcon = searchView?.findViewById(R.id.search_mag_icon)
-            searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
-
-            searchText = searchView?.findViewById(R.id.search_src_text)
-            searchText?.setTextColor(Color.GRAY)
-            searchText?.setHintTextColor(Color.GRAY)
-
-            searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
-            searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
-
-            searchCloseButton?.setOnClickListener { v ->
-                searchView?.clearFocus()
-                searchView?.setQuery("", false);
-            }
+            setupWidechatToolbarView(menu, searchItem)
         } else {
             // WIDECHAT - using this will cover the settings icon
             searchView?.maxWidth = Integer.MAX_VALUE
@@ -356,6 +329,38 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 queryChatRoomsByName(searchView!!.query.toString())
             }
         }
+    }
+
+    /** WIDECHAT - adjust the view; expand the action by default;
+     *  remove keyboard and query with close button
+     */
+    private fun setupWidechatToolbarView(menu: Menu, searchItem: MenuItem) {
+        searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        sortView?.isVisible = false
+
+        settingsView = menu.findItem(R.id.action_settings)
+        settingsView?.isVisible = true
+
+        profileView = menu.findItem(R.id.action_profile)
+        profileView?.isVisible = true
+
+        searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
+
+        searchIcon = searchView?.findViewById(R.id.search_mag_icon)
+        searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
+
+        searchText = searchView?.findViewById(R.id.search_src_text)
+        searchText?.setTextColor(Color.GRAY)
+        searchText?.setHintTextColor(Color.GRAY)
+
+        searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
+        searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
+
+        searchCloseButton?.setOnClickListener { v ->
+            searchView?.clearFocus()
+            searchView?.setQuery("", false);
+        }
+
     }
 
     private fun showNoChatRoomsToDisplay() {
