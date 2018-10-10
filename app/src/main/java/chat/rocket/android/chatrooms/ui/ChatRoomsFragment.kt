@@ -199,7 +199,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchView?.setIconifiedByDefault(false)
 
         if (Constants.WIDECHAT) {
-            setupWidechatToolbarView(menu, searchItem)
+            setupWidechatMenuItemsView(menu, searchItem)
         } else {
             // WIDECHAT - using this will cover the settings icon
             searchView?.maxWidth = Integer.MAX_VALUE
@@ -333,7 +333,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     /** WIDECHAT - adjust the view; expand the action by default;
      *  remove keyboard and query with close button
      */
-    private fun setupWidechatToolbarView(menu: Menu, searchItem: MenuItem) {
+    private fun setupWidechatMenuItemsView(menu: Menu, searchItem: MenuItem) {
         searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
         sortView?.isVisible = false
 
