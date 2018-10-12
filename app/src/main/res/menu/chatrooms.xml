@@ -20,15 +20,6 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
 
-    <!-- WIDECHAT -->
-    <item
-        android:id="@+id/action_settings"
-        android:icon="@drawable/ic_veranda_settings"
-        android:title="@string/action_settings"
-        android:visible="false"
-        app:showAsAction="always" />
-    <!-- END WIDECHAT -->
-
     <item
         android:id="@+id/action_sort"
         android:icon="@drawable/ic_sort"
