@@ -142,8 +142,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                 if (serverLogo != null) {
                     server_logo.setImageURI(serverLogo)
                 }
-                if (Constants.WIDECHAT) {
-                }
                 text_server_url.text = uiModel.serverUrl
             }
         }
@@ -228,25 +226,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
 
     // WIDECHAT
     fun setupProfileButton() {
-
-        // EAR >> can I get this to size dynamically??
-        /**val Background = newFixedThreadPoolContext(2, "bg")
-        val job = launch(Background){
-
-                var avatarBitmap = Glide.with(toolbar)
-                        .asBitmap()
-                        .load(userAvatarUrl)
-                        .into(100,100)
-                        .get()
-
-                image = BitmapDrawable(getResources(), avatarBitmap)
-
-                launch(UI) {
-                    toolbar.setNavigationIcon(image)
-                }
-
-        } */
-
+        // TODO we want this to be the users avtar
         toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
         toolbar.setNavigationOnClickListener {
 

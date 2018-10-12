@@ -417,7 +417,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private fun setupToolbar() {
         if (Constants.WIDECHAT) {
             with((activity as MainActivity).toolbar) {
-                setContentInsetsAbsolute(0, 0)
                 title = null
             }
         } else {

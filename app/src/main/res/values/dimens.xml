@@ -50,6 +50,5 @@
 
     <!-- WIDECHAT Toolbar -->
     <dimen name="widechat_toolbar_height">81dp</dimen>
-    <dimen name="widechat_padding_left">-16dp</dimen>
 
 </resources>
