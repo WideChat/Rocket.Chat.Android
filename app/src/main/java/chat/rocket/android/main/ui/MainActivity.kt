@@ -38,6 +38,9 @@ import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 import javax.inject.Inject
 
+// WIDECHAT
+import chat.rocket.android.helper.Constants
+
 private const val CURRENT_STATE = "current_state"
 
 class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
@@ -73,7 +76,10 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         presenter.loadCurrentInfo()
         presenter.loadEmojis()
         setupToolbar()
-        setupNavigationView()
+        // WIDECHAT - Don't run this in order to hide the nav drawer
+        if (!Constants.WIDECHAT) {
+            setupNavigationView()
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {

@@ -46,6 +46,15 @@ import kotlinx.android.synthetic.main.fragment_chat_rooms.*
 import timber.log.Timber
 import javax.inject.Inject
 
+// WIDECHAT
+import android.widget.ImageView
+import android.widget.TextView
+import android.graphics.Color
+import chat.rocket.android.main.ui.MainActivity
+import chat.rocket.android.settings.ui.SettingsFragment
+import chat.rocket.android.profile.ui.ProfileFragment
+import kotlinx.android.synthetic.main.app_bar.*
+
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
@@ -65,6 +74,13 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private val handler = Handler()
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
+
+    // WIDECHAT
+    private var settingsView: MenuItem? = null
+    private var profileView: MenuItem? = null
+    private var searchIcon: ImageView? = null
+    private var searchText:  TextView? = null
+    private var searchCloseButton: ImageView? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -94,6 +110,16 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     override fun onDestroy() {
         handler.removeCallbacks(dismissStatus)
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        // WIDECHAT - cleanup any titles set by other fragments; clear any previous search
+        if (Constants.WIDECHAT) {
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
+            searchView?.clearFocus()
+            searchView?.setQuery("", false);
+        }
+        super.onResume()
     }
 
     override fun onCreateView(
@@ -171,7 +197,14 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
-        searchView?.maxWidth = Integer.MAX_VALUE
+
+        if (Constants.WIDECHAT) {
+            setupWidechatMenuItemsView(menu, searchItem)
+        } else {
+            // WIDECHAT - using this will cover the settings icon
+            searchView?.maxWidth = Integer.MAX_VALUE
+        }
+
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
 
         val expandListener = object : MenuItem.OnActionExpandListener {
@@ -242,6 +275,30 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     }.show()
             }
         }
+        
+        if (Constants.WIDECHAT) {
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    searchView?.clearFocus()
+                    val newFragment = SettingsFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
+
+                R.id.action_profile -> {
+                    searchView?.clearFocus()
+                    val newFragment = ProfileFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
+            }
+        }
         return super.onOptionsItemSelected(item)
     }
 
@@ -271,6 +328,39 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 queryChatRoomsByName(searchView!!.query.toString())
             }
         }
+    }
+
+    /** WIDECHAT - adjust the view; expand the action by default;
+     *  remove keyboard and query with close button
+     */
+    private fun setupWidechatMenuItemsView(menu: Menu, searchItem: MenuItem) {
+
+        searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        sortView?.isVisible = false
+
+        settingsView = menu.findItem(R.id.action_settings)
+        settingsView?.isVisible = true
+
+        profileView = menu.findItem(R.id.action_profile)
+        profileView?.isVisible = true
+
+        searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
+
+        searchIcon = searchView?.findViewById(R.id.search_mag_icon)
+        searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
+
+        searchText = searchView?.findViewById(R.id.search_src_text)
+        searchText?.setTextColor(Color.GRAY)
+        searchText?.setHintTextColor(Color.GRAY)
+
+        searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
+        searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
+
+        searchCloseButton?.setOnClickListener { v ->
+            searchView?.clearFocus()
+            searchView?.setQuery("", false);
+        }
+
     }
 
     private fun showNoChatRoomsToDisplay() {
@@ -340,7 +430,15 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     }
 
     private fun setupToolbar() {
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        if (Constants.WIDECHAT) {
+            with((activity as MainActivity).toolbar) {
+                setNavigationIcon(null)
+                setContentInsetsAbsolute(0, 0)
+                title = null
+            }
+        } else {
+            (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        }
     }
 
     private fun queryChatRoomsByName(name: String?): Boolean {

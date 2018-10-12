@@ -2,8 +2,12 @@
 <resources>
 
     <!-- Main colors -->
-    <color name="colorPrimary">#FF2F343D</color>
-    <color name="colorPrimaryDark">#FF2F343D</color>
+    <color name="colorPrimaryDark">#FF212121</color>
+    <!-- Widechat colors -->
+    <!-- <color name="colorPrimary">#FF303030</color> --> 
+    <color name="colorPrimary">#008085</color>
+    <color name="verandaStatusBar">#0E7075</color> <!-- Widechat color -->
+    <!-- End Widchat Colors -->
     <color name="colorAccent">#FF1D74F5</color>
 
     <!-- Text colors -->
