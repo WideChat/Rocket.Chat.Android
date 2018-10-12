@@ -40,6 +40,26 @@ import javax.inject.Inject
 
 // WIDECHAT
 import chat.rocket.android.helper.Constants
+import chat.rocket.android.profile.ui.ProfileFragment
+import android.view.View
+import android.widget.ImageView
+import android.widget.LinearLayout
+import android.app.ActionBar.LayoutParams
+import com.google.android.material.appbar.AppBarLayout
+import android.graphics.drawable.Drawable
+import android.graphics.drawable.BitmapDrawable
+import androidx.core.graphics.drawable.DrawableCompat
+import androidx.constraintlayout.widget.ConstraintLayout
+import com.bumptech.glide.Glide
+import android.net.Uri
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.experimental.android.UI
+import chat.rocket.android.core.lifecycle.CancelStrategy
+
+import timber.log.Timber
+
 
 private const val CURRENT_STATE = "current_state"
 
@@ -59,6 +79,11 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
 
+    // WIDECHAT
+    private var userAvatarUrl: String? = null
+    private var navIcon: ImageView? = null
+    private var image: Drawable? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -76,10 +101,13 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         presenter.loadCurrentInfo()
         presenter.loadEmojis()
         setupToolbar()
-        // WIDECHAT - Don't run this in order to hide the nav drawer
-        if (!Constants.WIDECHAT) {
+
+        // WIDECHAT - Replace nav drawer with profile button
+        /**if (Constants.WIDECHAT) {
+            setupProfileButton()
+        } else {
             setupNavigationView()
-        }
+        }*/
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -138,6 +166,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                 if (serverLogo != null) {
                     server_logo.setImageURI(serverLogo)
                 }
+                if (Constants.WIDECHAT) {
+                    setupProfileButton()
+                }
                 text_server_url.text = uiModel.serverUrl
             }
         }
@@ -175,7 +206,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
             drawer_layout.closeDrawer(GravityCompat.START)
         }
     }
-
 
     override fun closeServerSelection() {
         view_navigation.getHeaderView(0).account_container.performClick()
@@ -221,6 +251,81 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         setSupportActionBar(toolbar)
     }
 
+    // WIDECHAT
+    fun setupProfileButton() {
+        Timber.d("########## EAR >> In setupProfileButton this is the avatar url: " + userAvatarUrl)
+
+        /**
+        val linearLayout = findViewById<AppBarLayout>(R.id.toolbar)
+        val imageView = ImageView(this)
+        val imageLayout = LayoutParams(81,81,3)
+        imageView.setLayoutParams(imageLayout)
+
+        var icon = toolbar.getNavigationIcon() as ImageView */
+
+        //navIcon = this.findViewById(R.id.home)
+        //Timber.d("######## EAR this is the navIcon ID: " + navIcon)
+        //var imageUri = Uri.parse("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
+        //imageView.setImageURI(imageUri)
+        /**
+        var avatarBitmap = Glide.with(this)
+                .asBitmap()
+                .load("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
+                .into(100, 100)
+                .get()
+
+        Timber.d("#########  EAR >> avatarBitmap: " + avatarBitmap) */
+
+        val Background = newFixedThreadPoolContext(2, "bg")
+        val job = launch(Background){
+
+                var avatarBitmap = Glide.with(toolbar)
+                        .asBitmap()
+                        .load(userAvatarUrl)
+                        .into(100,100)
+                        .get()
+
+                image = BitmapDrawable(getResources(), avatarBitmap)
+
+                launch(UI) {
+                    toolbar.setNavigationIcon(image)
+                }
+
+        }
+
+
+
+
+        //getSupportActionBar()?.setDisplayShowCustomEnabled(true)
+        //getSupportActionBar()?.setCustomView(imageView)
+
+        //val drawable = imageView.getDrawable()
+        //imageView.setImageBitmap()
+        //linearLayout.addView(imageView)
+
+        //toolbar.setNavigationIcon(d)
+        //toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
+        toolbar.setNavigationOnClickListener {
+
+            val newFragment = ProfileFragment()
+            val fragmentManager = getSupportFragmentManager()
+            val fragmentTransaction = fragmentManager.beginTransaction()
+            fragmentTransaction.replace(R.id.fragment_container, newFragment)
+            fragmentTransaction.addToBackStack(null)
+
+            // Resets the toolbar on resume by only running on pop and not on the push
+            val nowCount = fragmentManager.getBackStackEntryCount()
+            fragmentManager.addOnBackStackChangedListener {
+                val newCount = fragmentManager.getBackStackEntryCount()
+                if (nowCount == newCount) {
+                    this.setupProfileButton()
+                }
+            }
+
+            fragmentTransaction.commit()
+        }
+    }
+
     fun setupNavigationView() {
         with (view_navigation.menu) {
             clear()
@@ -239,6 +344,8 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     }
 
     fun setAvatar(avatarUrl: String) {
+        userAvatarUrl = avatarUrl
+        Timber.d("########  EAR >> In setAvatar - this is userAvatarUrl: " + userAvatarUrl)
         headerLayout.image_avatar.setImageURI(avatarUrl)
     }
 

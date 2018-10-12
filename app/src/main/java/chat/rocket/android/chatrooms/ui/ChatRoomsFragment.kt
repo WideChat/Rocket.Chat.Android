@@ -52,7 +52,6 @@ import android.widget.TextView
 import android.graphics.Color
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.settings.ui.SettingsFragment
-import chat.rocket.android.profile.ui.ProfileFragment
 import kotlinx.android.synthetic.main.app_bar.*
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
@@ -77,7 +76,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     // WIDECHAT
     private var settingsView: MenuItem? = null
-    private var profileView: MenuItem? = null
     private var searchIcon: ImageView? = null
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
@@ -287,16 +285,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     fragmentTransaction.addToBackStack(null)
                     fragmentTransaction.commit()
                 }
-
-                R.id.action_profile -> {
-                    searchView?.clearFocus()
-                    val newFragment = ProfileFragment()
-                    val fragmentManager = fragmentManager
-                    val fragmentTransaction = fragmentManager!!.beginTransaction()
-                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
-                    fragmentTransaction.addToBackStack(null)
-                    fragmentTransaction.commit()
-                }
             }
         }
         return super.onOptionsItemSelected(item)
@@ -330,20 +318,23 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         }
     }
 
-    /** WIDECHAT - adjust the view; expand the action by default;
+    /** WIDECHAT - adjust the view; expand searchView by default;
      *  remove keyboard and query with close button
      */
     private fun setupWidechatMenuItemsView(menu: Menu, searchItem: MenuItem) {
 
-        searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
         sortView?.isVisible = false
 
         settingsView = menu.findItem(R.id.action_settings)
         settingsView?.isVisible = true
 
-        profileView = menu.findItem(R.id.action_profile)
-        profileView?.isVisible = true
 
+        // Use this only when iconified = true
+        searchView?.maxWidth = Integer.MAX_VALUE
+
+        // EAR >> use this when iconified = false (bug: when iconified is false the settings button gets pushed off the screen)
+        /**
+        searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
         searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
 
         searchIcon = searchView?.findViewById(R.id.search_mag_icon)
@@ -359,8 +350,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchCloseButton?.setOnClickListener { v ->
             searchView?.clearFocus()
             searchView?.setQuery("", false);
-        }
-
+        } */
     }
 
     private fun showNoChatRoomsToDisplay() {
@@ -432,7 +422,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private fun setupToolbar() {
         if (Constants.WIDECHAT) {
             with((activity as MainActivity).toolbar) {
-                setNavigationIcon(null)
                 setContentInsetsAbsolute(0, 0)
                 title = null
             }
