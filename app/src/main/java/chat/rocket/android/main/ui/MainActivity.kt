@@ -41,25 +41,6 @@ import javax.inject.Inject
 // WIDECHAT
 import chat.rocket.android.helper.Constants
 import chat.rocket.android.profile.ui.ProfileFragment
-import android.view.View
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.app.ActionBar.LayoutParams
-import com.google.android.material.appbar.AppBarLayout
-import android.graphics.drawable.Drawable
-import android.graphics.drawable.BitmapDrawable
-import androidx.core.graphics.drawable.DrawableCompat
-import androidx.constraintlayout.widget.ConstraintLayout
-import com.bumptech.glide.Glide
-import android.net.Uri
-import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import kotlinx.coroutines.experimental.android.UI
-import chat.rocket.android.core.lifecycle.CancelStrategy
-
-import timber.log.Timber
-
 
 private const val CURRENT_STATE = "current_state"
 
@@ -78,11 +59,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     private val headerLayout by lazy { view_navigation.getHeaderView(0) }
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
-
-    // WIDECHAT
-    private var userAvatarUrl: String? = null
-    private var navIcon: ImageView? = null
-    private var image: Drawable? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -103,11 +79,11 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         setupToolbar()
 
         // WIDECHAT - Replace nav drawer with profile button
-        /**if (Constants.WIDECHAT) {
+        if (Constants.WIDECHAT) {
             setupProfileButton()
         } else {
             setupNavigationView()
-        }*/
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -167,7 +143,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                     server_logo.setImageURI(serverLogo)
                 }
                 if (Constants.WIDECHAT) {
-                    setupProfileButton()
                 }
                 text_server_url.text = uiModel.serverUrl
             }
@@ -253,30 +228,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
 
     // WIDECHAT
     fun setupProfileButton() {
-        Timber.d("########## EAR >> In setupProfileButton this is the avatar url: " + userAvatarUrl)
 
-        /**
-        val linearLayout = findViewById<AppBarLayout>(R.id.toolbar)
-        val imageView = ImageView(this)
-        val imageLayout = LayoutParams(81,81,3)
-        imageView.setLayoutParams(imageLayout)
-
-        var icon = toolbar.getNavigationIcon() as ImageView */
-
-        //navIcon = this.findViewById(R.id.home)
-        //Timber.d("######## EAR this is the navIcon ID: " + navIcon)
-        //var imageUri = Uri.parse("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-        //imageView.setImageURI(imageUri)
-        /**
-        var avatarBitmap = Glide.with(this)
-                .asBitmap()
-                .load("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-                .into(100, 100)
-                .get()
-
-        Timber.d("#########  EAR >> avatarBitmap: " + avatarBitmap) */
-
-        val Background = newFixedThreadPoolContext(2, "bg")
+        // EAR >> can I get this to size dynamically??
+        /**val Background = newFixedThreadPoolContext(2, "bg")
         val job = launch(Background){
 
                 var avatarBitmap = Glide.with(toolbar)
@@ -291,20 +245,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                     toolbar.setNavigationIcon(image)
                 }
 
-        }
+        } */
 
-
-
-
-        //getSupportActionBar()?.setDisplayShowCustomEnabled(true)
-        //getSupportActionBar()?.setCustomView(imageView)
-
-        //val drawable = imageView.getDrawable()
-        //imageView.setImageBitmap()
-        //linearLayout.addView(imageView)
-
-        //toolbar.setNavigationIcon(d)
-        //toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
+        toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
         toolbar.setNavigationOnClickListener {
 
             val newFragment = ProfileFragment()
@@ -344,8 +287,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     }
 
     fun setAvatar(avatarUrl: String) {
-        userAvatarUrl = avatarUrl
-        Timber.d("########  EAR >> In setAvatar - this is userAvatarUrl: " + userAvatarUrl)
         headerLayout.image_avatar.setImageURI(avatarUrl)
     }
 
