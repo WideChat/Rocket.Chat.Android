@@ -328,13 +328,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         settingsView = menu.findItem(R.id.action_settings)
         settingsView?.isVisible = true
 
-
-        // Use this only when iconified = true
-        searchView?.maxWidth = Integer.MAX_VALUE
-
-        // EAR >> use this when iconified = false (bug: when iconified is false the settings button gets pushed off the screen)
-        /**
-        searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+        // bug: when "ALWAYS" the settings button gets pushed off the screen)
+        //searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
         searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
 
         searchIcon = searchView?.findViewById(R.id.search_mag_icon)
@@ -350,7 +345,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchCloseButton?.setOnClickListener { v ->
             searchView?.clearFocus()
             searchView?.setQuery("", false);
-        } */
+        }
     }
 
     private fun showNoChatRoomsToDisplay() {

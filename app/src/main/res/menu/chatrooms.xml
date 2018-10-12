@@ -4,21 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:ignore="AppCompatResource">
 
-    <!-- WIDECHAT -->
-    <item
-        android:id="@+id/action_profile"
-        android:icon="@mipmap/ic_launcher_round"
-        android:title="Profile"
-        android:visible="false"
-        app:showAsAction="always" />
-    <!-- END WIDECHAT -->
-
     <item
         android:id="@+id/action_search"
         android:icon="@drawable/ic_search_white_24dp"
         android:title="@string/action_search"
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
+
+    <!-- WIDECHAT -->
+    <item
+        android:id="@+id/action_settings"
+        android:icon="@drawable/ic_veranda_settings"
+        android:title="@string/action_settings"
+        android:visible="false"
+        app:showAsAction="always" />
+    <!-- END WIDECHAT -->
 
     <item
         android:id="@+id/action_sort"
