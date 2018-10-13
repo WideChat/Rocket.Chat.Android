@@ -205,9 +205,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
-
         searchView?.maxWidth = Integer.MAX_VALUE
-
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
 
         val expandListener = object : MenuItem.OnActionExpandListener {
@@ -429,9 +427,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 setupWidechatSearchView()
 
                 profileButton = this?.getCustomView()?.findViewById(R.id.profile_image_avatar)
-
                 profileButton?.setImageURI("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
-
                 profileButton?.setOnClickListener { v ->
 
                     val newFragment = ProfileFragment()

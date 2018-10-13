@@ -16,7 +16,11 @@
         android:layout_marginRight="24dp"
         android:foregroundGravity="center"
         app:roundedCornerRadius="3dp"
-        fresco:roundAsCircle="true" />
+        fresco:roundAsCircle="true"
+        fresco:actualImageScaleType="centerCrop"
+        fresco:roundingBorderWidth="4dp"
+        fresco:roundingBorderPadding="2dp"
+        fresco:roundingBorderColor="@color/colorWhite"/>
 
    <androidx.appcompat.widget.SearchView
        android:layout_width="wrap_content"
