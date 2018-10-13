@@ -98,7 +98,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
                 setNavigationOnClickListener {
                     activity?.onBackPressed()
                 }
-
+                (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowCustomEnabled(false)
             }
         } else {
             (activity as AppCompatActivity?)?.supportActionBar?.title =

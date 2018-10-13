@@ -40,7 +40,6 @@ import javax.inject.Inject
 
 // WIDECHAT
 import chat.rocket.android.helper.Constants
-import chat.rocket.android.profile.ui.ProfileFragment
 
 private const val CURRENT_STATE = "current_state"
 
@@ -78,10 +77,8 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         presenter.loadEmojis()
         setupToolbar()
 
-        // WIDECHAT - Replace nav drawer with profile button
-        if (Constants.WIDECHAT) {
-            setupProfileButton()
-        } else {
+        // WIDECHAT - no nav drawer
+        if (!Constants.WIDECHAT) {
             setupNavigationView()
         }
     }
@@ -222,31 +219,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
 
     private fun setupToolbar() {
         setSupportActionBar(toolbar)
-    }
-
-    // WIDECHAT
-    fun setupProfileButton() {
-        // TODO we want this to be the users avtar
-        toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp)
-        toolbar.setNavigationOnClickListener {
-
-            val newFragment = ProfileFragment()
-            val fragmentManager = getSupportFragmentManager()
-            val fragmentTransaction = fragmentManager.beginTransaction()
-            fragmentTransaction.replace(R.id.fragment_container, newFragment)
-            fragmentTransaction.addToBackStack(null)
-
-            // Resets the toolbar on resume by only running on pop and not on the push
-            val nowCount = fragmentManager.getBackStackEntryCount()
-            fragmentManager.addOnBackStackChangedListener {
-                val newCount = fragmentManager.getBackStackEntryCount()
-                if (nowCount == newCount) {
-                    this.setupProfileButton()
-                }
-            }
-
-            fragmentTransaction.commit()
-        }
     }
 
     fun setupNavigationView() {

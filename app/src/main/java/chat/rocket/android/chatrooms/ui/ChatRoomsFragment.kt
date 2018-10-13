@@ -51,7 +51,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.graphics.Color
 import chat.rocket.android.main.ui.MainActivity
+import chat.rocket.android.profile.ui.ProfileFragment
 import chat.rocket.android.settings.ui.SettingsFragment
+import com.facebook.drawee.view.SimpleDraweeView
 import kotlinx.android.synthetic.main.app_bar.*
 
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
@@ -79,6 +81,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var searchIcon: ImageView? = null
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
+    private var profileButton: SimpleDraweeView? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -188,20 +191,22 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.chatrooms, menu)
 
+        if (Constants.WIDECHAT) {
+            inflater.inflate(R.menu.widechat_chatrooms, menu)
+            settingsView = menu.findItem(R.id.action_settings)
+            settingsView?.isVisible = true
+            return
+        }
+
+        inflater.inflate(R.menu.chatrooms, menu)
         sortView = menu.findItem(R.id.action_sort)
 
         val searchItem = menu.findItem(R.id.action_search)
         searchView = searchItem?.actionView as? SearchView
         searchView?.setIconifiedByDefault(false)
 
-        if (Constants.WIDECHAT) {
-            setupWidechatMenuItemsView(menu, searchItem)
-        } else {
-            // WIDECHAT - using this will cover the settings icon
-            searchView?.maxWidth = Integer.MAX_VALUE
-        }
+        searchView?.maxWidth = Integer.MAX_VALUE
 
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
 
@@ -321,16 +326,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     /** WIDECHAT - adjust the view; expand searchView by default;
      *  remove keyboard and query with close button
      */
-    private fun setupWidechatMenuItemsView(menu: Menu, searchItem: MenuItem) {
-
-        sortView?.isVisible = false
-
-        settingsView = menu.findItem(R.id.action_settings)
-        settingsView?.isVisible = true
-
-        // bug: when "ALWAYS" the settings button gets pushed off the screen)
-        //searchItem.setShowAsActionFlags(MenuItem.SHOW_AS_ACTION_ALWAYS)
+    private fun setupWidechatSearchView() {
         searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
+        searchView?.isIconified = false
 
         searchIcon = searchView?.findViewById(R.id.search_mag_icon)
         searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
@@ -346,6 +344,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             searchView?.clearFocus()
             searchView?.setQuery("", false);
         }
+        searchView?.onQueryTextListener { queryChatRoomsByName(it) }
     }
 
     private fun showNoChatRoomsToDisplay() {
@@ -418,6 +417,30 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         if (Constants.WIDECHAT) {
             with((activity as MainActivity).toolbar) {
                 title = null
+                navigationIcon = null
+            }
+
+            with((activity as AppCompatActivity?)?.supportActionBar) {
+                this?.setDisplayShowCustomEnabled(true)
+                this?.setDisplayShowTitleEnabled(false)
+                this?.setCustomView(R.layout.widechat_search_layout)
+
+                searchView = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
+                setupWidechatSearchView()
+
+                profileButton = this?.getCustomView()?.findViewById(R.id.profile_image_avatar)
+
+                profileButton?.setImageURI("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
+
+                profileButton?.setOnClickListener { v ->
+
+                    val newFragment = ProfileFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
             }
         } else {
             (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
