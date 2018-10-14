@@ -46,6 +46,16 @@ import kotlinx.android.synthetic.main.fragment_chat_rooms.*
 import timber.log.Timber
 import javax.inject.Inject
 
+// WIDECHAT
+import android.widget.ImageView
+import android.widget.TextView
+import android.graphics.Color
+import chat.rocket.android.main.ui.MainActivity
+import chat.rocket.android.profile.ui.ProfileFragment
+import chat.rocket.android.settings.ui.SettingsFragment
+import com.facebook.drawee.view.SimpleDraweeView
+import kotlinx.android.synthetic.main.app_bar.*
+
 internal const val TAG_CHAT_ROOMS_FRAGMENT = "ChatRoomsFragment"
 
 private const val BUNDLE_CHAT_ROOM_ID = "BUNDLE_CHAT_ROOM_ID"
@@ -65,6 +75,13 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private val handler = Handler()
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
+
+    // WIDECHAT
+    private var settingsView: MenuItem? = null
+    private var searchIcon: ImageView? = null
+    private var searchText:  TextView? = null
+    private var searchCloseButton: ImageView? = null
+    private var profileButton: SimpleDraweeView? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -94,6 +111,16 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     override fun onDestroy() {
         handler.removeCallbacks(dismissStatus)
         super.onDestroy()
+    }
+
+    override fun onResume() {
+        // WIDECHAT - cleanup any titles set by other fragments; clear any previous search
+        if (Constants.WIDECHAT) {
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
+            searchView?.clearFocus()
+            searchView?.setQuery("", false);
+        }
+        super.onResume()
     }
 
     override fun onCreateView(
@@ -164,8 +191,15 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
-        inflater.inflate(R.menu.chatrooms, menu)
 
+        if (Constants.WIDECHAT) {
+            inflater.inflate(R.menu.widechat_chatrooms, menu)
+            settingsView = menu.findItem(R.id.action_settings)
+            settingsView?.isVisible = true
+            return
+        }
+
+        inflater.inflate(R.menu.chatrooms, menu)
         sortView = menu.findItem(R.id.action_sort)
 
         val searchItem = menu.findItem(R.id.action_search)
@@ -242,6 +276,20 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     }.show()
             }
         }
+        
+        if (Constants.WIDECHAT) {
+            when (item.itemId) {
+                R.id.action_settings -> {
+                    searchView?.clearFocus()
+                    val newFragment = SettingsFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
+            }
+        }
         return super.onOptionsItemSelected(item)
     }
 
@@ -271,6 +319,30 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 queryChatRoomsByName(searchView!!.query.toString())
             }
         }
+    }
+
+    /** WIDECHAT - adjust the view; expand searchView by default;
+     *  remove keyboard and query with close button
+     */
+    private fun setupWidechatSearchView() {
+        searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
+        searchView?.isIconified = false
+
+        searchIcon = searchView?.findViewById(R.id.search_mag_icon)
+        searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
+
+        searchText = searchView?.findViewById(R.id.search_src_text)
+        searchText?.setTextColor(Color.GRAY)
+        searchText?.setHintTextColor(Color.GRAY)
+
+        searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
+        searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
+
+        searchCloseButton?.setOnClickListener { v ->
+            searchView?.clearFocus()
+            searchView?.setQuery("", false);
+        }
+        searchView?.onQueryTextListener { queryChatRoomsByName(it) }
     }
 
     private fun showNoChatRoomsToDisplay() {
@@ -340,7 +412,35 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     }
 
     private fun setupToolbar() {
-        (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        if (Constants.WIDECHAT) {
+            with((activity as MainActivity).toolbar) {
+                title = null
+                navigationIcon = null
+            }
+
+            with((activity as AppCompatActivity?)?.supportActionBar) {
+                this?.setDisplayShowCustomEnabled(true)
+                this?.setDisplayShowTitleEnabled(false)
+                this?.setCustomView(R.layout.widechat_search_layout)
+
+                searchView = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
+                setupWidechatSearchView()
+
+                profileButton = this?.getCustomView()?.findViewById(R.id.profile_image_avatar)
+                profileButton?.setImageURI("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
+                profileButton?.setOnClickListener { v ->
+
+                    val newFragment = ProfileFragment()
+                    val fragmentManager = fragmentManager
+                    val fragmentTransaction = fragmentManager!!.beginTransaction()
+                    fragmentTransaction.replace(R.id.fragment_container, newFragment)
+                    fragmentTransaction.addToBackStack(null)
+                    fragmentTransaction.commit()
+                }
+            }
+        } else {
+            (activity as AppCompatActivity?)?.supportActionBar?.title = getString(R.string.title_chats)
+        }
     }
 
     private fun queryChatRoomsByName(name: String?): Boolean {
