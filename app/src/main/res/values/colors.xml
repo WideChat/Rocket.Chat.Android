@@ -6,7 +6,7 @@
     <!-- Widechat colors -->
     <!-- <color name="colorPrimary">#FF303030</color> --> 
     <color name="colorPrimary">#008085</color>
-    <color name="verandaStatusBar">#0E7075</color> <!-- Widechat color -->
+    <color name="widechatStatusBar">#0E7075</color> <!-- Widechat color -->
     <!-- End Widchat Colors -->
     <color name="colorAccent">#FF1D74F5</color>
     <color name="widechat_fab">#00C1B7</color>

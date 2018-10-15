@@ -6,14 +6,14 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:statusBarColor">@color/verandaStatusBar</item>
+        <item name="android:statusBarColor">@color/widechatStatusBar</item>
 
         <item name="windowActionModeOverlay">true</item>
         <item name="searchViewStyle">@style/ChatRoom.SearchView</item>
     </style>
 
     <style name="AuthenticationTheme" parent="Theme.AppCompat.NoActionBar">
-        <item name="android:statusBarColor">@color/verandaStatusBar</item>
+        <item name="android:statusBarColor">@color/widechatStatusBar</item>
         <item name="android:windowBackground">@color/colorPrimary</item>
         <item name="actionModeBackground">@color/colorPrimary</item>
         <item name="android:actionModeBackground">@color/colorPrimary</item>
