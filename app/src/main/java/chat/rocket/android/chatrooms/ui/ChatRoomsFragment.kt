@@ -47,12 +47,15 @@ import timber.log.Timber
 import javax.inject.Inject
 
 // WIDECHAT
+import android.graphics.Color
 import android.widget.ImageView
 import android.widget.TextView
-import android.graphics.Color
+import chat.rocket.android.helper.UserHelper
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.profile.ui.ProfileFragment
+import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.settings.ui.SettingsFragment
+import chat.rocket.android.util.extensions.avatarUrl
 import com.facebook.drawee.view.SimpleDraweeView
 import kotlinx.android.synthetic.main.app_bar.*
 
@@ -68,6 +71,13 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     @Inject
     lateinit var analyticsManager: AnalyticsManager
 
+    // WIDECHAT
+    @Inject
+    lateinit var serverInteractor: GetCurrentServerInteractor
+    @Inject
+    lateinit var userHelper: UserHelper
+    // END WIDECHAT
+
     private lateinit var viewModel: ChatRoomsViewModel
 
     private var searchView: SearchView? = null
@@ -82,7 +92,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
     private var profileButton: SimpleDraweeView? = null
-    private var searchBox: View? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -137,6 +146,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         subscribeUi()
 
         setupToolbar()
+        setupFab()
 
         analyticsManager.logScreenView(ScreenViewEvent.ChatRooms)
     }
@@ -215,13 +225,14 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 // to recreate the entire menu...
                 viewModel.showLastMessage = true
                 activity?.invalidateOptionsMenu()
-                queryChatRoomsByName(null)
+                create_new_channel_fab.isVisible = true
                 return true
             }
 
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 viewModel.showLastMessage = false
                 sortView?.isVisible = false
+                create_new_channel_fab.isVisible = false
                 return true
             }
         }
@@ -332,25 +343,6 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchView?.setBackgroundResource(R.drawable.widechat_searh_white_background)
         searchView?.isIconified = false
 
-        /**
-        searchView?.setOnQueryTextFocusChangeListener { _, hasFocus->
-            if (hasFocus) {
-                viewModel.showLastMessage = false
-            } else {
-                viewModel.showLastMessage = true
-            }
-        } */
-
-        /**
-        searchView?.setOnSearchClickListener { _ ->
-            viewModel.showLastMessage = false
-        }*/
-
-        /**
-        searchView?.setOnClickListener { _ ->
-            viewModel.showLastMessage = false
-        }*/
-
         searchIcon = searchView?.findViewById(R.id.search_mag_icon)
         searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
 
@@ -358,59 +350,17 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchText?.setTextColor(Color.GRAY)
         searchText?.setHintTextColor(Color.GRAY)
 
-        /**
-
-        val editorActionListener = object:  TextView.OnEditorActionListener {
-
-            override fun onEditorAction(TextView: _, int: actionId, KeyEvent: event) {
-
-            }
-        }
-            //override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-
-        */
-
-
-        //searchText?.setOnEditorActionListener(TextView.OnEditorActionListener()) {
-        //    override fun onEditorAction()
-
-        //}
-        /**
-        searchText?.setOnEditorActionListener { v, id, event ->
-            viewModel.showLastMessage = false
-            true
-        }*/
-
         searchText?.setOnFocusChangeListener { v, hasFocus ->
-            if (hasFocus) {
-                viewModel.showLastMessage = false
-            } else {
-                viewModel.showLastMessage = true
-            }
+            viewModel.showLastMessage = false
         }
-
-
-    /**
-        searchText?.setOnEditorActionListener(TextView.OnEditorActionListener() { v, id, event ->
-            override fun onEditorAction(): Boolean {
-                if (id == EditorInfo.IME_ACTION_SEARCH) {
-                    viewModel.showLastMessage = false
-                    return true
-                }
-            }*/
-
-
-
-
-
 
         searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
         searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
 
         searchCloseButton?.setOnClickListener { v ->
+            viewModel.showLastMessage = true
             searchView?.clearFocus()
             searchView?.setQuery("", false)
-            viewModel.showLastMessage = true
         }
 
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
@@ -497,8 +447,12 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 searchView = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
                 setupWidechatSearchView()
 
+                val serverUrl = serverInteractor.get()
+                val myselfUsername = userHelper.username() as String
+                val avatarUrl = serverUrl?.avatarUrl(myselfUsername)
+
                 profileButton = this?.getCustomView()?.findViewById(R.id.profile_image_avatar)
-                profileButton?.setImageURI("https://dev.veranda.viasat.io/ufs/GridFS:Avatars/2zBCC3ZAQnZMTNNxu/undefined.png")
+                profileButton?.setImageURI(avatarUrl)
                 profileButton?.setOnClickListener { v ->
 
                     val newFragment = ProfileFragment()
@@ -521,5 +475,11 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             viewModel.setQuery(Query.Search(name!!))
         }
         return true
+    }
+
+    private fun setupFab() {
+        create_new_channel_fab.setOnClickListener {
+            showToast("fab click")
+        }
     }
 }
