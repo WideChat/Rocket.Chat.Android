@@ -90,7 +90,9 @@ class ChatRoomsViewModel(
 
     private suspend fun spotlight(query: String): SpotlightResult? {
         return try {
-            retryIO { client.spotlight(query) }
+            // WIDECHAT - using this causes double search results, so using 'null' - what's up with that??
+            //retryIO { client.spotlight(query)
+            null
         } catch (ex: Exception) {
             ex.printStackTrace()
             null
