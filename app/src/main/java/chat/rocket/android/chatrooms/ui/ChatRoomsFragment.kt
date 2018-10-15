@@ -350,48 +350,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchText = searchView?.findViewById(R.id.search_src_text)
         searchText?.setTextColor(Color.GRAY)
         searchText?.setHintTextColor(Color.GRAY)
-
-        /**
-        val myTextListener = object : SearchView.OnQueryTextListener {
-            override fun onQueryTextChange(newText: String?): Boolean {
-                viewModel.showLastMessage = true
-                return true
-            }
-
-            override fun onQueryTextSubmit(query: String?): Boolean {
-                viewModel.showLastMessage = true
-                return true
-                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-            }
-        }
-        searchView?.setOnQueryTextListener(myTextListener)
-        */
-
-        /**
-        val myOnFocusChangeListener = object : View.OnFocusChangeListener {
-            override fun onFocusChange(p0: View?, p1: Boolean) {
-                viewModel.showLastMessage = false
-            }
-
-        }
-        searchView?.setOnQueryTextFocusChangeListener(myOnFocusChangeListener)
-        */
-
-
-        /**
-        val myEditorActionListener = object : TextView.OnEditorActionListener {
-            override fun onEditorAction(v: TextView, id: Int, event: KeyEvent) : Boolean {
-                viewModel.showLastMessage = true
-                if (id == EditorInfo.IME_ACTION_SEARCH) {
-                    viewModel.showLastMessage = false
-                }
-                return false
-            }
-        }
-
-        searchText?.setOnEditorActionListener(myEditorActionListener)
-        */
-
+        
         searchText?.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus)
                 viewModel.showLastMessage = false
