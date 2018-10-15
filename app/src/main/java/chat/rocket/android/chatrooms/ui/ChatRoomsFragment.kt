@@ -48,6 +48,8 @@ import javax.inject.Inject
 
 // WIDECHAT
 import android.graphics.Color
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
 import android.widget.ImageView
 import android.widget.TextView
 import chat.rocket.android.helper.UserHelper
@@ -351,6 +353,47 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchText?.setTextColor(Color.GRAY)
         searchText?.setHintTextColor(Color.GRAY)
 
+        /**
+        val myTextListener = object : SearchView.OnQueryTextListener {
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.showLastMessage = true
+                return true
+            }
+
+            override fun onQueryTextSubmit(query: String?): Boolean {
+                viewModel.showLastMessage = true
+                return true
+                TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+            }
+        }
+        searchView?.setOnQueryTextListener(myTextListener)
+        */
+
+        /**
+        val myOnFocusChangeListener = object : View.OnFocusChangeListener {
+            override fun onFocusChange(p0: View?, p1: Boolean) {
+                viewModel.showLastMessage = false
+            }
+
+        }
+        searchView?.setOnQueryTextFocusChangeListener(myOnFocusChangeListener)
+        */
+
+
+        /**
+        val myEditorActionListener = object : TextView.OnEditorActionListener {
+            override fun onEditorAction(v: TextView, id: Int, event: KeyEvent) : Boolean {
+                viewModel.showLastMessage = true
+                if (id == EditorInfo.IME_ACTION_SEARCH) {
+                    viewModel.showLastMessage = false
+                }
+                return false
+            }
+        }
+
+        searchText?.setOnEditorActionListener(myEditorActionListener)
+        */
+
         searchText?.setOnFocusChangeListener { v, hasFocus ->
             if (hasFocus)
                 viewModel.showLastMessage = false
@@ -360,9 +403,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
 
         searchCloseButton?.setOnClickListener { v ->
-            viewModel.showLastMessage = true
             searchView?.clearFocus()
             searchView?.setQuery("", false)
+            viewModel.showLastMessage = true
         }
 
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
@@ -457,6 +500,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 profileButton?.setImageURI(avatarUrl)
                 profileButton?.setOnClickListener { v ->
 
+                    searchView?.clearFocus()
                     val newFragment = ProfileFragment()
                     val fragmentManager = fragmentManager
                     val fragmentTransaction = fragmentManager!!.beginTransaction()
