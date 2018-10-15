@@ -128,7 +128,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         if (Constants.WIDECHAT) {
             (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
             searchView?.clearFocus()
-            searchView?.setQuery("", false);
+            searchView?.setQuery("", false)
+            viewModel.showLastMessage = true
         }
         super.onResume()
     }
@@ -351,7 +352,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchText?.setHintTextColor(Color.GRAY)
 
         searchText?.setOnFocusChangeListener { v, hasFocus ->
-            viewModel.showLastMessage = false
+            if (hasFocus)
+                viewModel.showLastMessage = false
         }
 
         searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
