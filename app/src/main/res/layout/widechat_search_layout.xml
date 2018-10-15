@@ -28,6 +28,7 @@
        android:id="@+id/action_widechat_search"
        android:icon="@drawable/ic_search_white_24dp"
        android:iconifiedByDefault="false"
+       android:imeOptions="actionSearch|flagNoExtractUi|flagNoFullscreen"
        android:title="@string/action_search"
        app:actionViewClass="androidx.appcompat.widget.SearchView"
        app:showAsAction="ifRoom|collapseActionView"/>
