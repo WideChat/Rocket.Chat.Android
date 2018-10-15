@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:layout_alignParentEnd="true"
     android:orientation="horizontal"
-    android:paddingEnd="24dp"
+    android:paddingEnd="8dp"
     android:paddingStart="0dp">
 
     <com.facebook.drawee.view.SimpleDraweeView
