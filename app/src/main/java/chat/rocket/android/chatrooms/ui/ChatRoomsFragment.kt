@@ -48,8 +48,6 @@ import javax.inject.Inject
 
 // WIDECHAT
 import android.graphics.Color
-import android.view.KeyEvent
-import android.view.inputmethod.EditorInfo
 import android.widget.ImageView
 import android.widget.TextView
 import chat.rocket.android.helper.UserHelper
@@ -343,7 +341,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
      *  remove keyboard and query with close button
      */
     private fun setupWidechatSearchView() {
-        searchView?.setBackgroundResource(R.drawable.widechat_searh_white_background)
+        searchView?.setBackgroundResource(R.drawable.widechat_search_white_background)
         searchView?.isIconified = false
 
         searchIcon = searchView?.findViewById(R.id.search_mag_icon)
