@@ -484,6 +484,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 navigationIcon = null
             }
 
+            // WIDECHAT sets custom toolbar with profile button and searchView
             with((activity as AppCompatActivity?)?.supportActionBar) {
                 this?.setDisplayShowCustomEnabled(true)
                 this?.setDisplayShowTitleEnabled(false)
