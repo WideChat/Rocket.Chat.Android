@@ -49,6 +49,8 @@ import javax.inject.Inject
 // WIDECHAT
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.TextView.OnEditorActionListener
+import android.view.inputmethod.EditorInfo
 import android.graphics.Color
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.profile.ui.ProfileFragment
@@ -82,6 +84,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
     private var profileButton: SimpleDraweeView? = null
+    private var searchBox: View? = null
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -331,6 +334,25 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchView?.setBackgroundResource(R.drawable.veranda_searh_white_background)
         searchView?.isIconified = false
 
+        /**
+        searchView?.setOnQueryTextFocusChangeListener { _, hasFocus->
+            if (hasFocus) {
+                viewModel.showLastMessage = false
+            } else {
+                viewModel.showLastMessage = true
+            }
+        } */
+
+        /**
+        searchView?.setOnSearchClickListener { _ ->
+            viewModel.showLastMessage = false
+        }*/
+
+        /**
+        searchView?.setOnClickListener { _ ->
+            viewModel.showLastMessage = false
+        }*/
+
         searchIcon = searchView?.findViewById(R.id.search_mag_icon)
         searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
 
@@ -338,13 +360,61 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         searchText?.setTextColor(Color.GRAY)
         searchText?.setHintTextColor(Color.GRAY)
 
+        /**
+
+        val editorActionListener = object:  TextView.OnEditorActionListener {
+
+            override fun onEditorAction(TextView: _, int: actionId, KeyEvent: event) {
+
+            }
+        }
+            //override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+
+        */
+
+
+        //searchText?.setOnEditorActionListener(TextView.OnEditorActionListener()) {
+        //    override fun onEditorAction()
+
+        //}
+        /**
+        searchText?.setOnEditorActionListener { v, id, event ->
+            viewModel.showLastMessage = false
+            true
+        }*/
+
+        searchText?.setOnFocusChangeListener { v, hasFocus ->
+            if (hasFocus) {
+                viewModel.showLastMessage = false
+            } else {
+                viewModel.showLastMessage = true
+            }
+        }
+
+
+    /**
+        searchText?.setOnEditorActionListener(TextView.OnEditorActionListener() { v, id, event ->
+            override fun onEditorAction(): Boolean {
+                if (id == EditorInfo.IME_ACTION_SEARCH) {
+                    viewModel.showLastMessage = false
+                    return true
+                }
+            }*/
+
+
+
+
+
+
         searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
         searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
 
         searchCloseButton?.setOnClickListener { v ->
             searchView?.clearFocus()
-            searchView?.setQuery("", false);
+            searchView?.setQuery("", false)
+            viewModel.showLastMessage = true
         }
+
         searchView?.onQueryTextListener { queryChatRoomsByName(it) }
     }
 
