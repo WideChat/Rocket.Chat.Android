@@ -92,6 +92,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
     private var profileButton: SimpleDraweeView? = null
+    // handles that recurring connection status bug in widechat
+    private var currentlyConnected: Boolean? = false
 
     companion object {
         fun newInstance(chatRoomId: String? = null): ChatRoomsFragment {
@@ -194,9 +196,21 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             })
 
             viewModel.getStatus().observe(viewLifecycleOwner, Observer { status ->
-                status?.let { showConnectionState(status) }
+                if (Constants.WIDECHAT) {
+                    if (status is State.Connected) {
+                        // When connected, only show the connection status once
+                        if (currentlyConnected == false) {
+                            currentlyConnected = true
+                            status?.let {showConnectionState(status)}
+                        }
+                    } else {
+                        currentlyConnected = false
+                        status?.let {showConnectionState(status)}
+                    }
+                } else {
+                    status?.let { showConnectionState(status) }
+                }
             })
-
             updateSort()
         }
     }
