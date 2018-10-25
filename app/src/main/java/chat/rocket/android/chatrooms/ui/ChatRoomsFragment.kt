@@ -2,6 +2,7 @@ package chat.rocket.android.chatrooms.ui
 
 import android.app.AlertDialog
 import android.app.ProgressDialog
+import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.view.LayoutInflater
@@ -20,6 +21,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.DefaultItemAnimator
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.analytics.event.ScreenViewEvent
@@ -30,9 +32,13 @@ import chat.rocket.android.chatrooms.viewmodel.ChatRoomsViewModel
 import chat.rocket.android.chatrooms.viewmodel.ChatRoomsViewModelFactory
 import chat.rocket.android.chatrooms.viewmodel.LoadingState
 import chat.rocket.android.chatrooms.viewmodel.Query
+import chat.rocket.android.contacts.ContactListFragment
+import chat.rocket.android.contacts.ContactsFragment
+import chat.rocket.android.contacts.NewChatActivity
 import chat.rocket.android.helper.ChatRoomsSortOrder
 import chat.rocket.android.helper.Constants
 import chat.rocket.android.helper.SharedPreferenceHelper
+import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extension.onQueryTextListener
 import chat.rocket.android.util.extensions.fadeIn
 import chat.rocket.android.util.extensions.fadeOut
@@ -51,7 +57,7 @@ import android.graphics.Color
 import android.widget.ImageView
 import android.widget.TextView
 import chat.rocket.android.helper.UserHelper
-import chat.rocket.android.main.ui.MainActivity
+//import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.profile.ui.ProfileFragment
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.settings.ui.SettingsFragment
@@ -497,8 +503,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     }
 
     private fun setupFab() {
-        create_new_channel_fab.setOnClickListener {
-            showToast("fab click")
+        create_new_channel_fab.setOnClickListener { view ->
+            val intent = Intent(this.activity, NewChatActivity::class.java)
+            startActivity(intent)
         }
     }
 }
