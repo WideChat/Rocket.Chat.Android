@@ -61,7 +61,7 @@ android {
             buildConfigField "String", "REQUIRED_SERVER_VERSION", '"0.62.0"'
             buildConfigField "String", "RECOMMENDED_SERVER_VERSION", '"0.64.2"'
             signingConfig signingConfigs.debug
-            applicationIdSuffix ".dev"
+            //applicationIdSuffix ".dev"
         }
     }
 
@@ -153,6 +153,10 @@ dependencies {
     implementation libraries.livedataKtx
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
+
+    implementation 'com.google.firebase:firebase-core:16.0.3'
+
+    //implementation 'com.crashlytics.sdk.android:crashlytics:2.9.5'
 
     // Proprietary libraries
     playImplementation libraries.fcm

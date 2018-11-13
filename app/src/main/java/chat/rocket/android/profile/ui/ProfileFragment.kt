@@ -90,7 +90,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
             tintEditTextDrawableStart()
         }
         presenter.loadUserProfile()
-        if (!Constants.WIDECHAT) {
+        if (Constants.WIDECHAT) {
             subscribeEditTexts()
         }
 
