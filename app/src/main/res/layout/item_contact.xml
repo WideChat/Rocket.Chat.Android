@@ -53,7 +53,7 @@
         android:fontFamily="@string/font_fontFamily_widechat"
         tools:text="Name goes here" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/invite_contact"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -63,7 +63,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
-    <Button
+    <android.widget.Button
         android:id="@+id/chat_username"
         style="@style/Sender.Name.TextView"
         android:background="@android:color/transparent"

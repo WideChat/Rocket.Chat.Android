@@ -19,7 +19,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent">
 
-        <Button
+        <android.widget.Button
             android:id="@+id/widechat_login_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
@@ -29,7 +29,7 @@
             android:textColor="@color/colorWhite"
             android:layout_marginEnd="24dp"/>
 
-        <Button
+        <android.widget.Button
             android:id="@+id/widechat_signup_button"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
