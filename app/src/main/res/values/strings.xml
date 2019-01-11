@@ -38,6 +38,10 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="title_create_channel">Create Channel</string>
     <string name="title_licence">Licence</string>
     <string name="title_are_you_sure">Are you sure?</string>
+    <string name="title_channel_details">Channel Details</string>
+    <string name="title_topic">Topic</string>
+    <string name="title_announcement">Announcement</string>
+    <string name="title_description">Description</string>
 
     <!-- Actions -->
     <string name="action_connect">Connect</string>
@@ -75,6 +79,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string-array name="settings_actions">
         <item name="item_preferences">Preferences</item>
         <item name="item_password">Change password</item>
+        <item name="change_language">Change Language </item>
         <item name="item_share_app">Share app</item>
         <item name="item_rate_us">Rate us</item>
         <item name="item_contact_us">Contact us</item>
@@ -86,6 +91,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string-array name="widechat_settings_actions">
         <item name="item_preferences">Preferences</item>
         <item name="item_about">About</item>
+        <item name="item_licence">Licence</item>
         <item name="item_logout">Log Out</item>
     </string-array>
 
@@ -181,8 +187,13 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="msg_two_factor_authentication">Two-factor Authentication</string>
     <string name="msg__your_2fa_code">What’s your 2FA code?</string>
     <string name="msg_permalink_copied">Permalink copied</string>
+    <string name="msg_no_topic">No topic added</string>
+    <string name="msg_no_announcement">No announcement added</string>
+    <string name="msg_no_description">No description added</string>
     <string name="msg_send_email">Send email</string>
     <string name="msg_android_app_support">Android app support</string>
+    <string name="msg_unable_to_update_password">Unable to update password. Error message: %1$s</string>
+    <string name="msg_password_updated_successfully">Password updated successfully</string>
     <plurals name="msg_reacted_with_">
         <item quantity="one">%1$s reacted with %2$s</item>
         <item quantity="other">%1$s reacted with %2$s</item>
@@ -245,6 +256,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="action_title_editing">Editing Message</string>
     <string name="action_msg_add_reaction">Add reaction</string>
     <string name="action_msg_copy_permalink">Copy permalink</string>
+    <string name="action_msg_report">Report</string>
 
     <!-- Permission messages -->
     <string name="permission_editing_not_allowed">Editing is not allowed</string>
@@ -328,13 +340,12 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="alert_title_default_skin_tone">Default skin tone</string>
 
     <!-- Sorting and grouping-->
-    <string name="menu_chatroom_sort">Sort</string>
+    <string name="msg_sort">Sort</string>
     <string name="dialog_sort_title">Sort by</string>
     <string name="dialog_sort_by_alphabet">Alphabetical</string>
     <string name="dialog_sort_by_activity">Activity</string>
     <string name="dialog_group_by_type">Group by type</string>
     <string name="dialog_group_favourites">Group favourites</string>
-    <string name="dialog_button_done">Done</string>
     <string name="chatroom_header">Header</string>
 
     <!--ChatRooms Headers-->
@@ -353,7 +364,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="message_information_title">Message information</string>
     <string name="message_room_changed_privacy">Room type changed to: %1$s by %2$s</string>
 
-    <string name="foss" tools:ignore="MissingTranslation">(FOSS)</string>
+    <string name="foss" translatable="false">(FOSS)</string>
 
     <!-- WIDECHAT -->
     <string name="msg_welcome_to_widechat">Welcome to Viasat Connect</string>
@@ -366,4 +377,12 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="msg_widechat_no_chats_to_display">You Can get started by searching for people to chat with or by inviting your friends and family to get the app too.</string>
     <string name="msg_widechat_welcome_to_app">Welcome to Viasat Connect.</string>
 
+    <!-- User Details -->
+    <string name="timezone">Timezone</string>
+    <string name="status" translatable="false">Status</string>
+
+    <!-- Report -->
+    <string name="submit">Submit</string>
+    <string name="required">*required</string>
+    <string name="report_sent">Your report has been sent!</string>
 </resources>

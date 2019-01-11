@@ -75,44 +75,74 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
     }
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        when (parent?.getItemAtPosition(position).toString()) {
-            resources.getStringArray(R.array.settings_actions)[0] -> {
-                (activity as AppCompatActivity).addFragmentBackStack(
-                    TAG_PREFERENCES_FRAGMENT,
-                    R.id.fragment_container
-                ) {
-                    PreferencesFragment.newInstance()
+        if (!Constants.WIDECHAT) {
+            when (parent?.getItemAtPosition(position).toString()) {
+                resources.getStringArray(R.array.settings_actions)[0] -> {
+                    (activity as AppCompatActivity).addFragmentBackStack(
+                            TAG_PREFERENCES_FRAGMENT,
+                            R.id.fragment_container
+                    ) {
+                        PreferencesFragment.newInstance()
+                    }
                 }
-            }
 
-            resources.getStringArray(R.array.settings_actions)[1] ->
-                activity?.startActivity(Intent(activity, PasswordActivity::class.java))
+                resources.getStringArray(R.array.settings_actions)[1] ->
+                    activity?.startActivity(Intent(activity, PasswordActivity::class.java))
 
-            resources.getStringArray(R.array.settings_actions)[2] -> shareApp()
+                resources.getStringArray(R.array.settings_actions)[2] -> shareApp()
 
-            resources.getStringArray(R.array.settings_actions)[3] -> showAppOnStore()
+                resources.getStringArray(R.array.settings_actions)[3] -> showAppOnStore()
 
-            resources.getStringArray(R.array.settings_actions)[4] -> contactSupport()
+                resources.getStringArray(R.array.settings_actions)[4] -> contactSupport()
 
-            resources.getStringArray(R.array.settings_actions)[5] -> activity?.startActivity(
-                context?.webViewIntent(
-                    getString(R.string.license_url),
-                    getString(R.string.title_licence)
+                resources.getStringArray(R.array.settings_actions)[5] -> activity?.startActivity(
+                        context?.webViewIntent(
+                                getString(R.string.license_url),
+                                getString(R.string.title_licence)
+                        )
                 )
-            )
 
-            resources.getStringArray(R.array.settings_actions)[6] -> {
-                (activity as AppCompatActivity).addFragmentBackStack(
-                    TAG_ABOUT_FRAGMENT,
-                    R.id.fragment_container
-                ) {
-                    AboutFragment.newInstance()
+                resources.getStringArray(R.array.settings_actions)[6] -> {
+                    (activity as AppCompatActivity).addFragmentBackStack(
+                            TAG_ABOUT_FRAGMENT,
+                            R.id.fragment_container
+                    ) {
+                        AboutFragment.newInstance()
+                    }
                 }
             }
+        } else {
             // WIDECHAT
-            resources.getString(R.string.log_out) -> {
-                with((activity as MainActivity).presenter) {
-                    logout()
+            when (parent?.getItemAtPosition(position).toString()) {
+                resources.getStringArray(R.array.widechat_settings_actions)[0] -> {
+                    (activity as AppCompatActivity).addFragmentBackStack(
+                            TAG_PREFERENCES_FRAGMENT,
+                            R.id.fragment_container
+                    ) {
+                        PreferencesFragment.newInstance()
+                    }
+                }
+
+                resources.getStringArray(R.array.widechat_settings_actions)[1] -> {
+                    (activity as AppCompatActivity).addFragmentBackStack(
+                            TAG_ABOUT_FRAGMENT,
+                            R.id.fragment_container
+                    ) {
+                        AboutFragment.newInstance()
+                    }
+                }
+
+                resources.getStringArray(R.array.widechat_settings_actions)[2] -> activity?.startActivity(
+                        context?.webViewIntent(
+                                getString(R.string.license_url),
+                                getString(R.string.title_licence)
+                        )
+                )
+
+                resources.getStringArray(R.array.widechat_settings_actions)[3] -> {
+                    with((activity as MainActivity).presenter) {
+                        logout()
+                    }
                 }
             }
         }
