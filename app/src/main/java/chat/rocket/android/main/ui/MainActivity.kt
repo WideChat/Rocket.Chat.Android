@@ -50,6 +50,7 @@ import javax.inject.Inject
 
 // WIDECHAT
 import chat.rocket.android.helper.Constants
+import timber.log.Timber
 
 private const val CURRENT_STATE = "current_state"
 
@@ -304,8 +305,12 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
             val contactSyncWork = OneTimeWorkRequestBuilder<ContactSyncWorker>().build()
             WorkManager.getInstance().enqueue(contactSyncWork)
             WorkManager.getInstance().getStatusById(contactSyncWork.getId()).observe(this, Observer { info ->
-                if (info != null && info.state.isFinished) {
-                    //showToast("Contacts synced in background")
+                if (info !=null) {
+                    if (info.state.name == "RUNNING") {
+                        Timber.d("Contact sync running")
+                    } else if (info.state.isFinished || info.state.name == "FAILED") {
+                        Timber.d("Contact sync ended")
+                    }
                 }
             })
         }
