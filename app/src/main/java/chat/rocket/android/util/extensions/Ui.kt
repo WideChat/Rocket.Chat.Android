@@ -41,12 +41,16 @@ fun ViewGroup.inflate(@LayoutRes resource: Int, attachToRoot: Boolean = false): 
     LayoutInflater.from(context).inflate(resource, this, attachToRoot)
 
 fun AppCompatActivity.addFragment(
-    tag: String, layoutId: Int, allowStateLoss: Boolean = false,
+    tag: String, layoutId: Int, allowStateLoss: Boolean = false, show: Boolean = true,
     newInstance: () -> Fragment
 ) {
     val fragment = supportFragmentManager.findFragmentByTag(tag) ?: newInstance()
     val transaction = supportFragmentManager.beginTransaction()
         .replace(layoutId, fragment, tag)
+    if (true == show)
+        transaction.show(fragment)
+    else
+        transaction.hide(fragment)
     if (allowStateLoss) {
         transaction.commitAllowingStateLoss()
     } else {
