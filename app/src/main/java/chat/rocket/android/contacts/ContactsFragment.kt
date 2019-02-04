@@ -9,6 +9,7 @@ import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import chat.rocket.android.R
 import chat.rocket.android.contacts.models.Contact
@@ -33,12 +34,21 @@ import chat.rocket.android.contacts.adapter.inviteItemHolder
 import chat.rocket.android.db.DatabaseManagerFactory
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.util.extensions.avatarUrl
+import chat.rocket.android.util.extensions.inflate
+import chat.rocket.android.util.extensions.ui
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
+import kotlinx.android.synthetic.main.fragment_contact_parent.*
+
+// test
+import androidx.work.WorkManager
+import androidx.lifecycle.Observer
+import timber.log.Timber
+
 
 /**
  * Load a list of contacts in a recycler view
@@ -99,22 +109,16 @@ class ContactsFragment : Fragment() {
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val contextThemeWrapper = ContextThemeWrapper(activity, R.style.AppTheme)
-
-        // clone the inflater using the ContextThemeWrapper
-        val localInflater = inflater.cloneInContext(contextThemeWrapper)
-
-        val view = localInflater.inflate(R.layout.fragment_contact_parent, container, false)
-
-        this.recyclerView = view.findViewById(R.id.recycler_view)
-        this.emptyTextView = view.findViewById(R.id.text_no_data_to_display)
-        getContactsPermissions()
-        return view
-    }
+    override fun onCreateView(
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?): View? = container?.inflate(R.layout.fragment_contact_parent)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        this.recyclerView = view.findViewById(R.id.recycler_view)
+        this.emptyTextView = view.findViewById(R.id.text_no_data_to_display)
+        getContactsPermissions()
         setupToolbar()
     }
 
@@ -261,6 +265,20 @@ class ContactsFragment : Fragment() {
         }
     }
 
+    private fun showLoading() {
+        ui {
+            view_loading.isVisible = true
+            view_loading.show()
+        }
+    }
+
+    private fun hideLoading() {
+        ui {
+            view_loading.isVisible = false
+            view_loading.hide()
+        }
+    }
+
     override fun onRequestPermissionsResult(
             requestCode: Int,
             permissions: Array<String>,
@@ -275,7 +293,6 @@ class ContactsFragment : Fragment() {
                     // Permission granted
                     getContactList()
                 }
-                setupFrameLayout(contactArrayList)
                 return
             }
             else -> {
@@ -290,7 +307,7 @@ class ContactsFragment : Fragment() {
                 && ContextCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED
         ) {
             getContactList()
-            setupFrameLayout(contactArrayList)
+
         } else {
             requestPermissions(
                     arrayOf(
@@ -305,9 +322,20 @@ class ContactsFragment : Fragment() {
     fun setupFrameLayout(filteredContactArrayList: ArrayList<Contact>) {
 
         if (filteredContactArrayList!!.size == 0) {
-            emptyTextView!!.visibility = View.VISIBLE
-            recyclerView!!.visibility = View.GONE
+
+            with(activity as MainActivity) {
+                if (isContactSyncComplete()) {
+                    emptyTextView!!.visibility = View.VISIBLE
+                    hideLoading()
+                } else {
+                    showLoading()
+                    getContactList()
+                    recyclerView!!.visibility = View.GONE
+                }
+            }
+
         } else {
+            hideLoading()
             emptyTextView!!.visibility = View.GONE
             recyclerView!!.visibility = View.VISIBLE
 

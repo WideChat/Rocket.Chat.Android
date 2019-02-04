@@ -71,6 +71,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     private var progressDialog: ProgressDialog? = null
     private val PERMISSIONS_REQUEST_RW_CONTACTS = 0
 
+    //TEST
+    var contactSyncComplete: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
         super.onCreate(savedInstanceState)
@@ -298,22 +301,31 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
             // Permission is not granted
 
             ActivityCompat.requestPermissions(this,
-                    arrayOf(Manifest.permission.READ_CONTACTS),
+                    arrayOf(Manifest.permission.READ_CONTACTS,
+                            Manifest.permission.WRITE_CONTACTS),
                     PERMISSIONS_REQUEST_RW_CONTACTS)
+
         } else {
             // Permission has already been granted
+            //val contactSyncWork = OneTimeWorkRequestBuilder<ContactSyncWorker>().build()
             val contactSyncWork = OneTimeWorkRequestBuilder<ContactSyncWorker>().build()
             WorkManager.getInstance().enqueue(contactSyncWork)
             WorkManager.getInstance().getStatusById(contactSyncWork.getId()).observe(this, Observer { info ->
                 if (info !=null) {
                     if (info.state.name == "RUNNING") {
+                        contactSyncComplete = false
                         Timber.d("Contact sync running")
                     } else if (info.state.isFinished || info.state.name == "FAILED") {
+                        contactSyncComplete = true
                         Timber.d("Contact sync ended")
                     }
                 }
             })
         }
+    }
+
+    fun isContactSyncComplete() : Boolean {
+        return contactSyncComplete
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,
