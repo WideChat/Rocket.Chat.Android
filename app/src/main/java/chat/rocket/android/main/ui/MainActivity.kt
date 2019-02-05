@@ -47,10 +47,10 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.nav_header.view.*
 import javax.inject.Inject
+import timber.log.Timber
 
 // WIDECHAT
 import chat.rocket.android.helper.Constants
-import timber.log.Timber
 
 private const val CURRENT_STATE = "current_state"
 
@@ -70,9 +70,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     private var chatRoomId: String? = null
     private var progressDialog: ProgressDialog? = null
     private val PERMISSIONS_REQUEST_RW_CONTACTS = 0
-
-    //TEST
-    var contactSyncComplete: Boolean = false
+    private var contactSyncComplete: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -307,7 +305,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
 
         } else {
             // Permission has already been granted
-            //val contactSyncWork = OneTimeWorkRequestBuilder<ContactSyncWorker>().build()
             val contactSyncWork = OneTimeWorkRequestBuilder<ContactSyncWorker>().build()
             WorkManager.getInstance().enqueue(contactSyncWork)
             WorkManager.getInstance().getStatusById(contactSyncWork.getId()).observe(this, Observer { info ->

@@ -44,11 +44,8 @@ import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_contact_parent.*
 
-// test
-import androidx.work.WorkManager
-import androidx.lifecycle.Observer
+// Test
 import timber.log.Timber
-
 
 /**
  * Load a list of contacts in a recycler view
@@ -322,17 +319,22 @@ class ContactsFragment : Fragment() {
     fun setupFrameLayout(filteredContactArrayList: ArrayList<Contact>) {
 
         if (filteredContactArrayList!!.size == 0) {
+            recyclerView!!.visibility = View.GONE
+            emptyTextView!!.visibility = View.GONE
+            showLoading()
+            getContactList()
 
-            with(activity as MainActivity) {
-                if (isContactSyncComplete()) {
-                    emptyTextView!!.visibility = View.VISIBLE
-                    hideLoading()
-                } else {
-                    showLoading()
-                    getContactList()
-                    recyclerView!!.visibility = View.GONE
-                }
-            }
+//            getContactList()
+//            if ((activity as MainActivity).isContactSyncComplete()) {
+//                hideLoading()
+//                emptyTextView!!.visibility = View.VISIBLE
+//
+//            } else {
+//                recyclerView!!.visibility = View.GONE
+//                emptyTextView!!.visibility = View.GONE
+//                showLoading()
+//                getContactList()
+//            }
 
         } else {
             hideLoading()
@@ -343,6 +345,13 @@ class ContactsFragment : Fragment() {
             recyclerView!!.layoutManager = LinearLayoutManager(context)
             recyclerView!!.adapter = ContactRecyclerViewAdapter(this.activity as MainActivity, map(filteredContactArrayList)!!)
         }
+
+//        with(activity as MainActivity) {
+//            if (isContactSyncComplete()) {
+//                emptyTextView!!.visibility = View.VISIBLE
+//                hideLoading()
+//            }
+//        }
     }
 
     fun map(contacts: List<Contact>): ArrayList<ItemHolder<*>> {
