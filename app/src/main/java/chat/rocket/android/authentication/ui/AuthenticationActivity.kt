@@ -111,17 +111,19 @@ class AuthenticationActivity : AppCompatActivity(), HasSupportFragmentInjector {
     }
 
     private fun routeDeepLink(deepLinkInfo: DeepLinkInfo) {
-        if (Constants.WIDECHAT)
-            presenter.loadCredentials(false) { isAuthenticated ->
-                if (isAuthenticated) {
-                    presenter.toChatList(deepLinkInfo)
-                } else {
+        presenter.loadCredentials(presenter.isNewServer(deepLinkInfo.url) ) { isAuthenticated ->
+            if (isAuthenticated) {
+                presenter.toChatList(deepLinkInfo)
+            } else {
+                if (Constants.WIDECHAT) {
                     presenter.saveDeepLinkInfo(deepLinkInfo)
                     presenter.toOnBoarding()
                 }
+                else
+                    presenter.toSignInToYourServer(deepLinkInfo)
             }
-        else
-            presenter.toSignInToYourServer(deepLinkInfo)
+        }
+
     }
 
     private fun routeNoLink() {

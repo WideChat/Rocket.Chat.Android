@@ -23,6 +23,10 @@ class AuthenticationPresenter @Inject constructor(
     private val tokenRepository: TokenRepository,
     private val serverInteractor: GetConnectingServerInteractor
 ) {
+    fun isNewServer(server: String) : Boolean {
+        val currentServer = getCurrentServerInteractor.get()
+        return (currentServer != null && currentServer.toString() != server)
+    }
 
     fun loadCredentials(newServer: Boolean, callback: (isAuthenticated: Boolean) -> Unit) {
         launchUI(strategy) {

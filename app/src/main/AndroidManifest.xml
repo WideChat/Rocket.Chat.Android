@@ -44,6 +44,9 @@
                 <data
                     android:host="viasatconnect.page.link"
                     android:scheme="https" />
+                <data
+                    android:host="viasatconnect.com"
+                    android:scheme="https" />
 
             </intent-filter>
         </activity>
