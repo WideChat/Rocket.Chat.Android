@@ -9,15 +9,17 @@ class Contact() : Parcelable {
     private var phoneNumber: String? = null
     private var emailAddress: String? = null
     private var isPhone: Boolean = true
+    private var userId: String? = null
     private var username: String? = null
     private var avatarUrl: String? = null
+    private var status: String? = null
+
+    fun getUserId(): String? {
+        return userId
+    }
 
     fun getUsername(): String? {
         return username
-    }
-
-    private fun formatPhoneNumber(phone: String): String {
-        return phone.replace("-|\\s|\\(|\\)".toRegex(), "")
     }
 
     fun getDetail(): String? {
@@ -36,6 +38,10 @@ class Contact() : Parcelable {
         this.name = name
     }
 
+    fun setUserId(userId: String?) {
+        this.userId = userId
+    }
+
     fun setUsername(username: String?) {
         this.username = username
     }
@@ -49,7 +55,7 @@ class Contact() : Parcelable {
     }
 
     fun setPhoneNumber(phoneNumber: String) {
-        this.phoneNumber = formatPhoneNumber(phoneNumber)
+        this.phoneNumber = phoneNumber
     }
 
     fun getEmailAddress(): String? {
@@ -71,6 +77,14 @@ class Contact() : Parcelable {
 
     fun setAvatarUrl(url: String) {
         this.avatarUrl = url
+    }
+
+    fun getStatus(): String? {
+        return status
+    }
+
+    fun setStatus(status: String) {
+        this.status = status
     }
 
     constructor(parcel: Parcel) : this() {

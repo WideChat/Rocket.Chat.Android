@@ -16,8 +16,8 @@ android {
         applicationId "chat.veranda.android"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 2050
-        versionName "0.3.0"
+        versionCode 2057
+        versionName "0.4.3"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -29,6 +29,9 @@ android {
             annotationProcessorOptions {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
+        }
+        dataBinding {
+            enabled = true
         }
     }
 
@@ -140,6 +143,7 @@ dependencies {
     implementation libraries.frescoAnimatedWebP
 
     implementation libraries.glide
+    implementation libraries.glideTransformations
 
     kapt libraries.kotshiCompiler
     implementation libraries.kotshiApi
@@ -160,6 +164,7 @@ dependencies {
     playImplementation libraries.playServicesAuth
     playImplementation('com.crashlytics.sdk.android:crashlytics:2.9.5@aar') { transitive = true }
     playImplementation('com.crashlytics.sdk.android:answers:1.4.3@aar') { transitive = true }
+    playImplementation libraries.dynamiclinks
 
     testImplementation libraries.junit
     testImplementation libraries.truth

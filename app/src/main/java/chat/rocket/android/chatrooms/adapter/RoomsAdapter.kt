@@ -1,12 +1,16 @@
 package chat.rocket.android.chatrooms.adapter
 
 import android.view.ViewGroup
+import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.chatrooms.adapter.model.RoomUiModel
 import chat.rocket.android.util.extensions.inflate
+import android.view.LayoutInflater
+import androidx.databinding.ViewDataBinding
 
-class RoomsAdapter(private val listener: (RoomUiModel) -> Unit) : RecyclerView.Adapter<ViewHolder<*>>() {
+class RoomsAdapter(private val listener: (RoomUiModel) -> Unit) :
+    RecyclerView.Adapter<ViewHolder<*>>() {
 
     init {
         setHasStableIds(true)
@@ -21,8 +25,9 @@ class RoomsAdapter(private val listener: (RoomUiModel) -> Unit) : RecyclerView.A
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<*> {
         return when (viewType) {
             VIEW_TYPE_ROOM -> {
-                val view = parent.inflate(R.layout.item_chat)
-                RoomViewHolder(view, listener)
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding: ViewDataBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_chat, parent, false)
+                RoomViewHolder(binding.root, listener)
             }
             VIEW_TYPE_HEADER -> {
                 val view = parent.inflate(R.layout.item_chatroom_header)
@@ -40,16 +45,16 @@ class RoomsAdapter(private val listener: (RoomUiModel) -> Unit) : RecyclerView.A
 
     override fun getItemId(position: Int): Long {
         val item = values[position]
-        return when(item) {
-            is HeaderItemHolder -> item.data.hashCode().toLong()
+        return when (item) {
             is RoomItemHolder -> item.data.id.hashCode().toLong()
+            is HeaderItemHolder -> item.data.hashCode().toLong()
             is LoadingItemHolder -> "loading".hashCode().toLong()
             else -> throw IllegalStateException("View type must be either Room, Header or Loading")
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when(values[position]) {
+        return when (values[position]) {
             is RoomItemHolder -> VIEW_TYPE_ROOM
             is HeaderItemHolder -> VIEW_TYPE_HEADER
             is LoadingItemHolder -> VIEW_TYPE_LOADING

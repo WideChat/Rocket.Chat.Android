@@ -21,7 +21,6 @@ import kotlin.collections.HashMap
 
 // WIDECHAT
 import chat.rocket.android.helper.Constants
-import com.facebook.drawee.view.SimpleDraweeView
 import android.view.LayoutInflater
 import android.widget.TextView
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -51,30 +50,28 @@ import timber.log.Timber
  * Load a list of contacts in a recycler view
  */
 class ContactsFragment : Fragment() {
+
     @Inject
     lateinit var dbFactory: DatabaseManagerFactory
+
     @Inject
     lateinit var serverInteractor: GetCurrentServerInteractor
+
     private var recyclerView :RecyclerView? = null
     private var emptyTextView:  TextView? = null
-
-    private val MY_PERMISSIONS_REQUEST_RW_CONTACTS = 0
 
     /**
      * The list of contacts to load in the recycler view
      */
     private var contactArrayList: ArrayList<Contact> = ArrayList()
 
+    private val MY_PERMISSIONS_REQUEST_RW_CONTACTS = 0
+
     private var searchView: SearchView? = null
     private var sortView: MenuItem? = null
     private var searchIcon: ImageView? = null
     private var searchText:  TextView? = null
     private var searchCloseButton: ImageView? = null
-
-    // WIDECHAT
-    private var profileButton: SimpleDraweeView? = null
-    private var widechatSearchView: SearchView? = null
-    private var onlineStatusButton: ImageView? = null
 
     companion object {
         /**
@@ -143,8 +140,9 @@ class ContactsFragment : Fragment() {
                                     }
                                     if(contactEntity.username != null) {
                                         contact.setUsername(contactEntity.username)
+                                        contact.setUserId(contactEntity.userId)
                                     }
-                                    contact.setAvatarUrl(serverUrl.avatarUrl(contact?.getUsername() ?: ""))
+                                    contact.setAvatarUrl(serverUrl.avatarUrl(contact?.getUsername() ?: contact?.getName() ?: ""))
                                     contact
                                 }
                             })
@@ -198,12 +196,7 @@ class ContactsFragment : Fragment() {
 
         if (Constants.WIDECHAT) {
             with((activity as AppCompatActivity?)?.supportActionBar) {
-                profileButton = this?.getCustomView()?.findViewById(R.id.profile_image_avatar)
-                profileButton?.visibility = View.GONE
-                onlineStatusButton=this?.getCustomView()?.findViewById(R.id.text_online)
-                onlineStatusButton?.visibility = View.GONE
-                widechatSearchView = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
-                widechatSearchView?.visibility = View.GONE
+                this?.setDisplayShowCustomEnabled(false)
             }
         }
     }
@@ -358,13 +351,14 @@ class ContactsFragment : Fragment() {
         val finalList = ArrayList<ItemHolder<*>>(contacts.size + 2)
         val userList = ArrayList<ItemHolder<*>>(contacts.size)
         val userContactList: ArrayList<Contact> = ArrayList()
+        val unfilteredContactsList: ArrayList<Contact> = ArrayList()
         val contactsList = ArrayList<ItemHolder<*>>(contacts.size)
         contacts.forEach { contact ->
             if(contact.getUsername()!= null){
                 // Users in their own list for filtering before adding to an ItemHolder
                 userContactList.add(contact)
             } else {
-                contactsList.add(ContactItemHolder(contact))
+                unfilteredContactsList.add(contact)
             }
         }
         // Filter for dupes
@@ -372,8 +366,12 @@ class ContactsFragment : Fragment() {
             userList.add(ContactItemHolder(contact))
         }
 
+        unfilteredContactsList.distinctBy { listOf(it.getPhoneNumber(), it.getEmailAddress())}.forEach { contact ->
+            contactsList.add(ContactItemHolder(contact))
+        }
+
         finalList.addAll(userList)
-        finalList.add(ContactHeaderItemHolder("INVITE CONTACTS"))
+        finalList.add(ContactHeaderItemHolder(getString(R.string.Invite_contacts)))
         finalList.addAll(contactsList)
         finalList.add(inviteItemHolder("invite"))
         return finalList

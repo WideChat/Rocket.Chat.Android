@@ -19,6 +19,7 @@ import chat.rocket.android.dagger.qualifier.ForAuthentication
 import chat.rocket.android.dagger.qualifier.ForMessages
 import chat.rocket.android.db.DatabaseManager
 import chat.rocket.android.db.DatabaseManagerFactory
+import chat.rocket.android.dynamiclinks.DynamicLinksForFirebase
 import chat.rocket.android.helper.MessageParser
 import chat.rocket.android.infrastructure.LocalRepository
 import chat.rocket.android.infrastructure.SharedPreferencesLocalRepository
@@ -64,6 +65,7 @@ import chat.rocket.common.internal.ISO8601Date
 import chat.rocket.common.model.TimestampAdapter
 import chat.rocket.common.util.CalendarISO8601Converter
 import chat.rocket.common.util.Logger
+import chat.rocket.common.util.NoOpLogger
 import chat.rocket.common.util.PlatformLogger
 import chat.rocket.core.internal.AttachmentAdapterFactory
 import chat.rocket.core.internal.ReactionsAdapter
@@ -231,7 +233,7 @@ class AppModule {
         return Moshi.Builder()
             .add(FallbackSealedClassJsonAdapter.ADAPTER_FACTORY)
             .add(AppJsonAdapterFactory.INSTANCE)
-            .add(AttachmentAdapterFactory(Logger(logger, url)))
+            .add(AttachmentAdapterFactory(NoOpLogger))
             .add(
                 java.lang.Long::class.java,
                 ISO8601Date::class.java,
@@ -376,6 +378,12 @@ class AppModule {
     @Singleton
     fun provideAnswersAnalytics(): AnswersAnalytics {
         return AnswersAnalytics()
+    }
+
+    @Provides
+    @Singleton
+    fun provideDynamicLinkForFirebase(context: Application): DynamicLinksForFirebase {
+        return DynamicLinksForFirebase(context)
     }
 
     @Provides

@@ -2,7 +2,7 @@ package chat.rocket.android.profile.ui
 
 import DrawableHelper
 import android.app.Activity
-import android.app.AlertDialog
+import androidx.appcompat.app.AlertDialog
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Build
@@ -122,7 +122,6 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
     fun showWidechatProfile(avatarUrl: String, name: String, username: String, email: String?) {
         ui {
             image_avatar.setImageURI(avatarUrl)
-            widechat_text_name.text = name
             widechat_text_username.textContent = username
             widechat_text_email.textContent = email ?: ""
 
@@ -135,6 +134,9 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
             menu.clear()
         }
         super.onPrepareOptionsMenu(menu)
+        if (Constants.WIDECHAT) {
+            menu.findItem(R.id.action_delete_account).isVisible = false
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -367,8 +369,9 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
         val passwordEditText = EditText(context)
         passwordEditText.hint = getString(R.string.msg_password)
 
-        val builder = AlertDialog.Builder(context)
-        builder.setTitle(R.string.title_are_you_sure)
+        context?.let {
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle(R.string.title_are_you_sure)
                 .setView(passwordEditText)
                 .setPositiveButton(R.string.action_delete_account) { _, _ ->
                     presenter.deleteAccount(passwordEditText.text.toString())
@@ -376,5 +379,6 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
                 .setNegativeButton(android.R.string.no) { dialog, _ -> dialog.cancel() }
                 .create()
                 .show()
+        }
     }
 }

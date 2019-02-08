@@ -1,7 +1,9 @@
 package chat.rocket.android.contacts.worker
 
 import android.content.Context
+import android.os.Build
 import android.provider.ContactsContract
+import android.telephony.PhoneNumberUtils
 import androidx.work.Worker
 import androidx.work.WorkerParameters
 import chat.rocket.android.contacts.models.Contact
@@ -52,15 +54,15 @@ class ContactSyncWorker(context : Context, params : WorkerParameters)
 
         val strongHashes: List<String> = (contactArrayList.map { contact -> hashString(contact.getDetail()!!) })
         val weakHashes: List<String> = strongHashes.map{ strongHash -> strongHash.substring(3,9) }
-        var retryFlag:Boolean = false
+        var retryFlag = false
         runBlocking {
             try {
                 val apiResult: List<ContactHolder>? = client.queryContacts(weakHashes)
                 if (apiResult != null) {
-                    val intersectionMap: HashMap<String, String> = HashMap()
-                    val intersection: List<String> = apiResult!!.mapIndexed { index, list ->
+                    val intersectionMap: HashMap<String, List<String>> = HashMap()
+                    val intersection: List<String> = apiResult.mapIndexed { index, list ->
                         run {
-                            intersectionMap.put(list.h, list.u)
+                            intersectionMap.put(list.h, listOf(list.id, list.u))
                             list.h
                         }
                     }
@@ -68,25 +70,33 @@ class ContactSyncWorker(context : Context, params : WorkerParameters)
                     contactArrayList.forEachIndexed { index, contact ->
                         run {
                             if (strongHashes[index] in intersectionSet) {
-                                contact.setUsername(intersectionMap[strongHashes[index]])
+                                contact.setUserId(intersectionMap[strongHashes[index]]?.first())
+                                contact.setUsername(intersectionMap[strongHashes[index]]?.last())
                             }
                         }
                     }
                 }
                 Timber.d("Contacts fetched in background.")
-            }catch (ex: RocketChatException){
+            } catch (ex: RocketChatException){
                 retryFlag = true
-            }finally {
+            } finally {
                 dbManager.processContacts(contactArrayList)
             }
         }
-        if(retryFlag){
+        if (retryFlag) {
             return Result.RETRY
         }
         return Result.SUCCESS
     }
 
     private fun getContactList() {
+        var country = ""
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            country = applicationContext.getResources().getConfiguration().locales.get(0).country
+        } else{
+            country = applicationContext.getResources().getConfiguration().locale.getCountry();
+        }
+
         val cr = applicationContext.contentResolver
 
         val cur = cr.query(ContactsContract.Contacts.CONTENT_URI, null, null, null, null)
@@ -108,10 +118,13 @@ class ContactSyncWorker(context : Context, params : WorkerParameters)
                     while (pCur!!.moveToNext()) {
                         val phoneNo = pCur.getString(pCur.getColumnIndex(
                                 ContactsContract.CommonDataKinds.Phone.NUMBER))
-                        val contact = Contact()
-                        contact.setName(name)
-                        contact.setPhoneNumber(phoneNo)
-                        contactArrayList.add(contact)
+                        val formattedPhone = formatPhoneNumber(phoneNo, country)
+                        if(formattedPhone!=null) {
+                            val contact = Contact()
+                            contact.setName(name)
+                            contact.setPhoneNumber(formattedPhone)
+                            contactArrayList.add(contact)
+                        }
                     }
                     pCur.close()
                 }
@@ -156,4 +169,9 @@ class ContactSyncWorker(context : Context, params : WorkerParameters)
 
         return result.toString()
     }
+
+    private fun formatPhoneNumber(phone: String, country:String): String? {
+        return PhoneNumberUtils.formatNumberToE164(phone.replace("-|\\s|\\(|\\)".toRegex(), ""), country)
+    }
+
 }

@@ -1,13 +1,19 @@
 package chat.rocket.android.contacts.adapter
 
-import android.content.Intent
+import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.Button
+import androidx.databinding.DataBindingUtil
+import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
 import chat.rocket.android.R
 import chat.rocket.android.chatrooms.adapter.*
+import chat.rocket.android.contacts.models.Contact
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.inflate
+import chat.rocket.common.model.UserPresence
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 
 class ContactRecyclerViewAdapter(
         private val context: MainActivity,
@@ -22,8 +28,9 @@ class ContactRecyclerViewAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder<*> {
         return when (viewType) {
             VIEW_TYPE_CONTACT -> {
-                val view = parent.inflate(R.layout.item_contact)
-                ContactViewHolder(view)
+                val layoutInflater = LayoutInflater.from(parent.context)
+                val binding: ViewDataBinding = DataBindingUtil.inflate(layoutInflater, R.layout.item_contact, parent, false)
+                ContactViewHolder(binding.root)
             }
             VIEW_TYPE_HEADER -> {
                 val view = parent.inflate(R.layout.item_heading)
@@ -61,26 +68,38 @@ class ContactRecyclerViewAdapter(
     override fun onBindViewHolder(holder: ViewHolder<*>, position: Int) {
         if (holder is ContactViewHolder) {
             holder.bind(contactArrayList[position] as ContactItemHolder)
+
+            val contact: Contact = holder.data!!.data
+            val userId = contact.getUserId()
+            if (userId != null) {
+                launch {
+                    var userPresence: UserPresence? = context.presenter.getUserPresence(userId)
+                    if (userPresence != null) {
+                        contact.setStatus(userPresence.presence!!)
+                    }
+                    launch(UI) {
+                        holder.setContactStatus(contact)
+                    }
+                }
+            }
+
             val inviteButton: Button = holder.itemView.findViewById(R.id.invite_contact)
             val dmButton: Button = holder.itemView.findViewById(R.id.chat_username)
 
             inviteButton.setOnClickListener { view ->
                 run {
-                    inviteButton.setText("INVITED")
-                    val contact = holder.data!!.data
-
-                    if (contact!!.isPhone()) {
-                        context.presenter.inviteViaSMS(contact!!.getPhoneNumber()!!)
+                    inviteButton.setText(context.getString(R.string.Invited))
+                    if (contact.isPhone()) {
+                        context.presenter.inviteViaSMS(contact.getPhoneNumber()!!)
                     } else {
-                        context.presenter.inviteViaEmail(contact!!.getEmailAddress()!!)
+                        context.presenter.inviteViaEmail(contact.getEmailAddress()!!)
                     }
                 }
             }
 
             dmButton.setOnClickListener { view ->
                 run {
-                    val contact = holder.data!!.data
-                    context.presenter.openDirectMessageChatRoom(contact!!.getUsername().toString())
+                    context.presenter.openDirectMessageChatRoom(contact.getUsername().toString())
                 }
             }
 
@@ -96,12 +115,7 @@ class ContactRecyclerViewAdapter(
     }
 
     private fun shareApp() {
-        with(Intent(Intent.ACTION_SEND)) {
-            type = "text/plain"
-            putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.msg_check_this_out))
-            putExtra(Intent.EXTRA_TEXT, context.getString(R.string.play_store_link))
-            context.startActivity(Intent.createChooser(this, context.getString(R.string.msg_share_using)))
-        }
+        context.presenter.shareViaApp(context)
     }
 
     companion object {
