@@ -42,9 +42,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import javax.inject.Inject
 import kotlinx.android.synthetic.main.fragment_contact_parent.*
-
-// Test
-import timber.log.Timber
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
@@ -286,8 +283,6 @@ class ContactsFragment : Fragment() {
                     launch {
                         getContactListWhenSynced()
                     }
-                    //getContactList()
-                    //setupFrameLayout(contactArrayList)
                 }
                 return
             }
@@ -305,9 +300,6 @@ class ContactsFragment : Fragment() {
             launch {
                 getContactListWhenSynced()
             }
-            //getContactList()
-            //setupFrameLayout(contactArrayList)
-
         } else {
             requestPermissions(
                     arrayOf(
@@ -336,9 +328,7 @@ class ContactsFragment : Fragment() {
 
         if (filteredContactArrayList!!.size == 0) {
             emptyTextView!!.visibility = View.VISIBLE
-            hideLoading()
         } else {
-            hideLoading()
             emptyTextView!!.visibility = View.GONE
             recyclerView!!.visibility = View.VISIBLE
 
@@ -346,6 +336,7 @@ class ContactsFragment : Fragment() {
             recyclerView!!.layoutManager = LinearLayoutManager(context)
             recyclerView!!.adapter = ContactRecyclerViewAdapter(this.activity as MainActivity, map(filteredContactArrayList)!!)
         }
+        hideLoading()
     }
 
     fun map(contacts: List<Contact>): ArrayList<ItemHolder<*>> {
