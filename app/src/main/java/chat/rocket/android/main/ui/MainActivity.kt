@@ -74,7 +74,10 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     private var deepLinkInfo: DeepLinkInfo? = null
     private var progressDialog: ProgressDialog? = null
     private val PERMISSIONS_REQUEST_RW_CONTACTS = 0
-    private var contactSyncComplete: Boolean = false
+
+    // WIDECHAT
+    @Volatile
+    private var contactSyncComplete: Boolean? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         AndroidInjection.inject(this)
@@ -330,6 +333,10 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         progressDialog = null
     }
 
+    fun isContactSyncComplete() : Boolean? {
+        return contactSyncComplete == true
+    }
+
     private fun syncContacts() {
         if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.READ_CONTACTS)
@@ -358,10 +365,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                 }
             })
         }
-    }
-
-    fun isContactSyncComplete() : Boolean {
-        return contactSyncComplete
     }
 
     override fun onRequestPermissionsResult(requestCode: Int,

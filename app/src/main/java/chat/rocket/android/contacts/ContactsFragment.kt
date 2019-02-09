@@ -45,6 +45,8 @@ import kotlinx.android.synthetic.main.fragment_contact_parent.*
 
 // Test
 import timber.log.Timber
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 
 /**
  * Load a list of contacts in a recycler view
@@ -281,7 +283,11 @@ class ContactsFragment : Fragment() {
                         && grantResults[1] == PackageManager.PERMISSION_GRANTED
                 ) {
                     // Permission granted
-                    getContactList()
+                    launch {
+                        getContactListWhenSynced()
+                    }
+                    //getContactList()
+                    //setupFrameLayout(contactArrayList)
                 }
                 return
             }
@@ -296,7 +302,11 @@ class ContactsFragment : Fragment() {
                 ContextCompat.checkSelfPermission(context!!, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_GRANTED
                 && ContextCompat.checkSelfPermission(context!!, Manifest.permission.WRITE_CONTACTS) == PackageManager.PERMISSION_GRANTED
         ) {
-            getContactList()
+            launch {
+                getContactListWhenSynced()
+            }
+            //getContactList()
+            //setupFrameLayout(contactArrayList)
 
         } else {
             requestPermissions(
@@ -308,27 +318,25 @@ class ContactsFragment : Fragment() {
             )
         }
     }
+    private suspend fun getContactListWhenSynced() {
+        // Show loading while sync in progress
+        recyclerView!!.visibility = View.GONE
+        emptyTextView!!.visibility = View.GONE
+        showLoading()
+
+        var syncComplete: Boolean? = (activity as MainActivity).isContactSyncComplete()
+        while (!syncComplete!!) {
+            delay(1 )
+            syncComplete = (activity as MainActivity).isContactSyncComplete()
+        }
+        getContactList()
+    }
 
     fun setupFrameLayout(filteredContactArrayList: ArrayList<Contact>) {
 
         if (filteredContactArrayList!!.size == 0) {
-            recyclerView!!.visibility = View.GONE
-            emptyTextView!!.visibility = View.GONE
-            showLoading()
-            getContactList()
-
-//            getContactList()
-//            if ((activity as MainActivity).isContactSyncComplete()) {
-//                hideLoading()
-//                emptyTextView!!.visibility = View.VISIBLE
-//
-//            } else {
-//                recyclerView!!.visibility = View.GONE
-//                emptyTextView!!.visibility = View.GONE
-//                showLoading()
-//                getContactList()
-//            }
-
+            emptyTextView!!.visibility = View.VISIBLE
+            hideLoading()
         } else {
             hideLoading()
             emptyTextView!!.visibility = View.GONE
@@ -338,13 +346,6 @@ class ContactsFragment : Fragment() {
             recyclerView!!.layoutManager = LinearLayoutManager(context)
             recyclerView!!.adapter = ContactRecyclerViewAdapter(this.activity as MainActivity, map(filteredContactArrayList)!!)
         }
-
-//        with(activity as MainActivity) {
-//            if (isContactSyncComplete()) {
-//                emptyTextView!!.visibility = View.VISIBLE
-//                hideLoading()
-//            }
-//        }
     }
 
     fun map(contacts: List<Contact>): ArrayList<ItemHolder<*>> {
