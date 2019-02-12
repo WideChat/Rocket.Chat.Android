@@ -77,7 +77,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
 
     override fun onItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         when (parent?.getItemAtPosition(position).toString()) {
-            resources.getStringArray(R.array.settings_actions)[0] -> {
+            resources.getStringArray(R.array.widechat_settings_actions)[0] -> {
                 (activity as AppCompatActivity).addFragmentBackStack(
                     TAG_PREFERENCES_FRAGMENT,
                     R.id.fragment_container
@@ -105,7 +105,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
                 )
             )
 
-            resources.getStringArray(R.array.settings_actions)[7] -> {
+            resources.getStringArray(R.array.widechat_settings_actions)[1] -> {
                 (activity as AppCompatActivity).addFragmentBackStack(
                     TAG_ABOUT_FRAGMENT,
                     R.id.fragment_container
@@ -114,7 +114,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
                 }
             }
             // WIDECHAT
-            resources.getString(R.string.log_out) -> {
+            resources.getStringArray(R.array.widechat_settings_actions)[2] -> {
                 with((activity as MainActivity).presenter) {
                     logout()
                 }
