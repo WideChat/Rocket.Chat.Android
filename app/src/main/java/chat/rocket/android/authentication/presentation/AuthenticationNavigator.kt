@@ -153,8 +153,11 @@ class AuthenticationNavigator(internal val activity: AuthenticationActivity) {
                 it.putExtra(Constants.DEEP_LINK_INFO, deepLinkInfo)
             })
         } else {
-            activity.startActivity(Intent(activity, MainActivity::class.java))
+            val intent = Intent(activity, MainActivity::class.java)
+            intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION)
+            activity.startActivity(intent)
         }
         activity.finish()
+        activity.overridePendingTransition(0,0)
     }
 }
