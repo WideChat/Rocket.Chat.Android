@@ -100,6 +100,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private var deepLinkInfo: DeepLinkInfo? = null
     // handles that recurring connection status bug in widechat
     private var currentlyConnected: Boolean? = false
+    private var roomLoadingComplete: Boolean? = false
 
     companion object {
         fun newInstance(chatRoomId: String? = null, deepLinkInfo: DeepLinkInfo? = null): ChatRoomsFragment {
@@ -189,6 +190,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     adapter.values = it
                     if (rooms.isNotEmpty()) {
                         showNoChatRoomsToDisplay(false)
+                    } else {
+                        if (roomLoadingComplete == true) {
+                            showNoChatRoomsToDisplay(true)
+                        }
                     }
                 }
             })
@@ -197,7 +202,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                 when (state) {
                     is LoadingState.Loading -> if (state.count == 0L) showLoading()
                     is LoadingState.Loaded -> {
-                        if (state.count == 0L) showNoChatRoomsToDisplay(true)
+                        roomLoadingComplete = true
                     }
                     is LoadingState.Error -> {
                         showGenericErrorMessage()
