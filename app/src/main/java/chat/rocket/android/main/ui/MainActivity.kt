@@ -53,6 +53,7 @@ import javax.inject.Inject
 import chat.rocket.android.helper.Constants
 import timber.log.Timber
 import androidx.core.net.toUri
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import chat.rocket.android.contacts.models.ContactsLoadingState
@@ -375,10 +376,18 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                                             permissions: Array<String>, grantResults: IntArray) {
         when (requestCode) {
             PERMISSIONS_REQUEST_RW_CONTACTS -> {
+
                 // If request is cancelled, the result arrays are empty.
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     syncContacts(false)
                 }
+
+                var frg: Fragment? = null
+                frg = supportFragmentManager.findFragmentByTag(TAG_CHAT_ROOMS_FRAGMENT)
+                val ft = supportFragmentManager.beginTransaction()
+                ft.detach(frg!!)
+                ft.attach(frg)
+                ft.commit()
                 return
             }
             else -> {
