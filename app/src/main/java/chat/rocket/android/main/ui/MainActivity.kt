@@ -403,6 +403,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                 // Resume main activity here to refresh the current fragment
                 val openMainActivity= Intent(this, MainActivity::class.java)
                 startActivity(openMainActivity)
+                this.finish()
                 return
             }
             else -> {
