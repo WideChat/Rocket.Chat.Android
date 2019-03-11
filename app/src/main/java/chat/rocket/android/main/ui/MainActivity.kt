@@ -400,6 +400,8 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                         contactsPermissionAlertDialog(willNotShowPermissions = true)
                     }
                 }
+                val openMainActivity= Intent(this, MainActivity::class.java)
+                startActivity(openMainActivity)
                 return
             }
             else -> {
