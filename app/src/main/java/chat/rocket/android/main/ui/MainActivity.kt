@@ -393,6 +393,9 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                 // If request is cancelled, the result arrays are empty.
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
                     syncContacts(false)
+                    // Resume main activity here to refresh the current fragment
+                    val openMainActivity= Intent(this, MainActivity::class.java)
+                    startActivity(openMainActivity)
                 } else if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_DENIED)) {
                     var showRationale: Boolean = shouldShowRequestPermissionRationale(permissions[0])
                     if (!showRationale) {
@@ -400,8 +403,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
                         contactsPermissionAlertDialog(willNotShowPermissions = true)
                     }
                 }
-                val openMainActivity= Intent(this, MainActivity::class.java)
-                startActivity(openMainActivity)
                 return
             }
             else -> {
