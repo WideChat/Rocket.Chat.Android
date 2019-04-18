@@ -363,6 +363,7 @@
 
     <!-- WIDECHAT -->
     <string name="msg_welcome_to_widechat">Bienvenido a Viasat Connect</string>
+    <string name="msg_phone">Phone</string><!-- TODO - Add proper translation -->
     <string name="sign_up">Regístrate</string>
     <string name="log_in">Iniciar sesión</string>
     <string name="edit_profile">Editar mi perfil</string>

@@ -282,6 +282,11 @@
         <item name="android:background">@drawable/style_edit_text_profile</item>
     </style>
 
+    <!--WIDECHAT-->
+    <style name="Profile.TextView" parent="Authentication.EditText.Border">
+        <item name="android:background">@drawable/style_text_view_profile</item>
+    </style>
+
     <style name="ActionModeStyle" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
         <item name="android:actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>
         <item name="actionModeCloseDrawable">@drawable/ic_close_white_24dp</item>

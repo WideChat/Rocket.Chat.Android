@@ -9,8 +9,8 @@
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/image_avatar"
-        android:layout_width="96dp"
-        android:layout_height="96dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_centerHorizontal="true"
         android:foregroundGravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
