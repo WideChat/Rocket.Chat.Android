@@ -65,6 +65,11 @@ import chat.rocket.android.helper.Constants
 import chat.rocket.android.helper.SharedPreferenceHelper
 import timber.log.Timber
 
+// crash test
+import com.crashlytics.android.Crashlytics
+import android.view.ViewGroup
+
+
 private const val CURRENT_STATE = "current_state"
 
 class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
@@ -162,6 +167,17 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE)
                 as NotificationManager
         notificationManager.cancelAll()
+
+        // crash test
+        val crashButton = Button(this)
+        crashButton.text = "Crash!"
+        crashButton.setOnClickListener {
+            Crashlytics.getInstance().crash() // Force a crash
+        }
+
+        addContentView(crashButton, ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT))
     }
 
     override fun onDestroy() {

@@ -27,7 +27,8 @@ fun installCrashlyticsWrapper(
 }
 
 private fun isCrashlyticsEnabled(): Boolean {
-    return !BuildConfig.DEBUG
+    return true
+    //return !BuildConfig.DEBUG
 }
 
 private class RocketChatUncaughtExceptionHandler(
