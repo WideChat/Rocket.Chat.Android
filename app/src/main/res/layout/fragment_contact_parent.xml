@@ -41,19 +41,6 @@
         app:layout_constraintBottom_toBottomOf="parent"
         tools:listitem="@layout/item_contact" />
 
-    <TextView
-        android:id="@+id/text_no_contacts_to_display"
-        style="@style/TextAppearance.AppCompat.Subhead"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/msg_no_contacts_to_display"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:visibility="visible" />
-
     <View
         android:id="@+id/divider3"
         android:layout_width="match_parent"
