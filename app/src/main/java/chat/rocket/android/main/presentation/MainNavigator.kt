@@ -44,6 +44,12 @@ class MainNavigator(internal val activity: MainActivity) {
         }
     }
 
+    fun toNewChat() {
+        activity.addFragmentBackStack(TAG_CREATE_NEW_CHAT_FRAGMENT, R.id.fragment_container) {
+            chat.rocket.android.createchannel.ui.newInstance()
+        }
+    }
+
     fun toProfile() {
         activity.addFragmentBackStack(TAG_PROFILE_FRAGMENT, R.id.fragment_container) {
             chat.rocket.android.profile.ui.newInstance()

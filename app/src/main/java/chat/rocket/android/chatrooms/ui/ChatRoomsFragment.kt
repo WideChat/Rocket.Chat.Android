@@ -172,7 +172,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
             override fun onMenuItemActionExpand(item: MenuItem): Boolean {
                 // We need to hide the all the menu items here.
-                menu.findItem(R.id.action_new_channel).isVisible = false
+                menu.findItem(R.id.action_new_chat).isVisible = false
                 showDirectoryView()
                 return true
             }
@@ -181,7 +181,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_new_channel -> presenter.toCreateChannel()
+//            R.id.action_new_channel -> presenter.toCreateChannel()
+            R.id.action_new_chat -> presenter.toNewChat()
+
         }
         return super.onOptionsItemSelected(item)
     }

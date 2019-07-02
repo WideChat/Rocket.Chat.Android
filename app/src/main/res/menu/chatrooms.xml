@@ -2,10 +2,16 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+    <!--<item-->
+        <!--android:id="@+id/action_new_channel"-->
+        <!--android:icon="@drawable/ic_new_channel_24dp"-->
+        <!--android:title="@string/action_new_channel"-->
+        <!--app:showAsAction="ifRoom" />-->
+
     <item
-        android:id="@+id/action_new_channel"
+        android:id="@+id/action_new_chat"
         android:icon="@drawable/ic_new_channel_24dp"
-        android:title="@string/action_new_channel"
+        android:title="@string/action_new_chat"
         app:showAsAction="ifRoom" />
 
     <item

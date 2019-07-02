@@ -47,7 +47,9 @@ class ChatRoomsPresenter @Inject constructor(
     private val client = manager.client
     private val settings = settingsRepository.get(currentServer)
 
-    fun toCreateChannel() = navigator.toCreateChannel()
+//    fun toCreateChannel() = navigator.toCreateChannel()
+
+    fun toNewChat() = navigator.toNewChat()
 
     fun toSettings() = navigator.toSettings()
 
