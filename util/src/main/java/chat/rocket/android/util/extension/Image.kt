@@ -8,11 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
-import java.io.IOException
-import java.io.File
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,13 +33,14 @@ suspend fun Bitmap.compressImageAndGetInputStream(mimeType: String): InputStream
     return inputStream
 }
 
+
 /**
  * Returns a [ByteArray] of a [Bitmap].
  *
  * @param mimeType The MIME type of the [Bitmap].
  * @param quality The quality of the [Bitmap] for the resulting [ByteArray].
  * @param maxFileSizeAllowed The max file size allowed by the server. Note: The [quality] will be
- * decreased minus 10 until the [ByteArray] size fits the [maxFileSizeAllowed] value.
+ * decreased minus 20 until the [ByteArray] size fits the [maxFileSizeAllowed] value.
  * @return A [ByteArray] of a [Bitmap]
  */
 suspend fun Bitmap.getByteArray(
@@ -55,7 +52,11 @@ suspend fun Bitmap.getByteArray(
 
     compressImageAndGetByteArray(mimeType, quality)?.let {
         if (it.size > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0) {
-            getByteArray(mimeType, quality - 10, maxFileSizeAllowed)
+            if (quality == 0 || !mimeType.lossyCompressible()) {
+                throw InvalidObjectException ("File size too big.")
+            }
+            // call this method recursively with lower quality
+            byteArray = getByteArray(mimeType, quality - 20, maxFileSizeAllowed)
         } else {
             byteArray = it
         }
@@ -93,6 +94,17 @@ fun String.getCompressFormat(): Bitmap.CompressFormat {
         this.contains("jpeg") -> Bitmap.CompressFormat.JPEG
         this.contains("webp") -> Bitmap.CompressFormat.WEBP
         else -> Bitmap.CompressFormat.PNG
+    }
+}
+
+/**
+ * Returns true if lossy compressible format based on mimeType
+ */
+fun String.lossyCompressible(): Boolean {
+    return when {
+        this.contains("jpeg") -> true
+        this.contains("webp") -> true
+        else -> false
     }
 }
 

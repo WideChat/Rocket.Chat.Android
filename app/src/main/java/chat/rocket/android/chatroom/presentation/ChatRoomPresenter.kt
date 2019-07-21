@@ -88,6 +88,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import timber.log.Timber
+import java.io.InvalidObjectException
 import java.util.*
 import javax.inject.Inject
 
@@ -485,6 +486,7 @@ class ChatRoomPresenter @Inject constructor(
                 Timber.d(ex, "Error uploading image")
                 when (ex) {
                     is RocketChatException -> view.showMessage(ex)
+                    is InvalidObjectException -> view.showInvalidFileSize(bitmap.getByteCount(), settings.uploadMaxFileSize())
                     else -> view.showGenericErrorMessage()
                 }
             } finally {
