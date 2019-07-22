@@ -39,6 +39,7 @@ import chat.rocket.android.server.domain.uploadMimeTypeFilter
 import chat.rocket.android.server.domain.useRealName
 import chat.rocket.android.server.infraestructure.ConnectionManagerFactory
 import chat.rocket.android.server.infraestructure.state
+import chat.rocket.android.sharehadler.ShareHandler
 import chat.rocket.android.util.extension.getByteArray
 import chat.rocket.android.util.extension.launchUI
 import chat.rocket.android.util.extensions.avatarUrl
@@ -502,6 +503,12 @@ class ChatRoomPresenter @Inject constructor(
                     val fileSize = uriInteractor.getFileSize(uri)
                     val maxFileSizeAllowed = settings.uploadMaxFileSize()
 
+                    Timber.d("uri : ${uri.toString()}")
+                    Timber.d("name : $fileName")
+                    Timber.d("size : $fileSize")
+                    Timber.d("type : $mimeType")
+                    Timber.d("inputs : ${uriInteractor.getInputStream(uri)}")
+
                     when {
                         fileName.isEmpty() -> view.showInvalidFileMessage()
                         fileSize > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0 ->
@@ -568,6 +575,47 @@ class ChatRoomPresenter @Inject constructor(
                     view.showMessage(it)
                 }.ifNull {
                     view.showGenericErrorMessage()
+                }
+            } finally {
+                view.hideLoading()
+            }
+        }
+    }
+
+    fun uploadSharedFile(roomId: String, file: ShareHandler.SharedFile) {
+        launchUI(strategy) {
+            view.showLoading()
+            try {
+                withContext(Dispatchers.Default) {
+                    val fileName = file.name
+                    val fileSize = file.size
+                    val maxFileSizeAllowed = settings.uploadMaxFileSize()
+
+                    when {
+                        fileName.isEmpty() -> view.showInvalidFileMessage()
+                        fileSize > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0 ->
+                            view.showInvalidFileSize(fileSize, maxFileSizeAllowed)
+                        else -> {
+                            retryIO("uploadFile($roomId, $fileName, ${file.mimeType}") {
+                                client.uploadFile(
+                                    roomId,
+                                    fileName,
+                                    file.mimeType,
+                                    fileName,
+                                    description = fileName
+                                ) {
+                                    file.fis
+                                }
+                            }
+                            logMediaUploaded(file.mimeType)
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                Timber.d(ex, "Error uploading file")
+                when (ex) {
+                    is RocketChatException -> view.showMessage(ex)
+                    else -> view.showGenericErrorMessage()
                 }
             } finally {
                 view.hideLoading()

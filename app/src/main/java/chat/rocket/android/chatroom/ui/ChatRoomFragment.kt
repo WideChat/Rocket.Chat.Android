@@ -6,6 +6,7 @@ import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Bundle
@@ -67,6 +68,7 @@ import chat.rocket.android.helper.AndroidPermissionsHelper.hasWriteExternalStora
 import chat.rocket.android.helper.EndlessRecyclerViewScrollListener
 import chat.rocket.android.helper.KeyboardHelper
 import chat.rocket.android.helper.MessageParser
+import chat.rocket.android.sharehadler.ShareHandler
 import chat.rocket.android.util.extension.asObservable
 import chat.rocket.android.util.extension.createImageFile
 import chat.rocket.android.util.extensions.circularRevealOrUnreveal
@@ -82,8 +84,11 @@ import chat.rocket.android.util.extensions.textContent
 import chat.rocket.android.util.extensions.ui
 import chat.rocket.common.model.RoomType
 import chat.rocket.common.model.roomTypeOf
+import chat.rocket.common.util.ifNull
 import chat.rocket.core.internal.realtime.socket.model.State
 import com.bumptech.glide.Glide
+import com.bumptech.glide.request.target.SimpleTarget
+import com.bumptech.glide.request.transition.Transition
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Observable
@@ -328,6 +333,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         }
         getDraftMessage()
         subscribeComposeTextMessage()
+        handleShareIntent()
 
         analyticsManager.logScreenView(ScreenViewEvent.ChatRoom)
     }
@@ -1230,6 +1236,51 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         if (::emojiKeyboardPopup.isInitialized) {
             emojiKeyboardPopup.dismiss()
             setReactionButtonIcon(R.drawable.ic_reaction_24dp)
+        }
+    }
+
+    private fun handleShareIntent() {
+        if (ShareHandler.hasShare()) {
+            if (ShareHandler.hasSharedText()) {
+                sendMessage(ShareHandler.getTextAndClear())
+            }
+
+            if (ShareHandler.hasSharedFile()) {
+                ShareHandler.files.forEach { file ->
+                    /*if (file.mimeType.startsWith("image")) {
+                        val bitmap: Bitmap? = MediaStore.Images.Media.getBitmap(
+                            this.activity?.contentResolver,
+                            file.uri
+                        )
+
+                        bitmap?.let {
+                            presenter.uploadImage(
+                                chatRoomId,
+                                file.mimeType,
+                                file.uri,
+                                it,
+                                file.name
+                            )
+                        }.ifNull {
+                            presenter.uploadSharedFile(
+                                chatRoomId,
+                                file
+                            )
+                        }
+                    } else {
+                        presenter.uploadSharedFile(
+                            chatRoomId,
+                            file
+                        )
+                    }*/
+                    presenter.uploadSharedFile(
+                        chatRoomId,
+                        file
+                    )
+                }
+
+                ShareHandler.files.clear()
+            }
         }
     }
 }

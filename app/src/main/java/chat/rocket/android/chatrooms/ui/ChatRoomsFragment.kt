@@ -58,6 +58,7 @@ import chat.rocket.android.helper.UserHelper
 import chat.rocket.android.profile.ui.ProfileFragment
 import chat.rocket.android.server.domain.GetCurrentServerInteractor
 import chat.rocket.android.settings.ui.SettingsFragment
+import chat.rocket.android.sharehadler.ShareHandler
 import chat.rocket.android.util.extensions.avatarUrl
 import chat.rocket.android.util.extensions.ifNotNullNorEmpty
 import com.facebook.drawee.view.SimpleDraweeView
@@ -179,7 +180,17 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private fun subscribeUi() {
         ui {
             val adapter = RoomsAdapter { room ->
-                presenter.loadChatRoom(room)
+                if (ShareHandler.hasShare()) {
+                    presenter.canShareToRoom(room, {
+                        confirmShare(room) {
+                            presenter.loadChatRoom(room)
+                        }
+                    }, {
+                        showMessage(R.string.you_cant_send_here_readonly)
+                    })
+                } else {
+                    presenter.loadChatRoom(room)
+                }
             }
 
             recycler_view.layoutManager = LinearLayoutManager(it)
@@ -353,6 +364,25 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             }
         }
         return super.onOptionsItemSelected(item)
+    }
+
+    private fun confirmShare(room: RoomUiModel, onConfirmed: () -> Unit) {
+        ui {
+            val builder = AlertDialog.Builder(it)
+                .setTitle(getString(R.string.confirm_to_send, room.name))
+                .setPositiveButton(R.string.msg_send) { _, _ ->
+                    onConfirmed()
+                }
+                .setNegativeButton(R.string.cancel, null)
+
+            if (ShareHandler.hasSharedText()) {
+                builder.setMessage(ShareHandler.sharedText)
+            } else if (ShareHandler.hasSharedFile()) {
+                builder.setItems(ShareHandler.getFilesAsString(), null)
+            }
+
+            builder.show()
+        }
     }
 
     private fun updateSort() {
