@@ -1247,32 +1247,6 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
 
             if (ShareHandler.hasSharedFile()) {
                 ShareHandler.files.forEach { file ->
-                    /*if (file.mimeType.startsWith("image")) {
-                        val bitmap: Bitmap? = MediaStore.Images.Media.getBitmap(
-                            this.activity?.contentResolver,
-                            file.uri
-                        )
-
-                        bitmap?.let {
-                            presenter.uploadImage(
-                                chatRoomId,
-                                file.mimeType,
-                                file.uri,
-                                it,
-                                file.name
-                            )
-                        }.ifNull {
-                            presenter.uploadSharedFile(
-                                chatRoomId,
-                                file
-                            )
-                        }
-                    } else {
-                        presenter.uploadSharedFile(
-                            chatRoomId,
-                            file
-                        )
-                    }*/
                     presenter.uploadSharedFile(
                         chatRoomId,
                         file
