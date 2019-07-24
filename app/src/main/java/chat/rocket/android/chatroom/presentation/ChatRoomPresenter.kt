@@ -1383,8 +1383,6 @@ class ChatRoomPresenter @Inject constructor(
     }
 
     fun getMessageGroupingPeriod(): Int {
-        val period = settings.messageGroupingPeriod()
-        Timber.d("GROUPING_P_Presenter ${period}")
-        return period ?: 900 //Seconds
+        return settings.messageGroupingPeriod() ?: 900 //Seconds
     }
 }
