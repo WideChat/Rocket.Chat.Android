@@ -34,6 +34,7 @@ import chat.rocket.android.server.domain.hideTypeUserAdded
 import chat.rocket.android.server.domain.hideTypeUserJoined
 import chat.rocket.android.server.domain.hideTypeUserLeft
 import chat.rocket.android.server.domain.hideTypeUserRemoved
+import chat.rocket.android.server.domain.messageGroupingPeriod
 import chat.rocket.android.server.domain.uploadMaxFileSize
 import chat.rocket.android.server.domain.uploadMimeTypeFilter
 import chat.rocket.android.server.domain.useRealName
@@ -1379,5 +1380,11 @@ class ChatRoomPresenter @Inject constructor(
      */
     fun getDraftUnfinishedMessage(): String? {
         return localRepository.get(draftKey)
+    }
+
+    fun getMessageGroupingPeriod(): Int {
+        val period = settings.messageGroupingPeriod()
+        Timber.d("GROUPING_P_Presenter ${period}")
+        return period ?: 900 //Seconds
     }
 }

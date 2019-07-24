@@ -1,11 +1,14 @@
 package chat.rocket.android.chatroom.adapter
 
+import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.text.Spannable
 import android.text.method.LinkMovementMethod
 import android.text.style.ImageSpan
 import android.view.View
+import android.view.ViewGroup
+import androidx.core.view.isGone
 import androidx.core.view.isVisible
 import chat.rocket.android.R
 import chat.rocket.android.chatroom.uimodel.MessageUiModel
@@ -77,10 +80,28 @@ class MessageViewHolder(
                 read_receipt_view.isVisible = true
             }
 
-            image_avatar.setOnClickListener {
-                data.message.sender?.id?.let { userId ->
-                    avatarListener(userId)
+            if (!groupMessage) {
+                layout_avatar.isVisible = true
+                message_header.isVisible = true
+
+                (text_content.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                    marginStart = 16.toPx.toInt()
                 }
+
+                image_avatar.setOnClickListener {
+                    data.message.sender?.id?.let { userId ->
+                        avatarListener(userId)
+                    }
+                }
+            } else {
+                layout_avatar.isGone = true
+                message_header.isGone = true
+
+                (text_content.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                    marginStart = 56.toPx.toInt()
+                }
+
+                image_avatar.setOnClickListener(null)
             }
         }
     }
@@ -102,4 +123,7 @@ class MessageViewHolder(
             text_content.postDelayed(what, w)
         }
     }
+
+    private val Int.toPx: Float
+        get() = (this * Resources.getSystem().displayMetrics.density)
 }
