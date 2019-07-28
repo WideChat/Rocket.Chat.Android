@@ -614,6 +614,8 @@ class ChatRoomPresenter @Inject constructor(
                 Timber.d("Got new state: $state - last: $lastState")
                 if (state != lastState) {
                     launch(Dispatchers.Main) {
+                        logConnectionStateChange(lastState, state)
+                        analyticsManager.logSendMessageException(0, ex.toString(), currentServer)
                         view.showConnectionState(state)
                     }
 
@@ -625,6 +627,25 @@ class ChatRoomPresenter @Inject constructor(
                 lastState = state
             }
         }
+    }
+
+    private fun logConnectionStateChange(previousState: State, newState: State) {
+
+        var previousStateString = when (previousState) {
+            is State.Disconnected -> "Disconnected"
+            is State.Connecting -> "Connecting"
+            is State.Authenticating -> "Authenticating"
+            is State.Disconnecting -> "Disconnecting"
+            is State.Waiting -> "Waiting"
+        }
+        var newStateString = when (newState) {
+            is State.Disconnected -> "Disconnected"
+            is State.Connecting -> "Connecting"
+            is State.Authenticating -> "Authenticating"
+            is State.Disconnecting -> "Disconnecting"
+            is State.Waiting -> "Waiting"
+        }
+        analyticsManager.logConnectionStateChange(previousStateString, newStateString, currentServer)
     }
 
     private fun subscribeMessages(roomId: String) {

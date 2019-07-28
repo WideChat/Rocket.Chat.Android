@@ -53,10 +53,25 @@ class GoogleAnalyticsForFirebase @Inject constructor(val context: Context) :
             bssid = SharedPreferenceHelper.getString(Constants.LOCATION_PERMISSION, "none")
         }
 
-        firebaseAnalytics.logEvent("send_message_exception", Bundle(3).apply {
+        firebaseAnalytics.logEvent("send_message_exception", Bundle(4).apply {
             putString("wifi_bssid", bssid)
             putString("exception_description", exceptionDescription.take(100))
             putInt("count_to_send", countToSend)
+            putString("server", serverUrl)
+        })
+    }
+
+    override fun logConnectionStateChange(previousState: String, newState: String, serverUrl: String) {
+        var bssid = SharedPreferenceHelper.getString(Constants.CURRENT_BSSID, "none")
+        if (bssid == "none") {
+            bssid = SharedPreferenceHelper.getString(Constants.LOCATION_PERMISSION, "none")
+        }
+
+        firebaseAnalytics.logEvent("connection_state_change", Bundle(4).apply {
+            putString("wifi_bssid", bssid)
+            putString("previous_state", previousState)
+            putString("new_state", newState)
+            putString("server", serverUrl)
         })
     }
 
