@@ -409,6 +409,7 @@ class ChatRoomPresenter @Inject constructor(
                             ), false
                         )
                         clearDraftMessage()
+                        view.enableSendMessageButton()
                         client.sendMessage(id, chatRoomId, text)
                         messagesRepository.save(newMessage.copy(synced = true))
                         analyticsManager.logMessageSent(newMessage.type.toString(), currentServer)
@@ -430,6 +431,7 @@ class ChatRoomPresenter @Inject constructor(
                     }
                 } else {
                     clearDraftMessage()
+                    view.enableSendMessageButton()
                     client.updateMessage(chatRoomId, messageId, text)
                 }
             } catch (ex: Exception) {
