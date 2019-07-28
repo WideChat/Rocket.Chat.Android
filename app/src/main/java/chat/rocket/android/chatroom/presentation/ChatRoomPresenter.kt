@@ -615,7 +615,6 @@ class ChatRoomPresenter @Inject constructor(
                 if (state != lastState) {
                     launch(Dispatchers.Main) {
                         logConnectionStateChange(lastState, state)
-                        analyticsManager.logSendMessageException(0, ex.toString(), currentServer)
                         view.showConnectionState(state)
                     }
 
@@ -637,6 +636,8 @@ class ChatRoomPresenter @Inject constructor(
             is State.Authenticating -> "Authenticating"
             is State.Disconnecting -> "Disconnecting"
             is State.Waiting -> "Waiting"
+            is State.Connected -> "Connected"
+            is State.Created -> "Created"
         }
         var newStateString = when (newState) {
             is State.Disconnected -> "Disconnected"
@@ -644,6 +645,8 @@ class ChatRoomPresenter @Inject constructor(
             is State.Authenticating -> "Authenticating"
             is State.Disconnecting -> "Disconnecting"
             is State.Waiting -> "Waiting"
+            is State.Connected -> "Connected"
+            is State.Created -> "Created"
         }
         analyticsManager.logConnectionStateChange(previousStateString, newStateString, currentServer)
     }
