@@ -53,6 +53,12 @@ class AnalyticsManager @Inject constructor(
         }
     }
 
+    fun logConnectionStateChange(previousState: String, newState: String, serverUrl: String) {
+        if (analyticsTrackingInteractor.get()) {
+            analytics.forEach { it.logConnectionStateChange(previousState, newState, serverUrl) }
+        }
+    }
+
     fun logMediaUploaded(event: SubscriptionTypeEvent, mimeType: String) {
         if (analyticsTrackingInteractor.get()) {
             analytics.forEach { it.logMediaUploaded(event, mimeType) }

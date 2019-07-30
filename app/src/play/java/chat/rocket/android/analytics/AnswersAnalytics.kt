@@ -49,6 +49,17 @@ class AnswersAnalytics : Analytics {
                             .putCustomAttribute("server", serverUrl)
             )
 
+    override fun logConnectionStateChange(previousState: String, newState: String, serverUrl: String) {
+
+        Answers.getInstance()
+            .logCustom(
+                    CustomEvent("connection_state_change")
+                            .putCustomAttribute("previous_state", previousState)
+                            .putCustomAttribute("new_state", newState)
+                            .putCustomAttribute("server", serverUrl)
+            )
+    }
+
     override fun logMediaUploaded(event: SubscriptionTypeEvent, mimeType: String) =
         Answers.getInstance()
             .logCustom(
