@@ -8,6 +8,7 @@ import chat.rocket.android.server.domain.GetAccountsInteractor
 import chat.rocket.android.server.infraestructure.ConnectionManagerFactory
 import chat.rocket.android.server.infraestructure.DatabaseMessageMapper
 import chat.rocket.android.server.infraestructure.DatabaseMessagesRepository
+import chat.rocket.core.internal.realtime.socket.connect
 import chat.rocket.core.internal.rest.sendMessage
 import chat.rocket.core.model.Message
 import dagger.android.AndroidInjection
@@ -16,6 +17,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import chat.rocket.core.internal.realtime.socket.model.State
+
 
 class MessageService : JobService() {
     @Inject
@@ -56,6 +59,9 @@ class MessageService : JobService() {
             val client = factory.create(serverUrl).client
             temporaryMessages.forEach { message ->
                 try {
+                    if(client.state is State.Disconnected || client.state is State.Waiting){
+                        client.connect()
+                    }
                     client.sendMessage(
                         message = message.message,
                         messageId = message.id,
