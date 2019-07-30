@@ -106,6 +106,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     // handles that recurring connection status bug in widechat
     private var currentlyConnected: Boolean? = false
 
+    private var clickDisabled: Boolean = false
     companion object {
         private var isFABOpen: Boolean = false
         fun newInstance(chatRoomId: String? = null, deepLinkInfo: DeepLinkInfo? = null): ChatRoomsFragment {
@@ -179,7 +180,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
     private fun subscribeUi() {
         ui {
             val adapter = RoomsAdapter { room ->
-                presenter.loadChatRoom(room)
+                if (!clickDisabled) {
+                    clickDisabled = true
+                    presenter.loadChatRoom(room)
+                }
             }
 
             recycler_view.layoutManager = LinearLayoutManager(it)
@@ -436,6 +440,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun hideLoading() {
         view_loading.isVisible = false
+        clickDisabled = false
     }
 
     override fun showMessage(resId: Int) {
