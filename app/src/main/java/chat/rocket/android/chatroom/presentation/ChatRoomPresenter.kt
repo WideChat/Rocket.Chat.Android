@@ -436,9 +436,10 @@ class ChatRoomPresenter @Inject constructor(
                 }
             } catch (ex: Exception) {
                 Timber.e(ex, "Error sending message...")
+                view.enableSendMessageButton()
                 jobSchedulerInteractor.scheduleSendingMessages()
             } finally {
-                view.enableSendMessageButton()
+                //view.enableSendMessageButton()
             }
         }
     }
