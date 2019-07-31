@@ -12,7 +12,7 @@ data class AttachmentUiModel(
         override var reactions: List<ReactionUiModel>,
         override var nextDownStreamMessage: BaseUiModel<*>? = null,
         override var preview: Message?,
-        override var isTemporary: Boolean,
+        override var synced: Boolean,
         override var unread: Boolean?,
         override var currentDayMarkerText: String,
         override var showDayMarker: Boolean,
