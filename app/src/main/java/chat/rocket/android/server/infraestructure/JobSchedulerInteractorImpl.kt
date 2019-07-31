@@ -15,7 +15,7 @@ class JobSchedulerInteractorImpl @Inject constructor(
 ) : JobSchedulerInteractor {
 
     override fun scheduleSendingMessages() {
-        Timber.d("Scheduling synced messages to send...")
+        Timber.d("Scheduling unsent messages to send...")
         jobScheduler.schedule(jobInfo)
     }
 }
