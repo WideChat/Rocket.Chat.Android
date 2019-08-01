@@ -2,11 +2,13 @@ package chat.rocket.android.chatroom.service
 
 import android.app.job.JobParameters
 import android.app.job.JobService
+import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.db.DatabaseManagerFactory
 import chat.rocket.android.server.domain.GetAccountsInteractor
 import chat.rocket.android.server.infraestructure.ConnectionManagerFactory
 import chat.rocket.android.server.infraestructure.DatabaseMessageMapper
 import chat.rocket.android.server.infraestructure.DatabaseMessagesRepository
+import chat.rocket.core.internal.realtime.socket.connect
 import chat.rocket.core.internal.rest.sendMessage
 import chat.rocket.core.model.Message
 import dagger.android.AndroidInjection
@@ -15,6 +17,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
+import chat.rocket.core.internal.realtime.socket.model.State
+
 
 class MessageService : JobService() {
     @Inject
@@ -23,6 +27,8 @@ class MessageService : JobService() {
     lateinit var dbFactory: DatabaseManagerFactory
     @Inject
     lateinit var getAccountsInteractor: GetAccountsInteractor
+    @Inject
+    lateinit var analyticsManager: AnalyticsManager
 
     override fun onCreate() {
         super.onCreate()
@@ -53,6 +59,9 @@ class MessageService : JobService() {
             val client = factory.create(serverUrl).client
             temporaryMessages.forEach { message ->
                 try {
+                    if(client.state is State.Disconnected || client.state is State.Waiting){
+                        client.connect()
+                    }
                     client.sendMessage(
                         message = message.message,
                         messageId = message.id,
@@ -62,10 +71,13 @@ class MessageService : JobService() {
                         alias = message.senderAlias
                     )
                     messageRepository.save(message.copy(synced = true))
+                    analyticsManager.logMessageSent(message.type.toString(), serverUrl)
                     Timber.d("Sent scheduled message given by id: ${message.id}")
                 } catch (ex: Exception) {
+                    analyticsManager.logSendMessageException(temporaryMessages.size, ex.toString(), serverUrl)
                     Timber.e(ex)
                     // TODO - remove the generic message when we implement :userId:/message subscription
+
                     if (ex is IllegalStateException) {
                         Timber.e(ex, "Probably a read-only problem...")
                         // TODO: For now we are only going to reschedule when api is fixed.

@@ -51,6 +51,7 @@ import chat.rocket.common.model.UserStatus
 import chat.rocket.common.model.roomTypeOf
 import chat.rocket.common.util.ifNull
 import chat.rocket.core.internal.realtime.setTypingStatus
+import chat.rocket.core.internal.realtime.socket.connect
 import chat.rocket.core.internal.realtime.socket.model.State
 import chat.rocket.core.internal.realtime.subscribeTypingStatus
 import chat.rocket.core.internal.realtime.unsubscribe
@@ -120,8 +121,8 @@ class ChatRoomPresenter @Inject constructor(
     private val messagesChannel = Channel<Message>()
 
     private var chatRoomId: String? = null
-    private lateinit var chatRoomType: String
-    private lateinit var chatRoomName: String
+    lateinit var chatRoomType: String
+    lateinit var chatRoomName: String
     private var chatIsBroadcast: Boolean = false
     private var chatRoles = emptyList<ChatRoomRole>()
     private val stateChannel = Channel<State>()
@@ -372,6 +373,9 @@ class ChatRoomPresenter @Inject constructor(
         launchUI(strategy) {
             try {
                 view.disableSendMessageButton()
+                if(client.state is State.Disconnected || client.state is State.Waiting){
+                    client.connect()
+                }
                 // ignore message for now, will receive it on the stream
                 if (messageId == null) {
                     val id = UUID.randomUUID().toString()
@@ -411,8 +415,11 @@ class ChatRoomPresenter @Inject constructor(
                         )
                         client.sendMessage(id, chatRoomId, text)
                         messagesRepository.save(newMessage.copy(synced = true))
-                        logMessageSent()
+                        analyticsManager.logMessageSent(newMessage.type.toString(), currentServer)
+
                     } catch (ex: Exception) {
+                        analyticsManager.logSendMessageException(0, ex.toString(), currentServer)
+
                         // Ok, not very beautiful, but the backend sends us a not valid response
                         // When someone sends a message on a read-only channel, so we just ignore it
                         // and show a generic error message
@@ -613,6 +620,7 @@ class ChatRoomPresenter @Inject constructor(
                 Timber.d("Got new state: $state - last: $lastState")
                 if (state != lastState) {
                     launch(Dispatchers.Main) {
+                        logConnectionStateChange(lastState, state)
                         view.showConnectionState(state)
                     }
 
@@ -624,6 +632,29 @@ class ChatRoomPresenter @Inject constructor(
                 lastState = state
             }
         }
+    }
+
+    private fun logConnectionStateChange(previousState: State, newState: State) {
+
+        var previousStateString = when (previousState) {
+            is State.Disconnected -> "Disconnected"
+            is State.Connecting -> "Connecting"
+            is State.Authenticating -> "Authenticating"
+            is State.Disconnecting -> "Disconnecting"
+            is State.Waiting -> "Waiting"
+            is State.Connected -> "Connected"
+            is State.Created -> "Created"
+        }
+        var newStateString = when (newState) {
+            is State.Disconnected -> "Disconnected"
+            is State.Connecting -> "Connecting"
+            is State.Authenticating -> "Authenticating"
+            is State.Disconnecting -> "Disconnecting"
+            is State.Waiting -> "Waiting"
+            is State.Connected -> "Connected"
+            is State.Created -> "Created"
+        }
+        analyticsManager.logConnectionStateChange(previousStateString, newStateString, currentServer)
     }
 
     private fun subscribeMessages(roomId: String) {
@@ -1165,16 +1196,6 @@ class ChatRoomPresenter @Inject constructor(
             roomTypeOf(chatRoomType) is RoomType.Channel ->
                 analyticsManager.logMediaUploaded(SubscriptionTypeEvent.Channel, mimeType)
             else -> analyticsManager.logMediaUploaded(SubscriptionTypeEvent.Group, mimeType)
-        }
-    }
-
-    private fun logMessageSent() {
-        when {
-            roomTypeOf(chatRoomType) is RoomType.DirectMessage ->
-                analyticsManager.logMessageSent(SubscriptionTypeEvent.DirectMessage)
-            roomTypeOf(chatRoomType) is RoomType.Channel ->
-                analyticsManager.logMessageSent(SubscriptionTypeEvent.Channel)
-            else -> analyticsManager.logMessageSent(SubscriptionTypeEvent.Group)
         }
     }
 

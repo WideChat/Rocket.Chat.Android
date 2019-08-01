@@ -760,6 +760,7 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
 
     override fun showConnectionState(state: State) {
         Timber.d("Got new state: $state")
+       // Timber.d("Connection state changed") - connect this to FireBase somehow
 //        ui {
 //            text_connection_status.fadeIn()
 //            handler.removeCallbacks(dismissStatus)
