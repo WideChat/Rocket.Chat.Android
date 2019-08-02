@@ -617,8 +617,9 @@ class ChatRoomPresenter @Inject constructor(
             for (state in stateChannel) {
                 Timber.d("Got new state: $state - last: $lastState")
                 if (state != lastState) {
+                    logConnectionStateChange(lastState, state)
                     launch(Dispatchers.Main) {
-                        logConnectionStateChange(lastState, state)
+
                         view.showConnectionState(state)
                     }
 
