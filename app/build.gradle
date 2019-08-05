@@ -110,6 +110,8 @@ android {
 
     lintOptions {
         lintConfig file("src/main/res/xml/lint.xml")
+
+        disable 'MissingTranslation'
     }
 }
 
