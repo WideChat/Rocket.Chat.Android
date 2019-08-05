@@ -25,8 +25,8 @@ class ShareAppHelper @Inject constructor(
 			val deepLinkCallback = { returnedString: String? ->
 				with(Intent(Intent.ACTION_SEND)) {
 					type = "text/plain"
-					putExtra(Intent.EXTRA_SUBJECT, context.getString(R.string.msg_check_this_out))
-					putExtra(Intent.EXTRA_TEXT, "Default Invitation Text : $returnedString")
+					putExtra(Intent.EXTRA_SUBJECT, String.format(context.getString(R.string.default_invitation_subject), userName))
+					putExtra(Intent.EXTRA_TEXT, String.format(context.getString(R.string.default_invitation_text), returnedString))
 					context.startActivity(Intent.createChooser(this, context.getString(R.string.msg_share_using)))
 				}
 			}
