@@ -418,7 +418,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="save">SAVE</string>
     <string name="no_thanks">NO THANKS</string>
     <string name="chat_with">Chat with %1$s on %2$s</string>
-    <string name="default_invitation_text">Viasat Connect is an app I use to message friends and family. Come join the chat at %1$s</string>
+    <string name="default_invitation_text">Viasat Connect is a new application that makes it easy for me to text with friends and family. Download the application here %1$s and connect with me.</string>
     <string name="default_invitation_subject">Your friend %1$s has invited you to chat on Viasat Connect</string>
 
     <!--WIDECHAT PERMISSIONS-->
