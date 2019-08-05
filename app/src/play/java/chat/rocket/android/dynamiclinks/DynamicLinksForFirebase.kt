@@ -40,7 +40,7 @@ class DynamicLinksForFirebase @Inject constructor(private var context: Context) 
             .setSocialMetaTagParameters(
                     DynamicLink.SocialMetaTagParameters.Builder()
                             .setTitle(username)
-                            .setDescription("Chat with $username on " + context.getString(R.string.widechat_server_url))
+                            .setDescription(String.format(context.getString(R.string.chat_with), username, " ") + context.getString(R.string.app_name))
                             .build())
             .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT)
             .addOnSuccessListener { result ->

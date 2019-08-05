@@ -389,6 +389,9 @@
     <string name="invite_realname_prompt">Agrega tu nombre a la invitación para que tu amigo sepa quién eres.</string>
     <string name="save">SALVAR</string>
     <string name="no_thanks">NO GRACIAS</string>
+    <string name="chat_with">Chat con %1$s en %2$s</string>
+    <string name="default_invitation_text">Viasat Connect es una aplicación que uso para enviar mensajes a amigos y familiares. Ven y únete al chat en %1$s</string>
+    <string name="default_invitation_subject">Tu amigo %1$s te ha invitado a chatear en Viasat Connect</string>
 
     <!--WIDECHAT PERMISSIONS-->
     <string name="contact_permissions_request">Para conectarse fácilmente con amigos y familiares, permita que Viasat Connect acceda a sus contactos.</string>
