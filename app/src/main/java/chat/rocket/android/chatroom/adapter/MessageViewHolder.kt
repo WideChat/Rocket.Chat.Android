@@ -82,9 +82,9 @@ class MessageViewHolder(
 
             if (!groupMessage) {
                 layout_avatar.isVisible = true
-                message_header.isVisible = true
+                text_sender.isVisible = true
 
-                (text_content.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                (message_flex_layout.layoutParams as ViewGroup.MarginLayoutParams).apply {
                     marginStart = 16.toPx.toInt()
                 }
 
@@ -95,9 +95,9 @@ class MessageViewHolder(
                 }
             } else {
                 layout_avatar.isGone = true
-                message_header.isGone = true
+                text_sender.isGone = true
 
-                (text_content.layoutParams as ViewGroup.MarginLayoutParams).apply {
+                (message_flex_layout.layoutParams as ViewGroup.MarginLayoutParams).apply {
                     marginStart = 56.toPx.toInt()
                 }
 

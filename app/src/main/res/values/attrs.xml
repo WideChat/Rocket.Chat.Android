@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MessageFlexLayout">
+        <attr name="viewMain" format="reference" />
+        <attr name="viewSlave" format="reference" />
+    </declare-styleable>
+</resources>

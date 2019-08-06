@@ -116,57 +116,72 @@
                 android:maxLength="22"
                 tools:text="User Name with long name" />
 
-            <TextView
-                android:id="@+id/text_message_time"
-                style="@style/ChatRoom.Timestamp.TextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                tools:text="11:45 PM" />
-
-            <TextView
-                android:id="@+id/text_edit_indicator"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:text="@string/msg_edited"
-                android:textStyle="italic"
-                android:visibility="invisible"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/image_star_indicator"
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_gravity="center_vertical"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="2dp"
-                android:visibility="invisible"
-                app:srcCompat="@drawable/ic_action_message_star_24dp"
-                tools:visibility="visible" />
-
-            <ImageView
-                android:id="@+id/read_receipt_view"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:visibility="invisible"
-                app:srcCompat="@drawable/ic_check_unread_24dp"
-                tools:visibility="visible" />
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/text_content"
-            style="@style/Message.TextView"
+        <chat.rocket.android.chatroom.ui.MessageFlexLayout
+            android:id="@+id/message_flex_layout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:layout_marginTop="5dp"
-            android:layout_marginEnd="4dp"
-            android:layout_marginBottom="2dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/layout_avatar"
             app:layout_constraintTop_toBottomOf="@+id/message_header"
-            tools:text="This is a multiline chat message from Bertie that will take more than just one line of text. I have sure that everything is amazing!" />
+            app:viewMain="@+id/text_content"
+            app:viewSlave="@+id/layout_message_details_container">
+
+            <TextView
+                android:id="@+id/text_content"
+                style="@style/Message.TextView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="This is a multiline chat message from Bertie that will take more than just one line of text. I have sure that everything is amazing!" />
+
+            <LinearLayout
+                android:id="@+id/layout_message_details_container"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/text_message_time"
+                    style="@style/ChatRoom.Timestamp.TextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    tools:text="11:45 PM" />
+
+                <TextView
+                    android:id="@+id/text_edit_indicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:text="@string/msg_edited"
+                    android:textStyle="italic"
+                    android:visibility="invisible"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/image_star_indicator"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="4dp"
+                    android:visibility="invisible"
+                    app:srcCompat="@drawable/ic_action_message_star_24dp"
+                    tools:visibility="visible" />
+
+                <ImageView
+                    android:id="@+id/read_receipt_view"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:visibility="invisible"
+                    app:srcCompat="@drawable/ic_check_unread_24dp"
+                    tools:visibility="visible" />
+
+            </LinearLayout>
+
+        </chat.rocket.android.chatroom.ui.MessageFlexLayout>
 
         <Button
             android:id="@+id/button_join_video_call"
@@ -175,16 +190,16 @@
             android:background="@color/colorAccent"
             android:text="@string/msg_join_video_call"
             android:visibility="gone"
-            app:layout_constraintStart_toStartOf="@+id/text_content"
-            app:layout_constraintTop_toBottomOf="@+id/text_content" />
+            app:layout_constraintStart_toStartOf="@+id/message_flex_layout"
+            app:layout_constraintTop_toBottomOf="@+id/message_flex_layout" />
 
         <include
             layout="@layout/layout_reactions"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintEnd_toEndOf="@+id/text_content"
-            app:layout_constraintStart_toStartOf="@+id/text_content"
-            app:layout_constraintTop_toBottomOf="@+id/text_content" />
+            app:layout_constraintEnd_toEndOf="@+id/message_flex_layout"
+            app:layout_constraintStart_toStartOf="@+id/message_flex_layout"
+            app:layout_constraintTop_toBottomOf="@+id/message_flex_layout" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
