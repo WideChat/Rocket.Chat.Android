@@ -473,7 +473,7 @@ class ChatRoomPresenter @Inject constructor(
                         view.showInvalidFileMessage()
                     } else {
                         val byteArray =
-                            bitmap.getByteArray(mimeType, 100, settings.uploadMaxFileSize())
+                            bitmap.getByteArray(mimeType, 75, settings.uploadMaxFileSize())
                         retryIO("uploadFile($roomId, $fileName, $mimeType") {
                             client.uploadFile(
                                 roomId,
