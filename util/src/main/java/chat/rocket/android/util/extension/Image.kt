@@ -103,6 +103,7 @@ fun String.getCompressFormat(): Bitmap.CompressFormat {
 fun String.lossyCompressible(): Boolean {
     return when {
         this.contains("jpeg") -> true
+        this.contains("png") -> true
         this.contains("webp") -> true
         else -> false
     }
