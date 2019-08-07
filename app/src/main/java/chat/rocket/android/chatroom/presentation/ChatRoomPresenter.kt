@@ -89,6 +89,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import timber.log.Timber
+import java.io.InvalidObjectException
 import java.util.*
 import javax.inject.Inject
 
@@ -412,6 +413,8 @@ class ChatRoomPresenter @Inject constructor(
                                 RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast)
                             ), false
                         )
+                        clearDraftMessage()
+                        view.enableSendMessageButton()
                         client.sendMessage(id, chatRoomId, text)
                         messagesRepository.save(newMessage.copy(synced = true))
                         analyticsManager.logMessageSent(newMessage.type.toString(), currentServer)
@@ -432,15 +435,16 @@ class ChatRoomPresenter @Inject constructor(
                         }
                     }
                 } else {
+                    clearDraftMessage()
+                    view.enableSendMessageButton()
                     client.updateMessage(chatRoomId, messageId, text)
                 }
-                clearDraftMessage()
             } catch (ex: Exception) {
                 Timber.e(ex, "Error sending message...")
+                view.enableSendMessageButton()
                 jobSchedulerInteractor.scheduleSendingMessages()
             } finally {
-                view.clearMessageComposition(true)
-                view.enableSendMessageButton()
+                //view.enableSendMessageButton()
             }
         }
     }
@@ -472,7 +476,7 @@ class ChatRoomPresenter @Inject constructor(
                         view.showInvalidFileMessage()
                     } else {
                         val byteArray =
-                            bitmap.getByteArray(mimeType, 100, settings.uploadMaxFileSize())
+                            bitmap.getByteArray(mimeType, 60, settings.uploadMaxFileSize())
                         retryIO("uploadFile($roomId, $fileName, $mimeType") {
                             client.uploadFile(
                                 roomId,
@@ -492,6 +496,7 @@ class ChatRoomPresenter @Inject constructor(
                 Timber.d(ex, "Error uploading image")
                 when (ex) {
                     is RocketChatException -> view.showMessage(ex)
+                    is InvalidObjectException -> view.showInvalidFileSize(bitmap.getByteCount(), settings.uploadMaxFileSize())
                     else -> view.showGenericErrorMessage()
                 }
             } finally {
@@ -617,8 +622,9 @@ class ChatRoomPresenter @Inject constructor(
             for (state in stateChannel) {
                 Timber.d("Got new state: $state - last: $lastState")
                 if (state != lastState) {
+                    logConnectionStateChange(lastState, state)
                     launch(Dispatchers.Main) {
-                        logConnectionStateChange(lastState, state)
+
                         view.showConnectionState(state)
                     }
 
@@ -1362,6 +1368,7 @@ class ChatRoomPresenter @Inject constructor(
     }
 
     fun clearDraftMessage() {
+        view.clearMessageComposition(true)
         localRepository.clear(draftKey)
     }
     /**

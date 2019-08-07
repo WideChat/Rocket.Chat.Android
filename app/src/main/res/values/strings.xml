@@ -318,6 +318,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="title_files_total">Files (%d)</string>
     <string name="msg_no_files">No files</string>
     <string name="msg_all_files_appear_here">All the files appear here</string>
+    <string name="save_image_directory_name">Viasat Connect Images</string>
 
     <!-- Upload Messages -->
     <string name="max_file_size_exceeded">File size %1$d bytes exceeded max upload size of %2$d bytes</string>
@@ -414,9 +415,16 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="menu_button_description">Menu</string>
 
     <!--WIDECHAT INVITES-->
+    <string name="invitation_sms_success">The invitation was sent</string>
+    <string name="invitation_sms_failed">Sending of invitation failed</string>
+    <string name="invitation_email_success">The invitation was sent</string>
+    <string name="invitation_email_failed">Sending of invitation failed</string>
     <string name="invite_realname_prompt">Add your name to the invite so your friend will know who you are.</string>
     <string name="save">SAVE</string>
     <string name="no_thanks">NO THANKS</string>
+    <string name="chat_with">Chat with %1$s on %2$s</string>
+    <string name="default_invitation_text">Viasat Connect is a new application that makes it easy for me to text with friends and family. Download the application here %1$s and connect with me.</string>
+    <string name="default_invitation_subject">Your friend %1$s has invited you to chat on Viasat Connect</string>
 
     <!--WIDECHAT PERMISSIONS-->
     <string name="contact_permissions_request">To easily connect with friends and family, allow Viasat Connect access to your contacts.</string>

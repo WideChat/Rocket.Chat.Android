@@ -221,10 +221,10 @@ class ContactsPresenter @Inject constructor(
                 val result:Boolean = retryIO("inviteViaEmail") { client.inviteViaEmail(email, Locale.getDefault().getLanguage(), realname) }
                 if (result) {
                     analyticsManager.logInviteSent("email", true)
-                    view.showMessage("Invitation Email Sent")
+                    view.showMessage(R.string.invitation_email_success)
                 } else{
                     analyticsManager.logInviteSent("email", false)
-                    view.showMessage("Failed to send Invitation Email")
+                    view.showMessage(R.string.invitation_email_failed)
                 }
             } catch (ex: Exception) {
                 analyticsManager.logInviteSent("email", false)
@@ -251,10 +251,10 @@ class ContactsPresenter @Inject constructor(
                 val result:Boolean = retryIO("inviteViaSMS") { client.inviteViaSMS(phone, Locale.getDefault().getLanguage(), realname) }
                 if (result) {
                     analyticsManager.logInviteSent("sms", true)
-                    view.showMessage("Invitation SMS Sent")
+                    view.showMessage(R.string.invitation_sms_success)
                 } else{
                     analyticsManager.logInviteSent("sms", false)
-                    view.showMessage("Failed to send Invitation SMS")
+                    view.showMessage(R.string.invitation_sms_failed)
                 }
             } catch (ex: Exception) {
                 analyticsManager.logInviteSent("sms", false)
