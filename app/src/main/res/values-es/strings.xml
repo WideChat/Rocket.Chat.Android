@@ -286,6 +286,7 @@
     <string name="title_files_total">Archivos (%d)</string>
     <string name="msg_no_files">Sin archivos</string>
     <string name="msg_all_files_appear_here">Todos los archivos aparecen aquí</string>
+    <string name="save_image_directory_name">Imágenes Viasat Connect</string>
 
     <!-- Upload Messages -->
     <string name="max_file_size_exceeded">Tamaño del archivo (%1$d bytes) excedió el tamaño máximo de carga de %2$d bytes</string>

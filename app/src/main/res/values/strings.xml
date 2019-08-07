@@ -318,6 +318,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="title_files_total">Files (%d)</string>
     <string name="msg_no_files">No files</string>
     <string name="msg_all_files_appear_here">All the files appear here</string>
+    <string name="save_image_directory_name">Viasat Connect Images</string>
 
     <!-- Upload Messages -->
     <string name="max_file_size_exceeded">File size %1$d bytes exceeded max upload size of %2$d bytes</string>
