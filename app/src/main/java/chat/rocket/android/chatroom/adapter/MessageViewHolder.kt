@@ -70,7 +70,7 @@ class MessageViewHolder(
                 read_receipt_view.setImageResource(
                     if (data.synced == false) {
                         R.drawable.ic_check_unsent_24dp
-                    } else if (data.unread == false) {
+                    } else if (data.unread == true) {
                         R.drawable.ic_check_uploaded_24dp
                     } else {
                         R.drawable.ic_check_read_24dp
