@@ -1,6 +1,7 @@
 package chat.rocket.android.main.ui
 
 import DrawableHelper
+import android.annotation.SuppressLint
 import android.app.Activity
 import androidx.appcompat.app.AlertDialog
 import android.app.ProgressDialog
@@ -401,6 +402,7 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
     }
 
     // WIDECHAT
+    @SuppressLint("NewApi")
     override fun onRequestPermissionsResult(requestCode: Int,
                                             permissions: Array<String>,
                                             grantResults: IntArray) {

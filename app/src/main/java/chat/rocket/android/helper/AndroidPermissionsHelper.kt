@@ -1,6 +1,7 @@
 package chat.rocket.android.helper
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.pm.PackageManager
@@ -64,6 +65,7 @@ object AndroidPermissionsHelper {
         return checkPermission(context, Manifest.permission.READ_CONTACTS)
     }
 
+    @SuppressLint("NewApi")
     fun getContactsPermissions(activity: Activity) {
         activity.requestPermissions(
                 arrayOf(Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS),
