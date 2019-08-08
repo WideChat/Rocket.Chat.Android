@@ -498,6 +498,7 @@ class ContactsFragment : Fragment(), ContactsView {
             contactsList.add(ContactsItemHolder(contact))
         }
 
+        finalList.add(InviteItemHolder("invite"))
         finalList.addAll(userList)
         if(contactsList.size > 0 && !enableGroups) {
             finalList.add(ContactsHeaderItemHolder(getString(R.string.Invite_contacts)))
@@ -512,7 +513,6 @@ class ContactsFragment : Fragment(), ContactsView {
                 }
             }
         }
-        finalList.add(InviteItemHolder("invite"))
         return finalList
     }
 
@@ -527,8 +527,8 @@ class ContactsFragment : Fragment(), ContactsView {
             finalList.add(InviteItemHolder("invite"))
         } else {
             finalList.add(ContactsHeaderItemHolder(getString(R.string.Invite_contacts)))
-            finalList.add(PermissionsItemHolder("request_permissions"))
             finalList.add(InviteItemHolder("invite"))
+            finalList.add(PermissionsItemHolder("request_permissions"))
         }
         return finalList
     }

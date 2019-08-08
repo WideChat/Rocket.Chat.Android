@@ -144,6 +144,10 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
     private fun widechatOnItemClick(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
         when (parent?.getItemAtPosition(position).toString()) {
             resources.getStringArray(R.array.widechat_settings_actions)[0] -> {
+                shareApp()
+            }
+
+            resources.getStringArray(R.array.widechat_settings_actions)[1] -> {
                 (activity as AppCompatActivity).addFragmentBackStack(
                     TAG_PREFERENCES_FRAGMENT,
                     R.id.fragment_container
@@ -152,17 +156,13 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
                 }
             }
 
-            resources.getStringArray(R.array.widechat_settings_actions)[1] -> {
+            resources.getStringArray(R.array.widechat_settings_actions)[2] -> {
                 (activity as AppCompatActivity).addFragmentBackStack(
                         TAG_PRIVACY_FRAGMENT,
                         R.id.fragment_container
                 ) {
                     PrivacyFragment.newInstance()
                 }
-            }
-
-            resources.getStringArray(R.array.widechat_settings_actions)[2] -> {
-                shareApp()
             }
 
             resources.getStringArray(R.array.widechat_settings_actions)[3] -> {
