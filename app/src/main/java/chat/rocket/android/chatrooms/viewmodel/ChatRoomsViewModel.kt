@@ -33,7 +33,7 @@ import timber.log.Timber
 import java.lang.IllegalArgumentException
 import kotlin.coroutines.coroutineContext
 
-//test
+// WIDECHAT
 import chat.rocket.android.chatrooms.adapter.model.RoomUiModel
 
 class ChatRoomsViewModel(
