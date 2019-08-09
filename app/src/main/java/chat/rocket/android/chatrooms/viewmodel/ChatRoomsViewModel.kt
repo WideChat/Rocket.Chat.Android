@@ -33,6 +33,9 @@ import timber.log.Timber
 import java.lang.IllegalArgumentException
 import kotlin.coroutines.coroutineContext
 
+//test
+import chat.rocket.android.chatrooms.adapter.model.RoomUiModel
+
 class ChatRoomsViewModel(
     private val connectionManager: ConnectionManager,
     private val interactor: FetchChatRoomsInteractor,
@@ -61,14 +64,25 @@ class ChatRoomsViewModel(
                     val rooms = repository.search(string).let { mapper.map(it, showLastMessage = this.showLastMessage) }
                     data.postValue(rooms.toMutableList() + LoadingItemHolder())
 
-
+                    var repoSearchRoomIds = ArrayList<String>()
+                    rooms.forEach { room ->
+                        var thisRoom: RoomUiModel = room.data as RoomUiModel
+                        repoSearchRoomIds.add(thisRoom.id)
+                    }
                     if (!coroutineContext.isActive) return@wrap
 
                     val spotlight = spotlight(query.query)?.let { mapper.map(it, showLastMessage = this.showLastMessage) }
+                    val spotlightFiltered =  ArrayList<ItemHolder<*>>()
+                    spotlight?.forEach { room ->
+                        var thisRoom: RoomUiModel = room.data as RoomUiModel
+                        if (thisRoom.id !in repoSearchRoomIds) {
+                            spotlightFiltered.add(room)
+                        }
+                    }
                     if (!coroutineContext.isActive) return@wrap
 
-                    spotlight?.let {
-                        data.postValue(rooms.toMutableList() + spotlight)
+                    spotlightFiltered?.let {
+                        data.postValue(rooms.toMutableList() + spotlightFiltered)
                     }.ifNull {
                         data.postValue(rooms)
                     }
