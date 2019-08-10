@@ -544,9 +544,9 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
             if (ShareHandler.hasShare()){
                 with((activity as AppCompatActivity?)){
-                    this?.toolbar?.title = "Share with"
+                    this?.toolbar?.title = getString(R.string.share_with)
                     this?.toolbar?.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
-                    this?.toolbar?.navigationContentDescription = "Back"
+                    this?.toolbar?.navigationContentDescription = getString(R.string.go_back_button_description)
                     this?.toolbar?.setNavigationOnClickListener {
                         ShareHandler.clear()
                         setupToolbar()

@@ -414,5 +414,11 @@
     <!-- Report -->
     <string name="submit">Submit</string> <!--TODO - Add proper translation-->
     <string name="required">*required</string> <!--TODO - Add proper translation-->
-    <string name="report_sent">Your report has been sent!</string> <!--TODO - Add proper translation-->
+    <string name="report_sent">Your report has been sent!</string>
+
+    <!-- Share -->
+    <string name="share_with">Compartir con</string>
+    <string name="confirm_to_send">¿Compartir con %1$s?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="you_cant_send_here_readonly">No puedes enviar aquí, solo leer canal</string>
 </resources>
