@@ -9,90 +9,93 @@ import android.widget.TextView
 import chat.rocket.android.R
 
 class MessageFlexLayout : RelativeLayout {
-    private var viewMain: TextView? = null
-    private var viewSlave: View? = null
+    private var viewPrimary: TextView? = null
+    private var viewSecondary: View? = null
+    private var maxWidth: Float = 0F
 
     private lateinit var attributes: TypedArray
-
-    private var viewMainLayoutParams: LayoutParams? = null
-    private var viewMainWidth: Int = 0
-    private var viewMainHeight: Int = 0
-
-    private var viewSlaveLayoutParams: LayoutParams? = null
-    private var viewSlaveWidth: Int = 0
-    private var viewSlaveHeight: Int = 0
 
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
         attributes = context.obtainStyledAttributes(attrs, R.styleable.MessageFlexLayout, 0, 0)
+        val defaultMaxWidth = (260 * resources.displayMetrics.density).toInt()
+        maxWidth = attributes.getDimensionPixelSize(
+            R.styleable.MessageFlexLayout_maxWidth,
+            defaultMaxWidth
+        ).toFloat()
     }
 
     override fun onAttachedToWindow() {
         super.onAttachedToWindow()
 
         try {
-            viewMain = this.findViewById<View>(
-                attributes.getResourceId(
-                    R.styleable.MessageFlexLayout_viewMain,
-                    -1
+            viewPrimary =
+                this.findViewById(
+                    attributes.getResourceId(
+                        R.styleable.MessageFlexLayout_viewPrimary,
+                        -1
+                    )
                 )
-            ) as TextView
-            viewSlave = this.findViewById<View>(
-                attributes.getResourceId(
-                    R.styleable.MessageFlexLayout_viewSlave,
-                    -1
+            viewSecondary =
+                this.findViewById(
+                    attributes.getResourceId(
+                        R.styleable.MessageFlexLayout_viewSecondary,
+                        -1
+                    )
                 )
-            )
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-
         var widthSize = MeasureSpec.getSize(widthMeasureSpec)
         var heightSize = MeasureSpec.getSize(heightMeasureSpec)
 
-        if (viewMain == null || viewSlave == null || widthSize <= 0) {
+        var availableWidth = widthSize - paddingLeft - paddingRight
+        var availableHeight = heightSize - paddingTop - paddingBottom
+
+        /*viewPrimary!!.measure(
+            MeasureSpec.makeMeasureSpec(maxWidth.toInt(), MeasureSpec.AT_MOST),
+            heightMeasureSpec
+        )*/
+
+        //availableWidth = min(availableWidth, maxWidth.toInt())
+
+        if (viewPrimary == null || viewSecondary == null || widthSize <= 0) {
             return
         }
 
-        val availableWidth = widthSize - paddingLeft - paddingRight
-        val availableHeight = heightSize - paddingTop - paddingBottom
+        val viewPrimaryLayoutParams = viewPrimary!!.layoutParams as LayoutParams
+        val viewPrimaryWidth =
+            viewPrimary!!.measuredWidth + viewPrimaryLayoutParams.leftMargin + viewPrimaryLayoutParams.rightMargin
+        val viewPrimaryHeight =
+            viewPrimary!!.measuredHeight + viewPrimaryLayoutParams.topMargin + viewPrimaryLayoutParams.bottomMargin
 
-        viewMainLayoutParams = viewMain!!.layoutParams as LayoutParams
-        viewMainWidth =
-            viewMain!!.measuredWidth + viewMainLayoutParams!!.leftMargin + viewMainLayoutParams!!.rightMargin
-        viewMainHeight =
-            viewMain!!.measuredHeight + viewMainLayoutParams!!.topMargin + viewMainLayoutParams!!.bottomMargin
+        val viewSecondaryLayoutParams = viewSecondary!!.layoutParams as LayoutParams
+        val viewSecondaryWidth =
+            viewSecondary!!.measuredWidth + viewSecondaryLayoutParams.leftMargin + viewSecondaryLayoutParams.rightMargin
+        val viewSecondaryHeight =
+            viewSecondary!!.measuredHeight + viewSecondaryLayoutParams.topMargin + viewSecondaryLayoutParams.bottomMargin
 
-        viewSlaveLayoutParams = viewSlave!!.layoutParams as LayoutParams?
-        viewSlaveWidth =
-            viewSlave!!.measuredWidth + viewSlaveLayoutParams!!.leftMargin + viewSlaveLayoutParams!!.rightMargin
-        viewSlaveHeight =
-            viewSlave!!.measuredHeight + viewSlaveLayoutParams!!.topMargin + viewSlaveLayoutParams!!.bottomMargin
-
-        val viewMainLineCount = viewMain!!.lineCount
-        val viewMainLastLineWidth = when (viewMainLineCount > 0) {
-            true -> viewMain!!.layout.getLineWidth(viewMainLineCount - 1)
-            else -> 0F
-        }
+        val viewPrimaryLineCount = viewPrimary!!.lineCount
+        val viewPrimaryLastLineWidth =
+            if (viewPrimaryLineCount > 0) viewPrimary!!.layout.getLineWidth(viewPrimaryLineCount - 1) else 0F
 
         widthSize = paddingLeft + paddingRight
         heightSize = paddingTop + paddingBottom
 
-        if (viewMainLineCount > 0 && (viewMainLastLineWidth + viewSlaveWidth < viewMain!!.measuredWidth)) {
-            widthSize += viewMainWidth
-            heightSize += viewMainHeight
-        } else if (viewMainLineCount > 0 && (viewMainLastLineWidth + viewSlaveWidth >= availableWidth)) {
-            widthSize += viewMainWidth
-            heightSize += viewMainHeight + viewSlaveHeight
+        if (viewPrimaryLineCount > 0 && (viewPrimaryLastLineWidth + viewSecondaryWidth) < viewPrimary!!.measuredWidth) {
+            widthSize += viewPrimaryWidth
+            heightSize += viewPrimaryHeight
+        } else if (viewPrimaryLineCount > 0 && (viewPrimaryLastLineWidth + viewSecondaryWidth) >= availableWidth) {
+            widthSize += viewPrimaryWidth
+            heightSize += viewPrimaryHeight + viewSecondaryHeight
         } else {
-            widthSize += viewMainWidth + viewSlaveWidth
-            heightSize += viewMainHeight
+            widthSize += viewPrimaryWidth + viewSecondaryWidth
+            heightSize += viewPrimaryHeight
         }
 
         this.setMeasuredDimension(widthSize, heightSize)
@@ -105,20 +108,20 @@ class MessageFlexLayout : RelativeLayout {
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
         super.onLayout(changed, left, top, right, bottom)
 
-        if (viewMain == null || viewSlave == null) {
+        if (viewPrimary == null || viewSecondary == null) {
             return
         }
 
-        viewMain!!.layout(
+        viewPrimary!!.layout(
             paddingLeft,
             paddingTop,
-            viewMain!!.width + paddingLeft,
-            viewMain!!.height + paddingTop
+            viewPrimary!!.width + paddingLeft,
+            viewPrimary!!.height + paddingTop
         )
 
-        viewSlave!!.layout(
-            right - left - viewSlaveWidth - paddingRight,
-            bottom - top - paddingBottom - viewSlaveHeight,
+        viewSecondary!!.layout(
+            right - left - viewSecondary!!.width - paddingRight,
+            bottom - top - paddingBottom - viewSecondary!!.height,
             right - left - paddingRight,
             bottom - top - paddingBottom
         )
