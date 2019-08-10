@@ -448,7 +448,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="report_sent">Your report has been sent!</string>
 
     <!-- Share -->
-    <string name="confirm_to_send">Send to %1$s?</string>
+    <string name="confirm_to_send">Share with %1$s?</string>
     <string name="cancel">Cancel</string>
     <string name="you_cant_send_here_readonly">You can\'t send here, readonly channel</string>
 </resources>

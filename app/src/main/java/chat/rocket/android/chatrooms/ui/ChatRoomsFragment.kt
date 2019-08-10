@@ -144,9 +144,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         if (Constants.WIDECHAT) {
             widechat_welcome_to_app.isVisible = false
             widechat_text_no_data_to_display.isVisible = false
-            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
             clearSearch()
         }
+        setupToolbar()
+        activity?.invalidateOptionsMenu()
         setCurrentUserStatusIcon()
         super.onResume()
     }
@@ -190,10 +191,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                         showMessage(R.string.you_cant_send_here_readonly)
                     })
                 } else {
-                  if (!clickDisabled) {
-                      clickDisabled = true
-                      presenter.loadChatRoom(room)
-                  }
+                    if (!clickDisabled) {
+                        clickDisabled = true
+                        presenter.loadChatRoom(room)
+                    }
                 }
             }
 
@@ -260,6 +261,10 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
+
+        if (ShareHandler.hasShare()){
+            return
+        }
 
         if (Constants.WIDECHAT) {
             inflater.inflate(R.menu.widechat_chatrooms, menu)
@@ -536,6 +541,21 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
     private fun setupToolbar() {
         if (Constants.WIDECHAT) {
+
+            if (ShareHandler.hasShare()){
+                with((activity as AppCompatActivity?)){
+                    this?.toolbar?.title = "Share with"
+                    this?.toolbar?.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+                    this?.toolbar?.navigationContentDescription = "Back"
+                    this?.toolbar?.setNavigationOnClickListener {
+                        ShareHandler.clear()
+                        setupToolbar()
+                        invalidateOptionsMenu()
+                    }
+                }
+                return
+            }
+
             with((activity as MainActivity).toolbar) {
                 title = null
                 navigationIcon = null
