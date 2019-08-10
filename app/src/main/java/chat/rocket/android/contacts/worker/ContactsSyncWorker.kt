@@ -171,7 +171,19 @@ class ContactsSyncWorker(context : Context, params : WorkerParameters)
     }
 
     private fun formatPhoneNumber(phone: String, country:String): String? {
-        return PhoneNumberUtils.formatNumberToE164(phone.replace("-|\\s|\\(|\\)".toRegex(), ""), country)
+        var number = PhoneNumberUtils.formatNumberToE164(phone.replace("-|\\s|\\(|\\)".toRegex(), ""), country)
+
+        // Default fallback: Mexico
+        if (number==null) {
+            number = PhoneNumberUtils.formatNumberToE164(phone.replace("-|\\s|\\(|\\)".toRegex(), ""), "MX")
+        }
+
+        // Default fallback, second priority: US
+        if (number==null) {
+            number = PhoneNumberUtils.formatNumberToE164(phone.replace("-|\\s|\\(|\\)".toRegex(), ""), "US")
+        }
+
+        return number
     }
 
 }

@@ -32,10 +32,28 @@ interface Analytics {
     /**
      * Logs the message sent event.
      *
-     * @param event The [SubscriptionTypeEvent] to log.
+     * @param messageType The type of message to log
      * @param serverUrl The server URL to log.
      */
-    fun logMessageSent(event: SubscriptionTypeEvent, serverUrl: String) {}
+    fun logMessageSent(messageType: String, serverUrl: String) {}
+
+    /**
+     * Logs the exception that occurs when sendMessage fails
+     *
+     * @param countToSend The number of messages still outstanding that need to be sent when exception occurs
+     * @param exceptionDescription The string associated with the exception
+     * @param serverUrl The server URL to log.
+     */
+    fun logSendMessageException(countToSend: Int, exceptionDescription: String, serverUrl: String) {}
+
+    /**
+     * Logs the new and previous state when the connection state changes
+     *
+     * @param previousState The previous connection state
+     * @param newState The new connection state
+     * @param serverUrl The server URL to log.
+     */
+    fun logConnectionStateChange(previousState: String, newState: String, serverUrl: String) {}
 
     /**
      * Logs the media upload event.

@@ -15,8 +15,8 @@ android {
         applicationId "chat.veranda.android"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 6050
-        versionName "0.6.5"
+        versionCode 7010
+        versionName "0.7.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -40,7 +40,7 @@ android {
 
         // For Jitsi
         ndk {
-            abiFilters "armeabi-v7a", "x86"
+            abiFilters "armeabi-v7a", "x86", 'arm64-v8a', 'x86_64'
         }
     }
 
@@ -110,6 +110,8 @@ android {
 
     lintOptions {
         lintConfig file("src/main/res/xml/lint.xml")
+
+        disable 'MissingTranslation'
     }
 }
 
