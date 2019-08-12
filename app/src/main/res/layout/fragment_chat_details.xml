@@ -80,5 +80,17 @@
             android:id="@+id/options"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
+        <android.widget.Button
+            android:id="@+id/leave"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/screen_edge_left_and_right_margins"
+            android:layout_marginTop="24dp"
+            android:layout_marginEnd="@dimen/screen_edge_left_and_right_margins"
+            android:background="@drawable/widechat_delete_account_button"
+            android:text="@string/leave"
+            android:textColor="@color/colorWhite"
+            android:visibility="gone" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

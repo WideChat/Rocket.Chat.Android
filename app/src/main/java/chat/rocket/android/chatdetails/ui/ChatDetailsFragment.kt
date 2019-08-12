@@ -34,6 +34,8 @@ import javax.inject.Inject
 
 // WIDECHAT
 import android.view.View.GONE
+import androidx.appcompat.app.AlertDialog
+import androidx.core.view.isVisible
 import chat.rocket.android.helper.Constants
 
 fun newInstance(
@@ -114,6 +116,7 @@ class ChatDetailsFragment : Fragment(), ChatDetailsView {
         }
         setupOptions()
         setupToolbar()
+        setupLeaveButton()
         getDetails()
     }
 
@@ -273,6 +276,27 @@ class ChatDetailsFragment : Fragment(), ChatDetailsView {
         with((activity as ChatRoomActivity)) {
             hideExpandMoreForToolbar()
             setupToolbarTitle(getString(R.string.title_chat_details))
+        }
+    }
+
+    private fun setupLeaveButton() {
+        if (chatRoomType == RoomType.CHANNEL || chatRoomType == RoomType.PRIVATE_GROUP) {
+            leave.isVisible = true
+            leave.setOnClickListener {
+                showLeaveDialog()
+            }
+        }
+    }
+
+    private fun showLeaveDialog() {
+        context?.let {
+            AlertDialog.Builder(it)
+                .setTitle(R.string.title_are_you_sure)
+                .setPositiveButton(resources.getString(R.string.action_leave_chat)) { _, _ ->
+                    presenter.leave(chatRoomId, chatRoomType)
+                }
+                .setNegativeButton(resources.getString(android.R.string.no)) { dialog, _ -> dialog.cancel() }
+                .show()
         }
     }
 }

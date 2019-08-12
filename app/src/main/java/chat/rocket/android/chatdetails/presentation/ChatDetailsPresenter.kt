@@ -1,5 +1,6 @@
 package chat.rocket.android.chatdetails.presentation
 
+import chat.rocket.android.R
 import chat.rocket.android.chatdetails.domain.ChatDetails
 import chat.rocket.android.chatroom.presentation.ChatRoomNavigator
 import chat.rocket.android.core.lifecycle.CancelStrategy
@@ -12,6 +13,7 @@ import chat.rocket.common.model.roomTypeOf
 import chat.rocket.common.util.ifNull
 import chat.rocket.core.internal.rest.favorite
 import chat.rocket.core.internal.rest.getInfo
+import chat.rocket.core.internal.rest.leaveChat
 import chat.rocket.core.model.Room
 import timber.log.Timber
 import javax.inject.Inject
@@ -88,6 +90,25 @@ class ChatDetailsPresenter @Inject constructor(
 
     fun toFavorites(chatRoomId: String) {
         navigator.toFavoriteMessageList(chatRoomId)
+    }
+
+    fun leave(chatRoomId: String, chatRoomType: String) {
+        launchUI(strategy) {
+            try {
+                retryIO("leaveChat($chatRoomId, $chatRoomType") {
+                    client.leaveChat(chatRoomId, roomTypeOf(chatRoomType))
+                }
+                view.showMessage(R.string.left_chat)
+                navigator.toChatRooms()
+            } catch (exception: Exception) {
+                Timber.e(exception)
+                exception.message?.let {
+                    view.showMessage(it)
+                }.ifNull {
+                    view.showGenericErrorMessage()
+                }
+            }
+        }
     }
 
     private fun roomToChatDetails(room: Room): ChatDetails {

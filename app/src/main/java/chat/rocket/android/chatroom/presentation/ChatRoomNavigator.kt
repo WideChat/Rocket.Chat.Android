@@ -1,5 +1,6 @@
 package chat.rocket.android.chatroom.presentation
 
+import android.content.Intent
 import android.os.Build
 import android.widget.Toast
 import chat.rocket.android.R
@@ -10,6 +11,7 @@ import chat.rocket.android.chatroom.ui.chatRoomIntent
 import chat.rocket.android.favoritemessages.ui.TAG_FAVORITE_MESSAGES_FRAGMENT
 import chat.rocket.android.files.ui.TAG_FILES_FRAGMENT
 import chat.rocket.android.inviteusers.ui.TAG_INVITE_USERS_FRAGMENT
+import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.members.ui.TAG_MEMBERS_FRAGMENT
 import chat.rocket.android.mentions.ui.TAG_MENTIONS_FRAGMENT
 import chat.rocket.android.pinnedmessages.ui.TAG_PINNED_MESSAGES_FRAGMENT
@@ -158,5 +160,11 @@ class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
     fun toMessageInformation(messageId: String) {
         activity.startActivity(activity.messageInformationIntent(messageId = messageId))
         activity.overridePendingTransition(R.anim.open_enter, R.anim.open_exit)
+    }
+
+    fun toChatRooms() {
+        activity.startActivity(Intent(activity, MainActivity::class.java).also {
+            it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+        })
     }
 }
