@@ -294,7 +294,8 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
             actionSelectListener = this,
             reactionListener = this,
             navigator = navigator,
-            analyticsManager = analyticsManager
+            analyticsManager = analyticsManager,
+            messageGroupingPeriod = presenter.getMessageGroupingPeriod()
         )
     }
 
