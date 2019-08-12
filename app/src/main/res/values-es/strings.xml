@@ -57,8 +57,8 @@
     <string name="action_invite">invitación</string>
     <string name="action_drawing">Dibujo</string>
     <string name="action_save_to_gallery">Guardar en la galería</string>
-    <string name="action_select_photo_from_gallery">Selecciona una foto de la galería</string>
-    <string name="action_take_a_photo">Toma una foto</string>
+    <string name="action_select_photo_from_gallery">Seleccionar una foto de la galería</string>
+    <string name="action_take_a_photo">Tomar una foto</string>
     <string name="action_reset_avatar">Reiniciar avatar</string>
     <string name="action_connect_server">Connect with a server</string> <!-- TODO Add translation -->
     <string name="action_join_community">Join in the community</string> <!-- TODO Add translation -->

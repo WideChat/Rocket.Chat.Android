@@ -35,7 +35,9 @@ class EmojiSuggestionsAdapter : SuggestionsAdapter<EmojiSuggestionViewHolder>(
         override fun bind(item: SuggestionModel, itemClickListener: SuggestionsAdapter.ItemClickListener?) {
             item as EmojiSuggestionUiModel
             with(itemView) {
-                text_emoji_shortname.text = ":${item.text}"
+//                text_emoji_shortname.text = ":${item.text}"
+                // WIDECHAT - these shortnames do not have translations, don't show them
+                text_emoji_shortname.text = " "
                 if (item.emoji.isCustom()) {
                     view_flipper_emoji.displayedChild = 1
                     val sp = SpannableStringBuilder().append(item.emoji.shortname)
