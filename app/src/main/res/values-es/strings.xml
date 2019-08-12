@@ -46,7 +46,7 @@
     <string name="action_create_channel">Crear canal</string>
     <string name="action_create">Create</string>
     <string name="action_logout">Cerrar sesión</string>
-    <string name="action_attach_a_files">Attach a file</string> <!-- TODO Add translation -->
+    <string name="action_attach_a_files">Adjuntar un archivo</string>
     <string name="action_confirm_password">Confirmar cambio de contraseña</string>
     <string name="action_join_chat">Unirse al chat</string>
     <string name="action_add_account">Añadir cuenta</string>
@@ -57,9 +57,9 @@
     <string name="action_invite">invitación</string>
     <string name="action_drawing">Dibujo</string>
     <string name="action_save_to_gallery">Guardar en la galería</string>
-    <string name="action_select_photo_from_gallery">Select photo from gallery</string> <!-- TODO Add translation -->
-    <string name="action_take_a_photo">Take a photo</string> <!-- TODO Add translation -->
-    <string name="action_reset_avatar">Reset avatar</string> <!-- TODO Add translation -->
+    <string name="action_select_photo_from_gallery">Selecciona una foto de la galería</string>
+    <string name="action_take_a_photo">Toma una foto</string>
+    <string name="action_reset_avatar">Reiniciar avatar</string>
     <string name="action_connect_server">Connect with a server</string> <!-- TODO Add translation -->
     <string name="action_join_community">Join in the community</string> <!-- TODO Add translation -->
     <string name="action_create_server">Create a new server</string> <!-- TODO Add translation -->
@@ -165,6 +165,7 @@
     <string name="msg_channel_name">Nombre del Canal</string>
     <string name="msg_group_name">Nombre del Grupo</string>
     <string name="msg_search">Buscar</string>
+    <string name="msg_search_hint">Buscar usarious</string>
     <string name="msg_message_copied">Mensaje copiado</string>
     <string name="msg_delete_message">Borrar mensaje</string>
     <string name="msg_delete_description">Seguro que quieres borrar este mensaje</string>

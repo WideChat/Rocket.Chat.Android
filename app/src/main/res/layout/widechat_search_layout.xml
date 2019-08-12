@@ -53,6 +53,7 @@
        android:iconifiedByDefault="false"
        android:imeOptions="actionSearch|flagNoExtractUi|flagNoFullscreen"
        android:title="@string/action_search"
+       app:queryHint="@string/msg_search_hint"
        app:actionViewClass="androidx.appcompat.widget.SearchView"
        app:showAsAction="ifRoom|collapseActionView"/>
 
