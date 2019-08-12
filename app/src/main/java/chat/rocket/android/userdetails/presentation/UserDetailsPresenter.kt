@@ -57,13 +57,20 @@ class UserDetailsPresenter @Inject constructor(
                     val utcOffset =
                         userEntity.utcOffset // TODO Convert UTC and display like the mockup
 
-                    if (avatarUrl != null && username != null && name != null && utcOffset != null) {
+
+                    // Interim fix, figure out why utcOffset is null for certain users.
+                    var utcOffsetString = "-"
+                    if (utcOffset != null){
+                        utcOffsetString = utcOffset.toString()
+                    }
+
+                    if (avatarUrl != null && username != null && name != null) {
                         view.showUserDetailsAndActions(
                             avatarUrl = avatarUrl,
                             name = name,
                             username = username,
                             status = userEntity.status,
-                            utcOffset = utcOffset.toString(),
+                            utcOffset = utcOffsetString,
                             isVideoCallAllowed = settings.isJitsiEnabled()
                         )
                     } else {
