@@ -165,7 +165,7 @@
     <string name="msg_channel_name">Nombre del Canal</string>
     <string name="msg_group_name">Nombre del Grupo</string>
     <string name="msg_search">Buscar</string>
-    <string name="msg_search_hint">Buscar usarious</string>
+    <string name="msg_search_hint">Buscar usuarios</string>
     <string name="msg_message_copied">Mensaje copiado</string>
     <string name="msg_delete_message">Borrar mensaje</string>
     <string name="msg_delete_description">Seguro que quieres borrar este mensaje</string>
