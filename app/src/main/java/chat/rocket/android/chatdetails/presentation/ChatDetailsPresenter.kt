@@ -25,7 +25,7 @@ class ChatDetailsPresenter @Inject constructor(
 ) {
     private val currentServer = serverInteractor.get()!!
     private val manager = factory.create(currentServer)
-    private val client = manager.client
+    private val client = manager?.client
 
     fun toggleFavoriteChatRoom(roomId: String, isFavorite: Boolean) {
         launchUI(strategy) {
