@@ -83,6 +83,7 @@ import chat.rocket.core.model.Message
 import chat.rocket.core.model.MessageType
 import chat.rocket.core.model.Room
 import chat.rocket.core.model.asString
+import chat.rocket.core.model.attachment.Attachment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import org.threeten.bp.Instant
@@ -466,7 +467,6 @@ class ChatRoomPresenter @Inject constructor(
 
     fun uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap: Bitmap, msg: String) {
         launchUI(strategy) {
-//            view.showLoading()
             val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
             try {
                 withContext(Dispatchers.Default) {
@@ -475,18 +475,41 @@ class ChatRoomPresenter @Inject constructor(
                     } else {
                         val byteArray =
                             bitmap.getByteArray(mimeType, 60, settings.uploadMaxFileSize())
-                    //    retryIO("uploadFile($roomId, $fileName, $mimeType") {
-                            client.uploadFile(
-                                roomId,
-                                fileName,
-                                mimeType,
-                                msg,
-                                description = fileName
-                            ) {
-                                byteArray.inputStream()
-                            }
-                    //    }
 
+                        val id = UUID.randomUUID().toString()
+                        val username = userHelper.username()
+                        val user = userHelper.user()
+
+                        val attachment = Attachment(title=fileName, type="file", description = fileName, titleLink=uri.toString(), titleLinkDownload = true, imageUrl = uri.toString())
+                        val message = Message(
+                                id = id,
+                                attachments = listOf(attachment),
+                                roomId=roomId,
+                                timestamp = Instant.now().toEpochMilli(),
+                                sender = SimpleUser(user?.id, user?.username ?: username, user?.name),
+                                avatar = currentServer.avatarUrl(username ?: ""),
+                                synced = false,
+                                unread = true
+                        )
+                        messagesRepository.save(message)
+                        view.showNewMessage(
+                                mapper.map(
+                                        message,
+                                        RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast)
+                                ), false
+                        )
+
+                        client.uploadFile(
+                                roomId=roomId,
+                                fileName = fileName,
+                                mimeType = mimeType,
+                                msg = msg,
+                                description = fileName,
+                                id = id
+                        ) {
+                            byteArray.inputStream()
+                        }
+                        messagesRepository.save(message.copy(synced = true))
                         logMediaUploaded(mimeType)
                     }
                 }
