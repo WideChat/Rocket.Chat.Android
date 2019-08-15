@@ -123,7 +123,8 @@ class MessageService : JobService() {
                             fileName = f.fileName,
                             mimeType = f.mimeType,
                             msg = f.msg,
-                            description = f.fileName
+                            description = f.fileName,
+                            id=f.id
                     ){
                         uriInteractor.getInputStream(uri)
                     }

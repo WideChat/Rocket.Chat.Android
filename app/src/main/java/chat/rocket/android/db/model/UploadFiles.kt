@@ -5,8 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "upload_files")
 data class UploadFileEntity(
-        @PrimaryKey(autoGenerate = true)
-        var id: Int = 0,
+        @PrimaryKey val id: String,
         val roomId: String,
         val fileName: String,
         val mimeType: String,

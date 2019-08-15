@@ -468,6 +468,7 @@ class ChatRoomPresenter @Inject constructor(
     fun uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap: Bitmap, msg: String) {
         launchUI(strategy) {
             val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
+            val id = UUID.randomUUID().toString()
             try {
                 withContext(Dispatchers.Default) {
                     if (fileName.isEmpty()) {
@@ -475,11 +476,8 @@ class ChatRoomPresenter @Inject constructor(
                     } else {
                         val byteArray =
                             bitmap.getByteArray(mimeType, 60, settings.uploadMaxFileSize())
-
-                        val id = UUID.randomUUID().toString()
                         val username = userHelper.username()
                         val user = userHelper.user()
-
                         val attachment = Attachment(title=fileName, type="file", description = fileName, titleLink=uri.toString(), titleLinkDownload = true, imageUrl = uri.toString())
                         val message = Message(
                                 id = id,
@@ -519,7 +517,7 @@ class ChatRoomPresenter @Inject constructor(
                 Timber.d("Error uploading image, adding to DB and scheduling service")
                 launch {
                     val query = async(Dispatchers.IO) {
-                        val uploadEntity = UploadFileEntity(roomId = roomId, fileName = fileName, mimeType = mimeType, uri = uri.toString(), msg = msg)
+                        val uploadEntity = UploadFileEntity(id=id, roomId = roomId, fileName = fileName, mimeType = mimeType, uri = uri.toString(), msg = msg)
                         dbManager.uploadFilesDao().insert(uploadEntity)
                     }
                     query.await()
@@ -541,6 +539,7 @@ class ChatRoomPresenter @Inject constructor(
         launchUI(strategy) {
 //            view.showLoading()
             val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
+            val id = UUID.randomUUID().toString()
             try {
                 withContext(Dispatchers.Default) {
                     val fileSize = uriInteractor.getFileSize(uri)
@@ -557,7 +556,8 @@ class ChatRoomPresenter @Inject constructor(
                                     fileName,
                                     mimeType,
                                     msg,
-                                    description = fileName
+                                    description = fileName,
+                                    id=id
                                 ) {
                                     uriInteractor.getInputStream(uri)
                                 }
@@ -572,7 +572,7 @@ class ChatRoomPresenter @Inject constructor(
                 Timber.d("Error uploading file, adding to DB and scheduling service")
                 launch {
                     val query = async(Dispatchers.IO) {
-                        val uploadEntity = UploadFileEntity(roomId = roomId, fileName = fileName, mimeType = mimeType, uri = uri.toString(), msg = msg)
+                        val uploadEntity = UploadFileEntity(id=id, roomId = roomId, fileName = fileName, mimeType = mimeType, uri = uri.toString(), msg = msg)
                         dbManager.uploadFilesDao().insert(uploadEntity)
                     }
                     query.await()
