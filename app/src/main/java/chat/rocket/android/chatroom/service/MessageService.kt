@@ -67,10 +67,19 @@ class MessageService : JobService() {
         if (temporaryMessages.isNotEmpty()) {
             val client = factory.create(serverUrl).client
             temporaryMessages.forEach { message ->
+
+                // Check if it is the dummy message object created by us
+                val attachments = message.attachments
+                if((message.message=="") && (attachments !== null) && attachments.size==1 && attachments[0].imageUrl!==null){
+                    Timber.d("Not syncing dummy message")
+                    return@forEach
+                }
+
                 try {
                     if(client.state is State.Disconnected || client.state is State.Waiting){
                         client.connect()
                     }
+
                     client.sendMessage(
                         message = message.message,
                         messageId = message.id,
