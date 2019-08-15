@@ -478,7 +478,7 @@ class ChatRoomPresenter @Inject constructor(
                             bitmap.getByteArray(mimeType, 60, settings.uploadMaxFileSize())
                         val username = userHelper.username()
                         val user = userHelper.user()
-                        val attachment = Attachment(title=fileName, type="file", description = fileName, titleLink=uri.toString(), titleLinkDownload = true, imageUrl = uri.toString())
+                        val attachment = Attachment(type="file", titleLink=uri.toString(), titleLinkDownload = true, imageUrl = uri.toString())
                         val message = Message(
                                 id = id,
                                 attachments = listOf(attachment),
