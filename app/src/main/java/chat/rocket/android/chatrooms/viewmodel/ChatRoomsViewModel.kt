@@ -64,10 +64,10 @@ class ChatRoomsViewModel(
                     val rooms = repository.search(string).let { mapper.map(it, showLastMessage = this.showLastMessage) }
                     data.postValue(rooms.toMutableList() + LoadingItemHolder())
 
-                    var repoSearchRoomIds = ArrayList<String>()
+                    var repoSearchRoomNames = ArrayList<CharSequence>()
                     rooms.forEach { room ->
                         var thisRoom: RoomUiModel = room.data as RoomUiModel
-                        repoSearchRoomIds.add(thisRoom.id)
+                        repoSearchRoomNames.add(thisRoom.name)
                     }
                     if (!coroutineContext.isActive) return@wrap
 
@@ -75,7 +75,7 @@ class ChatRoomsViewModel(
                     val spotlightFiltered =  ArrayList<ItemHolder<*>>()
                     spotlight?.forEach { room ->
                         var thisRoom: RoomUiModel = room.data as RoomUiModel
-                        if (thisRoom.id !in repoSearchRoomIds) {
+                        if (thisRoom.name !in repoSearchRoomNames) {
                             spotlightFiltered.add(room)
                         }
                     }
