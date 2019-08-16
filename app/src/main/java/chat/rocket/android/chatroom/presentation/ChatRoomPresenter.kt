@@ -481,6 +481,7 @@ class ChatRoomPresenter @Inject constructor(
                         val attachment = Attachment(type="file", titleLink=uri.toString(), titleLinkDownload = true, imageUrl = uri.toString())
                         val message = Message(
                                 id = id,
+                                message = msg,
                                 attachments = listOf(attachment),
                                 roomId=roomId,
                                 timestamp = Instant.now().toEpochMilli(),
@@ -537,7 +538,6 @@ class ChatRoomPresenter @Inject constructor(
 
     fun uploadFile(roomId: String, mimeType: String, uri: Uri, msg: String) {
         launchUI(strategy) {
-//            view.showLoading()
             val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
             val id = UUID.randomUUID().toString()
             try {
@@ -550,18 +550,38 @@ class ChatRoomPresenter @Inject constructor(
                         fileSize > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0 ->
                             view.showInvalidFileSize(fileSize, maxFileSizeAllowed)
                         else -> {
-                            retryIO("uploadFile($roomId, $fileName, $mimeType") {
-                                client.uploadFile(
+                            val username = userHelper.username()
+                            val user = userHelper.user()
+                            val attachment = Attachment(type="file", titleLink=uri.toString(), titleLinkDownload = true)
+                            val message = Message(
+                                    id = id,
+                                    message = msg,
+                                    attachments = listOf(attachment),
+                                    roomId=roomId,
+                                    timestamp = Instant.now().toEpochMilli(),
+                                    sender = SimpleUser(user?.id, user?.username ?: username, user?.name),
+                                    avatar = currentServer.avatarUrl(username ?: ""),
+                                    synced = false,
+                                    unread = true
+                            )
+                            messagesRepository.save(message)
+                            view.showNewMessage(
+                                    mapper.map(
+                                            message,
+                                            RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast)
+                                    ), false
+                            )
+                            client.uploadFile(
                                     roomId,
                                     fileName,
                                     mimeType,
                                     msg,
                                     description = fileName,
                                     id=id
-                                ) {
-                                    uriInteractor.getInputStream(uri)
-                                }
+                            ) {
+                                uriInteractor.getInputStream(uri)
                             }
+
                             logMediaUploaded(mimeType)
                         }
                     }

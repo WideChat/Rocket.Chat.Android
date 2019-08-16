@@ -70,7 +70,7 @@ class MessageService : JobService() {
 
                 // Check if it is the dummy message object created by us
                 val attachments = message.attachments
-                if((message.message=="") && (attachments !== null) && attachments.size==1 && attachments[0].imageUrl!==null){
+                if((attachments !== null) && attachments.size==1){
                     Timber.d("Not syncing dummy message")
                     return@forEach
                 }
