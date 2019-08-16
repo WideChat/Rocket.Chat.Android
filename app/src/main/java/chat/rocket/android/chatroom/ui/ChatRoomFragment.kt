@@ -104,6 +104,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
+// WIDECHAT
+import chat.rocket.android.helper.Constants
+
 fun newInstance(
     chatRoomId: String,
     chatRoomName: String,
@@ -317,14 +320,18 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         setupActionSnackbar()
         with(activity as ChatRoomActivity) {
             setupToolbarTitle(chatRoomName)
-            setupExpandMoreForToolbar {
-                presenter.toChatDetails(
-                    chatRoomId,
-                    chatRoomType,
-                    isSubscribed,
-                    isFavorite,
-                    disableMenu
-                )
+            if (Constants.WIDECHAT && chatRoomType == "d") {
+                hideExpandMoreForToolbar()
+            } else {
+                setupExpandMoreForToolbar {
+                    presenter.toChatDetails(
+                            chatRoomId,
+                            chatRoomType,
+                            isSubscribed,
+                            isFavorite,
+                            disableMenu
+                    )
+                }
             }
         }
         getDraftMessage()
