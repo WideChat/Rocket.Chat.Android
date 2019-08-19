@@ -12,7 +12,7 @@ interface BaseUiModel<out T> {
     var reactions: List<ReactionUiModel>
     var nextDownStreamMessage: BaseUiModel<*>?
     var preview: Message?
-    var isTemporary: Boolean
+    var synced: Boolean
     var unread: Boolean?
     var currentDayMarkerText: String
     var showDayMarker: Boolean

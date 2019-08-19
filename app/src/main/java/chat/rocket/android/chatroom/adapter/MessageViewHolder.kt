@@ -60,7 +60,7 @@ class MessageViewHolder(
             button_join_video_call.setOnClickListener { joinVideoCallListener(it) }
 
             image_avatar.setImageURI(data.avatar)
-            text_content.setTextColor(if (data.isTemporary) Color.GRAY else Color.BLACK)
+            text_content.setTextColor(Color.BLACK)
 
             data.message.let {
                 text_edit_indicator.isVisible = !it.isSystemMessage() && it.editedBy != null
@@ -71,8 +71,10 @@ class MessageViewHolder(
                 read_receipt_view.isVisible = false
             } else {
                 read_receipt_view.setImageResource(
-                    if (data.unread == true) {
-                        R.drawable.ic_check_unread_24dp
+                    if (data.synced == false) {
+                        R.drawable.ic_check_unsent_24dp
+                    } else if (data.unread == true) {
+                        R.drawable.ic_check_uploaded_24dp
                     } else {
                         R.drawable.ic_check_read_24dp
                     }

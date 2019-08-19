@@ -2,6 +2,7 @@ package chat.rocket.android.chatroom.service
 
 import android.app.job.JobParameters
 import android.app.job.JobService
+import android.net.Uri
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.db.DatabaseManagerFactory
 import chat.rocket.android.server.domain.GetAccountsInteractor
@@ -18,6 +19,9 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
 import chat.rocket.core.internal.realtime.socket.model.State
+import chat.rocket.core.internal.rest.uploadFile
+import chat.rocket.android.chatroom.domain.UriInteractor
+
 
 
 class MessageService : JobService() {
@@ -29,6 +33,8 @@ class MessageService : JobService() {
     lateinit var getAccountsInteractor: GetAccountsInteractor
     @Inject
     lateinit var analyticsManager: AnalyticsManager
+    @Inject
+    lateinit var uriInteractor: UriInteractor
 
     override fun onCreate() {
         super.onCreate()
@@ -44,6 +50,9 @@ class MessageService : JobService() {
             getAccountsInteractor.get().forEach { account ->
                 retrySendingMessages(params, account.serverUrl)
             }
+            getAccountsInteractor.get().forEach { account ->
+                retryUploadingFiles(params, account.serverUrl)
+            }
             jobFinished(params, false)
         }
         return true
@@ -58,10 +67,19 @@ class MessageService : JobService() {
         if (temporaryMessages.isNotEmpty()) {
             val client = factory.create(serverUrl).client
             temporaryMessages.forEach { message ->
+
+                // Check if it is the dummy message object created by us
+                val attachments = message.attachments
+                if((attachments !== null) && attachments.size==1){
+                    Timber.d("Not syncing dummy message")
+                    return@forEach
+                }
+
                 try {
                     if(client.state is State.Disconnected || client.state is State.Waiting){
                         client.connect()
                     }
+
                     client.sendMessage(
                         message = message.message,
                         messageId = message.id,
@@ -89,6 +107,45 @@ class MessageService : JobService() {
                             // XXX: Temporary solution. We need proper error codes from the api.
                             messageRepository.save(message.copy(synced = false))
                         }
+                        jobFinished(params, true)
+                    }
+                }
+            }
+        }
+    }
+
+    private suspend fun retryUploadingFiles(params: JobParameters?, serverUrl: String) {
+        val dbManager = dbFactory.create(serverUrl)
+        val unsent = dbManager.uploadFilesDao().getAllUnsent()
+
+        if (unsent.isNotEmpty()) {
+            val client = factory.create(serverUrl).client
+            unsent.forEach { f ->
+                try {
+                    dbManager.uploadFilesDao().update(f.copy(retry=false))
+                    if(client.state is State.Disconnected || client.state is State.Waiting){
+                        client.connect()
+                    }
+                    val uri = Uri.parse(f.uri)
+                    client.uploadFile(
+                            roomId = f.roomId,
+                            fileName = f.fileName,
+                            mimeType = f.mimeType,
+                            msg = f.msg,
+                            description = f.fileName,
+                            id=f.id
+                    ){
+                        uriInteractor.getInputStream(uri)
+                    }
+                    dbManager.uploadFilesDao().update(f.copy(sent=true))
+                    Timber.d("Uploaded scheduled file given by uri: ${f.uri}")
+                } catch (ex: Exception) {
+                    Timber.e(ex)
+
+                    if (ex is IllegalStateException) {
+                        jobFinished(params, false)
+                    } else {
+                        dbManager.uploadFilesDao().update(f.copy(retry=true))
                         jobFinished(params, true)
                     }
                 }
