@@ -11,7 +11,6 @@ import chat.rocket.android.util.extension.onQueryTextListener
 
 // WIDECHAT
 import android.graphics.Color
-import android.view.Gravity
 import android.widget.*
 import chat.rocket.android.helper.Constants
 
