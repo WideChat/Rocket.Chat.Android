@@ -515,12 +515,6 @@ class ChatRoomPresenter @Inject constructor(
                     val fileSize = uriInteractor.getFileSize(uri)
                     val maxFileSizeAllowed = settings.uploadMaxFileSize()
 
-                    Timber.d("uri : ${uri.toString()}")
-                    Timber.d("name : $fileName")
-                    Timber.d("size : $fileSize")
-                    Timber.d("type : $mimeType")
-                    Timber.d("inputs : ${uriInteractor.getInputStream(uri)}")
-
                     when {
                         fileName.isEmpty() -> view.showInvalidFileMessage()
                         fileSize > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0 ->

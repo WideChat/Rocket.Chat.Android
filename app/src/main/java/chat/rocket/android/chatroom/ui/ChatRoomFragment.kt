@@ -1253,7 +1253,6 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                         file
                     )
                 }
-
                 ShareHandler.files.clear()
             }
         }

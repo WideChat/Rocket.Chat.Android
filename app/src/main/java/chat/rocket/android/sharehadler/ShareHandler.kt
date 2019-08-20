@@ -5,7 +5,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Parcelable
 import android.provider.OpenableColumns
-import timber.log.Timber
 import java.io.InputStream
 
 object ShareHandler {
@@ -93,12 +92,6 @@ object ShareHandler {
             val size = cursor.getLong(sizeIndex)
             val mimeType = context.contentResolver.getType(uri)
             val inputStream = context.contentResolver.openInputStream(uri)
-
-            Timber.d("uri : $uri")
-            Timber.d("name : $name")
-            Timber.d("size : $size")
-            Timber.d("type : $mimeType")
-            Timber.d("inputs : $inputStream")
 
             if (mimeType != null && inputStream != null) {
                 files.add(
