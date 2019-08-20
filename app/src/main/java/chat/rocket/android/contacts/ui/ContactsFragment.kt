@@ -98,11 +98,6 @@ class ContactsFragment : Fragment(), ContactsView {
     private var finalList: ArrayList<ItemHolder<*>> = ArrayList()
     private var contactsSelectionTracker: SelectionTracker<Long>? = null
     private var selectedContacts: ArrayList<Contact> = ArrayList()
-
-    private var searchView: SearchView? = null
-    private var searchIcon: ImageView? = null
-    private var searchText: TextView? = null
-    private var searchCloseButton: ImageView? = null
     private var loadedOnce: Boolean = false
     var enableGroups: Boolean = false
 
@@ -266,6 +261,9 @@ class ContactsFragment : Fragment(), ContactsView {
                 val profileButtonLayout: ConstraintLayout? = this?.getCustomView()?.findViewById(R.id.rl_image_avatar)
                 profileButtonLayout?.visibility = GONE
                 val searchView: SearchView? = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
+                searchView?.clearFocus()
+                val searchCloseButton: ImageView? = searchView?.findViewById(R.id.search_close_btn)
+                searchCloseButton?.setImageResource(0)
                 searchView?.onQueryTextListener { queryContacts(it) }
             }
         }
