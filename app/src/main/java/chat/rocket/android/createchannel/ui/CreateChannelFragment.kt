@@ -279,6 +279,7 @@ class CreateChannelFragment : Fragment(), CreateChannelView, ActionMode.Callback
             (activity as MainActivity).toolbar.setNavigationContentDescription(R.string.go_back_button_description)
             (activity as MainActivity).toolbar.setNavigationOnClickListener {
                 activity?.onBackPressed()
+                widechatSearchView?.visibility = View.VISIBLE
             }
         } else {
             with((activity as AppCompatActivity?)?.supportActionBar) {
