@@ -2,7 +2,6 @@ package chat.rocket.android.contacts.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -46,7 +45,6 @@ import chat.rocket.android.util.extensions.avatarUrl
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.extensions.ui
-import com.facebook.drawee.view.SimpleDraweeView
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -55,7 +53,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.app_bar.view.*
 import kotlinx.android.synthetic.main.fragment_contact_parent.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -273,7 +270,7 @@ class ContactsFragment : Fragment(), ContactsView {
             }
         }
     }
-    
+
     fun containsIgnoreCase(src: String, what: String): Boolean {
         val length = what.length
         if (length == 0)
