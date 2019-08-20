@@ -144,6 +144,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
             widechat_welcome_to_app.isVisible = false
             widechat_text_no_data_to_display.isVisible = false
             (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
+            searchView?.onQueryTextListener { queryChatRoomsByName(it) }
             clearSearch()
         }
         setCurrentUserStatusIcon()

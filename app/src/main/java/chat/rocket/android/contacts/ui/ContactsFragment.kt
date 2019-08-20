@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View.VISIBLE
 import android.view.View.GONE
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -45,6 +46,7 @@ import chat.rocket.android.util.extensions.avatarUrl
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.extensions.ui
+import com.facebook.drawee.view.SimpleDraweeView
 import dagger.android.support.AndroidSupportInjection
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -244,41 +246,10 @@ class ContactsFragment : Fragment(), ContactsView {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.widechat_contacts, menu)
-
-        val searchItem = menu.findItem(R.id.action_search)
-        searchView = searchItem?.actionView as? SearchView
-        searchView?.onQueryTextListener { queryContacts(it) }
-
-        if (Constants.WIDECHAT) {
-            setupWidechatSearchView()
-        }
-
-        searchView?.maxWidth = Integer.MAX_VALUE
-        val expandListener = object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                // Simply setting sortView to visible won't work, so we invalidate the options
-                // to recreate the entire menu...
-                searchView?.setQuery("", false)
-                activity?.invalidateOptionsMenu()
-                queryContacts("")
-                if (!hasContactsPermissions()) {
-                    setupFrameLayout()
-                }
-                return true
-            }
-
-            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                return true
-            }
-        }
-        searchItem?.setOnActionExpandListener(expandListener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_search -> {
-                hideSpinner()
-            }
             R.id.action_refresh -> {
                 (activity as MainActivity).syncContacts(true)
             }
@@ -286,41 +257,23 @@ class ContactsFragment : Fragment(), ContactsView {
         return super.onOptionsItemSelected(item)
     }
 
-    fun setupToolbar(){
+    fun setupToolbar() {
         (activity as MainActivity).toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
         (activity as MainActivity).toolbar.setNavigationContentDescription(R.string.go_back_button_description)
         (activity as MainActivity).toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
-        with((activity as AppCompatActivity?)?.supportActionBar) {
-            this?.setDisplayShowTitleEnabled(true)
-            this?.title = getString(R.string.title_contacts)
-        }
 
         if (Constants.WIDECHAT) {
             with((activity as AppCompatActivity?)?.supportActionBar) {
-                this?.setDisplayShowCustomEnabled(false)
-                if(enableGroups)
-                    this?.title = getString(R.string.title_create_group)
+                val profileButtonLayout: ConstraintLayout? = this?.getCustomView()?.findViewById(R.id.rl_image_avatar)
+                profileButtonLayout?.visibility = GONE
+                val searchView: SearchView? = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
+                searchView?.onQueryTextListener { queryContacts(it) }
             }
         }
     }
-
-    private fun setupWidechatSearchView() {
-        searchView?.setBackgroundResource(R.drawable.widechat_search_white_background)
-        searchView?.isIconified = true
-
-        searchIcon = searchView?.findViewById(R.id.search_mag_icon)
-        searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
-
-        searchText = searchView?.findViewById(R.id.search_src_text)
-        searchText?.setTextColor(Color.GRAY)
-        searchText?.setHintTextColor(Color.GRAY)
-
-        searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
-        searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
-    }
-
+    
     fun containsIgnoreCase(src: String, what: String): Boolean {
         val length = what.length
         if (length == 0)
