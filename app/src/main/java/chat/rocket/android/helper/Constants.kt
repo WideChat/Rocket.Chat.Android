@@ -17,6 +17,8 @@ object Constants {
     // Use both WIDECHAT and WIDECHAT_DEV switches == true to allow for normal RC login sequence including login to any server
     const val WIDECHAT = true
     const val WIDECHAT_DEV = false
+    // When true, disables invites via server with email or sms
+    const val INVITE_VIA_SHARE_ONLY = true
 
     const val AVATAR_SHAPE_CIRCLE = true
     const val DEEP_LINK_INFO = "deep_link_info"
