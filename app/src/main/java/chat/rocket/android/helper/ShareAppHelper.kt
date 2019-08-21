@@ -10,9 +10,6 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-//test
-import timber.log.Timber
-
 class ShareAppHelper @Inject constructor(
 	private val dynamicLinksManager: DynamicLinksForFirebase,
 	private val serverInteractor: GetCurrentServerInteractor,
