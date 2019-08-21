@@ -396,7 +396,9 @@
     <string name="save">GUARDAR</string>
     <string name="no_thanks">NO GRACIAS</string>
     <string name="chat_with">Chat con %1$s en %2$s</string>
-    <string name="default_invitation_text">Viasat Connect es una aplicación nueva que me facilita mensajear con amigos y familiares. Descarga la aplicación aquí %1$s y conéctate conmigo.</string>
+    <string name="default_invitation_text_description">Viasat Connect es una nueva aplicación que me facilita enviar mensajes de texto con amigos y familiares.</string>
+    <string name="default_invitation_text_dynamic_link">Descargue la aplicación aquí %1$s o consíguela buscando en Google Play Store y conéctese conmigo.</string>
+    <string name="default_invitation_text_app_store">Descargue la aplicación desde Google Play Store y conéctese conmigo.</string>
     <string name="default_invitation_subject">Tu amigo %1$s te ha invitado a chatear en Viasat Connect</string>
 
     <!--WIDECHAT PERMISSIONS-->

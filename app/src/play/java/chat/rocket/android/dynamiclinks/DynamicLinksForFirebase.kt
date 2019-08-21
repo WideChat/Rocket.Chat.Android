@@ -46,13 +46,16 @@ class DynamicLinksForFirebase @Inject constructor(private var context: Context) 
             .addOnSuccessListener { result ->
                 newDeepLink = result.shortLink.toString()
                 Timber.d("New deeplink created: ${newDeepLink}")
-                deepLinkCallback(newDeepLink)
 
             }.addOnFailureListener {
                 // Error
                 Timber.d("Error creating dynamic link.")
+
+            }.addOnCompleteListener {
+                deepLinkCallback(newDeepLink)
             }
     }
+
 }
 
 
