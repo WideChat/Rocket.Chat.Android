@@ -23,15 +23,21 @@ class ShareAppHelper @Inject constructor(
 			val userName = account.userName
 
 			val deepLinkCallback = { returnedString: String? ->
+				var text_content = context.getString(R.string.default_invitation_text_description)
+				if (returnedString == null) {
+					text_content = text_content + " " + context.getString(R.string.default_invitation_text_app_store)
+				} else {
+					text_content = text_content + " " + String.format(context.getString(R.string.default_invitation_text_dynamic_link), returnedString)
+				}
+
 				with(Intent(Intent.ACTION_SEND)) {
 					type = "text/plain"
 					putExtra(Intent.EXTRA_SUBJECT, String.format(context.getString(R.string.default_invitation_subject), userName))
-					putExtra(Intent.EXTRA_TEXT, String.format(context.getString(R.string.default_invitation_text), returnedString))
+					putExtra(Intent.EXTRA_TEXT, text_content)
 					context.startActivity(Intent.createChooser(this, context.getString(R.string.msg_share_using)))
 				}
 			}
 			dynamicLinksManager.createDynamicLink(userName, server, deepLinkCallback)
 		}
 	}
-
 }
