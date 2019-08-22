@@ -117,6 +117,12 @@ class GoogleAnalyticsForFirebase @Inject constructor(val context: Context) :
         })
     }
 
+    override fun logDeeplinkCreated(deepLink: String?) {
+        firebaseAnalytics.logEvent("deeplink_sent", Bundle(1).apply {
+            putString("deeplink_url", deepLink)
+        })
+    }
+
     override fun logMessageActionAddReaction() = firebaseAnalytics.logEvent("message_action_add_reaction", null)
 
     override fun logMessageActionReply() = firebaseAnalytics.logEvent("message_action_reply", null)

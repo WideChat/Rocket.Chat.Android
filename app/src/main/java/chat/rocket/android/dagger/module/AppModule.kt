@@ -381,8 +381,8 @@ class AppModule {
 
     @Provides
     @Singleton
-    fun provideDynamicLinkForFirebase(context: Application): DynamicLinksForFirebase {
-        return DynamicLinksForFirebase(context)
+    fun provideDynamicLinkForFirebase(context: Application, analyticsManager: AnalyticsManager): DynamicLinksForFirebase {
+        return DynamicLinksForFirebase(context, analyticsManager)
     }
 
     @Provides

@@ -107,6 +107,13 @@ interface Analytics {
     fun logInviteSent(inviteType: String, inviteSucceeded: Boolean) {}
 
     /**
+     * WIDECHAT
+     * logs when a new deepLink is created and sent into the share intent
+     * @param deepLink the deeplink url created for inclusion in the invite
+     */
+    fun logDeeplinkCreated(deepLink: String?) {}
+
+    /**
      * Logs the add reaction message action.
      */
     fun logMessageActionAddReaction() {}

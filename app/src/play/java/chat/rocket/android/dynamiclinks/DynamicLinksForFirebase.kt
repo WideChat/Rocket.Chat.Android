@@ -3,6 +3,7 @@ package chat.rocket.android.dynamiclinks
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.util.TimberLogger
 import chat.rocket.android.R
 import com.google.firebase.dynamiclinks.DynamicLink
@@ -11,7 +12,10 @@ import com.google.firebase.dynamiclinks.ShortDynamicLink
 import javax.inject.Inject
 import timber.log.Timber
 
-class DynamicLinksForFirebase @Inject constructor(private var context: Context) :
+class DynamicLinksForFirebase @Inject constructor(
+        private var context: Context,
+        private val analyticsManager: AnalyticsManager
+) :
         DynamicLinks {
 
     private var deepLink: Uri? = null
@@ -52,10 +56,9 @@ class DynamicLinksForFirebase @Inject constructor(private var context: Context) 
                 Timber.d("Error creating dynamic link.")
 
             }.addOnCompleteListener {
+                analyticsManager.logDeeplinkCreated(newDeepLink)
                 deepLinkCallback(newDeepLink)
             }
     }
-
 }
-
 
