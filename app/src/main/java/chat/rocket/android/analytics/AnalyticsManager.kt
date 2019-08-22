@@ -102,6 +102,12 @@ class AnalyticsManager @Inject constructor(
         }
     }
 
+    fun logDeeplinkCreated(deepLink: String?) {
+        if (analyticsTrackingInteractor.get()) {
+            analytics.forEach { it.logDeeplinkCreated(deepLink) }
+        }
+    }
+
     fun logMessageActionAddReaction() {
         if (analyticsTrackingInteractor.get()) {
             analytics.forEach { it.logMessageActionAddReaction() }
