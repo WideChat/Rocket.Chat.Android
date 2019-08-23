@@ -32,7 +32,7 @@ jobs:
       - store_artifacts:
           path: app/libs/
           destination: libs
-  code-analysis:
+  run-unit-tests:
     docker:
       - image: circleci/android:api-28-alpha
     environment:
@@ -63,9 +63,6 @@ jobs:
       - run:
           name: Run Unit test
           command: ./gradlew --no-daemon test
-      - run:
-          name: Compile Instrumentation test
-          command: ./gradlew --no-daemon assembleAndroidTest
       - store_artifacts:
           path: app/build/reports/
           destination: reports
@@ -153,7 +150,7 @@ workflows:
   build-deploy:
     jobs:
       - build-kotlin-sdk
-      - code-analysis:
+      - run-unit-tests:
           requires:
             - build-kotlin-sdk
           filters:
