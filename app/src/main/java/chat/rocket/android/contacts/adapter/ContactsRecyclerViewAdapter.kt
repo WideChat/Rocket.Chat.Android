@@ -120,10 +120,10 @@ class ContactsRecyclerViewAdapter(
                 val inviteButton: Button = holder.itemView.findViewById(R.id.invite_contact)
                 inviteButton.setOnClickListener { view ->
                     run {
-                        inviteButton.setText(R.string.Invited)
                         if (Constants.INVITE_VIA_SHARE_ONLY) {
                             shareApp()
                         } else {
+                            inviteButton.setText(R.string.Invited)
                             presenter.inviteWithRealNamePrompt(contact, frag.context)
                         }
                     }
