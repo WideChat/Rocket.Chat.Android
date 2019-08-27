@@ -11,24 +11,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
-            android:id="@+id/image_on_boarding"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_onboarding"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:ignore="ContentDescription" />
-
         <TextView
             android:id="@+id/text_on_boarding_title"
             style="@style/Authentication.TextView.Headline"
-            android:layout_marginTop="32dp"
             android:text="@string/msg_welcome_to_rocket_chat"
+            android:layout_marginTop="256dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/image_on_boarding" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/text_on_boarding_description"
@@ -56,7 +46,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="20dp"
-                android:src="@drawable/ic_connect_with_a_server_black_30dp"
                 android:tint="@color/colorAccent"
                 tools:ignore="ContentDescription" />
 
@@ -99,7 +88,6 @@
                 android:layout_centerVertical="true"
                 android:layout_marginStart="16dp"
                 android:layout_marginEnd="20dp"
-                android:src="@drawable/ic_rocket_chat_30dp"
                 tools:ignore="ContentDescription" />
 
             <TextView
