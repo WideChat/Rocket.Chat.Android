@@ -16,7 +16,6 @@ import chat.rocket.android.pinnedmessages.ui.TAG_PINNED_MESSAGES_FRAGMENT
 import chat.rocket.android.server.ui.changeServerIntent
 import chat.rocket.android.userdetails.ui.TAG_USER_DETAILS_FRAGMENT
 import chat.rocket.android.util.extensions.addFragmentBackStack
-import chat.rocket.android.videoconference.ui.videoConferenceIntent
 
 class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
 
@@ -29,7 +28,7 @@ class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
     fun toVideoConference(chatRoomId: String, chatRoomType: String) {
         // TODO: Jitsi isn't working with Android M- version. We need to remove the condition bellow after it's solved. (https://github.com/jitsi/jitsi-meet/pull/3967)/
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            activity.startActivity(activity.videoConferenceIntent(chatRoomId, chatRoomType))
+            //activity.startActivity(activity.videoConferenceIntent(chatRoomId, chatRoomType))
         } else {
             Toast.makeText(
                 activity,
