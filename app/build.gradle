@@ -28,19 +28,9 @@ android {
                 arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
             }
         }
+
         dataBinding {
             enabled = true
-        }
-
-        // For Jitsi
-        compileOptions {
-            sourceCompatibility JavaVersion.VERSION_1_8
-            targetCompatibility JavaVersion.VERSION_1_8
-        }
-
-        // For Jitsi
-        ndk {
-            abiFilters "armeabi-v7a", "x86", 'arm64-v8a', 'x86_64'
         }
     }
 
@@ -65,7 +55,7 @@ android {
             buildConfigField "String", "REQUIRED_SERVER_VERSION", '"0.62.0"'
             buildConfigField "String", "RECOMMENDED_SERVER_VERSION", '"0.64.2"'
             signingConfig signingConfigs.release
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
 
@@ -184,7 +174,7 @@ dependencies {
     implementation libraries.glide
     implementation libraries.glideTransformations
 
-    implementation(libraries.jitsi) { transitive = true }
+    //implementation(libraries.jitsi) { transitive = true }
 
     implementation 'com.google.code.findbugs:jsr305:3.0.2'
 
