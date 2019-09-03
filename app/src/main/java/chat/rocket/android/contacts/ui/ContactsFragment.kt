@@ -85,7 +85,6 @@ class ContactsFragment : Fragment(), ContactsView {
 
     private lateinit var contactsAdapter: ContactsRecyclerViewAdapter
     private lateinit var recyclerView: RecyclerView
-    private var emptyTextView: TextView? = null
     private var fab: View? = null
 
     private lateinit var selectedContactsRecyclerView: RecyclerView
@@ -156,7 +155,6 @@ class ContactsFragment : Fragment(), ContactsView {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        emptyTextView = view.findViewById(R.id.text_no_contacts_to_display)
         recyclerView = view.findViewById(R.id.contacts_recycler_view)
 
         contactsAdapter = ContactsRecyclerViewAdapter(this, presenter, finalList)
@@ -347,7 +345,6 @@ class ContactsFragment : Fragment(), ContactsView {
     private fun getContactListWhenSynced() {
         // Show loading while sync in progress
         recyclerView.visibility = View.GONE
-        emptyTextView!!.visibility = View.GONE
 
         val serverUrl = serverInteractor.get()!!
         val dbManager = dbFactory.create(serverUrl)
@@ -393,13 +390,7 @@ class ContactsFragment : Fragment(), ContactsView {
 
     private fun setupFrameLayout(filteredContactArrayList: ArrayList<Contact>, spotlightResult: ArrayList<ItemHolder<*>>? = null) {
         loadedOnce = true
-        if (filteredContactArrayList.size == 0 && ((spotlightResult == null) or (spotlightResult?.size == 0))) {
-            emptyTextView!!.visibility = View.VISIBLE
-            recyclerView.visibility = View.GONE
-        } else {
-            emptyTextView!!.visibility = View.GONE
-            setUpNewList(map(filteredContactArrayList, spotlightResult))
-        }
+        setUpNewList(map(filteredContactArrayList, spotlightResult))
     }
 
     private fun setupFrameLayout(spotlightResult: ArrayList<ItemHolder<*>>? = null) {
