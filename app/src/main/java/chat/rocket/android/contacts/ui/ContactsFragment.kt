@@ -345,15 +345,15 @@ class ContactsFragment : Fragment(), ContactsView {
     }
 
     private fun getContactListWhenSynced() {
-        // Show loading while sync in progress
-        recyclerView.visibility = View.GONE
-        emptyTextView!!.visibility = View.GONE
-
         val serverUrl = serverInteractor.get()!!
         val dbManager = dbFactory.create(serverUrl)
         val contactList = dbManager.contactsDao().getAllSync()
 
         ui {
+            // Show loading while sync in progress
+            recyclerView.visibility = View.GONE
+            emptyTextView!!.visibility = View.GONE
+
             (activity as MainActivity).contactsLoadingState.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
                     is ContactsLoadingState.Loading -> {
