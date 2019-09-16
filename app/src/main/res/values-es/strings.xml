@@ -215,11 +215,15 @@
 
     <!-- Preferences messages -->
     <string name="msg_analytics_tracking">Seguimiento analítico</string>
-    <string name="msg_send_analytics_tracking">Envía estadísticas anónimas para ayudar a mejorar esta aplicación</string>
-    <string name="msg_do_not_send_analytics_tracking">No envía estadísticas anónimas para ayudar a mejorar esta aplicación</string>
+    <string name="msg_send_analytics_tracking">Envía estadísticas anónimas para ayudar a mejorar la aplicación</string>
+    <string name="msg_do_not_send_analytics_tracking">No envía estadísticas anónimas para ayudar a mejorar la aplicación</string>
     <string name="msg_not_applicable_since_it_is_a_foss_version">No aplicable ya que es una versión FOSS</string>
     <string name="msg_public_account">Cuenta Publica</string>
-    <string name="msg_public_account_description">Envía estadísticas anónimas para ayudar a mejorar esta aplicación</string>
+    <string name="msg_public_account_description">Envía estadísticas anónimas para ayudar a mejorar la aplicación</string>
+
+    <!-- Privacy messages -->
+    <string name="msg_privacy_spinner">Descubrimiento</string>
+    <string name="msg_privacy_spinner_description">Quién puede descubrir mi nombre de usuario a través de la búsqueda.</string>
 
     <!-- System messages -->
     <string name="message_room_name_changed">Nombre de la sala cambiado para: %1$s por %2$s</string>
