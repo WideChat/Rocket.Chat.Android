@@ -246,6 +246,10 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <!-- Privacy messages -->
     <string name="msg_privacy_spinner">Discoverability</string>
     <string name="msg_privacy_spinner_description">Who can discover my username through search.</string>
+    <string name="msg_privacy_option_everyone">Everyone</string>
+    <string name="msg_privacy_option_contacts">My contacts</string>
+    <string name="msg_privacy_option_none">None</string>
+
 
     <!-- System messages -->
     <string name="message_room_name_changed">Room name changed to: %1$s by %2$s</string>

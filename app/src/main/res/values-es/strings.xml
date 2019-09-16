@@ -224,6 +224,9 @@
     <!-- Privacy messages -->
     <string name="msg_privacy_spinner">Descubrimiento</string>
     <string name="msg_privacy_spinner_description">Quién puede descubrir mi nombre de usuario a través de la búsqueda.</string>
+    <string name="msg_privacy_option_everyone">Todos</string>
+    <string name="msg_privacy_option_contacts">Mis contactos</string>
+    <string name="msg_privacy_option_none">Ninguno</string>
 
     <!-- System messages -->
     <string name="message_room_name_changed">Nombre de la sala cambiado para: %1$s por %2$s</string>
