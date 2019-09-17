@@ -27,13 +27,9 @@ class PrivacyFragment : Fragment(), PrivacyView {
     @Inject
     lateinit var presenter: PrivacyPresenter
 
-    private val values = arrayListOf("all", "contacts", "none")
-
-    private val everyone = context?.getString(R.string.msg_privacy_option_everyone)
-    private val contacts = context?.getString(R.string.msg_privacy_option_contacts)
-    private val none = context?.getString(R.string.msg_privacy_option_none)
-
-    private val choices = arrayListOf(everyone, contacts, none)
+    private var everyone: String? = null
+    private var contacts: String? = null
+    private var none: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,6 +66,13 @@ class PrivacyFragment : Fragment(), PrivacyView {
     }
 
     override fun showDiscoverability(discoverability: String) {
+        with (activity as MainActivity) {
+            everyone = getString(R.string.msg_privacy_option_everyone)
+            contacts = getString(R.string.msg_privacy_option_contacts)
+            none = getString(R.string.msg_privacy_option_none)
+        }
+        val values = arrayListOf("all", "contacts", "none")
+        val choices = arrayListOf(everyone, contacts, none)
         val spinner = view?.findViewById(R.id.spinner_privacy) as Spinner
         val adapter = ArrayAdapter<String>(context!!, android.R.layout.simple_spinner_item, choices)
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
