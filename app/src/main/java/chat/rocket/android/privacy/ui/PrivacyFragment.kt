@@ -28,7 +28,12 @@ class PrivacyFragment : Fragment(), PrivacyView {
     lateinit var presenter: PrivacyPresenter
 
     private val values = arrayListOf("all", "contacts", "none")
-    private val choices = arrayListOf("Everyone", "My contacts", "None")
+
+    private val everyone = context?.getString(R.string.msg_privacy_option_everyone)
+    private val contacts = context?.getString(R.string.msg_privacy_option_contacts)
+    private val none = context?.getString(R.string.msg_privacy_option_none)
+
+    private val choices = arrayListOf(everyone, contacts, none)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
