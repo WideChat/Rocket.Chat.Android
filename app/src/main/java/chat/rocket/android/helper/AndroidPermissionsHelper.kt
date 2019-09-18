@@ -28,6 +28,10 @@ object AndroidPermissionsHelper {
         ActivityCompat.requestPermissions(context, arrayOf(permission), requestCode)
     }
 
+    fun hasCameraFeature(context: Context): Boolean {
+        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
+    }
+
     fun hasCameraPermission(context: Context): Boolean {
         return checkPermission(context, Manifest.permission.CAMERA)
     }

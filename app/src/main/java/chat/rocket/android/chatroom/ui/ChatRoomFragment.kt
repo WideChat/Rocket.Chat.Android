@@ -907,10 +907,12 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
 
             button_take_a_photo.setOnClickListener {
                 context?.let {
-                    if (AndroidPermissionsHelper.hasCameraPermission(it)) {
-                        dispatchTakePictureIntent()
-                    } else {
-                        AndroidPermissionsHelper.getCameraPermission(this)
+                    if (AndroidPermissionsHelper.hasCameraFeature(it)) {
+                        if (AndroidPermissionsHelper.hasCameraPermission(it)) {
+                            dispatchTakePictureIntent()
+                        } else {
+                            AndroidPermissionsHelper.getCameraPermission(this)
+                        }
                     }
                 }
                 handler.postDelayed({
