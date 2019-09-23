@@ -66,13 +66,18 @@ class PrivacyFragment : Fragment(), PrivacyView {
     }
 
     override fun showDiscoverability(discoverability: String) {
-        with (activity as MainActivity) {
+        /*with (activity as MainActivity) {
             everyone = getString(R.string.msg_privacy_option_everyone)
             contacts = getString(R.string.msg_privacy_option_contacts)
             none = getString(R.string.msg_privacy_option_none)
-        }
+        }*/
         val values = arrayListOf("all", "contacts", "none")
-        val choices = arrayListOf(everyone, contacts, none)
+        //val choices = arrayListOf(everyone, contacts, none)
+        val choices = arrayListOf(
+                getString(R.string.msg_privacy_option_everyone),
+                getString(R.string.msg_privacy_option_contacts),
+                getString(R.string.msg_privacy_option_none)
+        )
         val spinner = view?.findViewById(R.id.spinner_privacy) as Spinner
         val adapter = ArrayAdapter<String>(context!!, android.R.layout.simple_spinner_item, choices)
         adapter.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
