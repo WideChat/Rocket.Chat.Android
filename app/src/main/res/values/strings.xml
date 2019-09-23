@@ -237,8 +237,8 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
 
     <!-- Preferences messages -->
     <string name="msg_analytics_tracking">Analytics tracking</string>
-    <string name="msg_send_analytics_tracking">Send anonymous statics to help improving this app</string>
-    <string name="msg_do_not_send_analytics_tracking">Do not send anonymous statics to help improving this app</string>
+    <string name="msg_send_analytics_tracking">Send anonymous statistics to help improve this app</string>
+    <string name="msg_do_not_send_analytics_tracking">Do not send anonymous statistics to help improve this app</string>
     <string name="msg_not_applicable_since_it_is_a_foss_version">Not applicable since it is a FOSS version</string>
     <string name="msg_public_account">Public Account</string>
     <string name="msg_public_account_description">Send anonymous statistics to help improve this app</string>
@@ -246,6 +246,10 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <!-- Privacy messages -->
     <string name="msg_privacy_spinner">Discoverability</string>
     <string name="msg_privacy_spinner_description">Who can discover my username through search.</string>
+    <string name="msg_privacy_option_everyone">Everyone</string>
+    <string name="msg_privacy_option_contacts">My contacts</string>
+    <string name="msg_privacy_option_none">None</string>
+
 
     <!-- System messages -->
     <string name="message_room_name_changed">Room name changed to: %1$s by %2$s</string>
