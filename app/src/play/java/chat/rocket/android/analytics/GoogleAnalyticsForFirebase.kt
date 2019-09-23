@@ -123,6 +123,13 @@ class GoogleAnalyticsForFirebase @Inject constructor(val context: Context) :
         })
     }
 
+    override fun logStorage(freeBytes: String, totalBytes: String) {
+        firebaseAnalytics.logEvent("log_storage", Bundle(2).apply {
+            putString("free_bytes", freeBytes)
+            putString("total_bytes", totalBytes)
+        })
+    }
+
     override fun logMessageActionAddReaction() = firebaseAnalytics.logEvent("message_action_add_reaction", null)
 
     override fun logMessageActionReply() = firebaseAnalytics.logEvent("message_action_reply", null)

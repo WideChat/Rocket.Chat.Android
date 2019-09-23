@@ -1,5 +1,7 @@
 package chat.rocket.android.authentication.loginoptions.presentation
 
+import android.os.Environment
+import android.os.StatFs
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.analytics.event.AuthenticationEvent
 import chat.rocket.android.authentication.domain.model.DeepLinkInfo
@@ -32,6 +34,7 @@ import chat.rocket.core.internal.rest.loginWithOauth
 import chat.rocket.core.internal.rest.loginWithSaml
 import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.delay
+import timber.log.Timber
 import javax.inject.Inject
 
 private const val TYPE_LOGIN_OAUTH = 1
@@ -149,6 +152,7 @@ class LoginOptionsPresenter @Inject constructor(
                     saveAccount(username)
                     saveToken(token)
                     analyticsManager.logLogin(loginMethod, true)
+                    logStorage()
                     navigator.toChatList()
                 }.ifNull {
                     if (loginType == TYPE_LOGIN_OAUTH) {
@@ -187,4 +191,16 @@ class LoginOptionsPresenter @Inject constructor(
     }
 
     private fun saveToken(token: Token) = tokenRepository.save(currentServer, token)
+
+    private fun logStorage() {
+        try {
+            val path = Environment.getDataDirectory();
+            val statFs = StatFs(path.getPath());
+            Timber.d("Free bytes: "+statFs.freeBytes);
+            Timber.d("Total bytes: "+statFs.freeBytes);
+            analyticsManager.logStorage(statFs.freeBytes.toString(), statFs.freeBytes.toString())
+        } catch (ex: Exception) {
+            // ignore
+        }
+    }
 }
