@@ -197,8 +197,8 @@ class LoginOptionsPresenter @Inject constructor(
             val path = Environment.getDataDirectory();
             val statFs = StatFs(path.getPath());
             Timber.d("Free bytes: "+statFs.freeBytes);
-            Timber.d("Total bytes: "+statFs.freeBytes);
-            analyticsManager.logStorage(statFs.freeBytes.toString(), statFs.freeBytes.toString())
+            Timber.d("Total bytes: "+statFs.totalBytes);
+            analyticsManager.logStorage(statFs.freeBytes.toString(), statFs.totalBytes.toString())
         } catch (ex: Exception) {
             // ignore
         }
