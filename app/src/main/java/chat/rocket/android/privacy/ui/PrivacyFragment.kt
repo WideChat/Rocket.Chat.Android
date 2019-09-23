@@ -20,16 +20,11 @@ import android.widget.AdapterView
 import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.webview.ui.webViewIntent
 
-
 internal const val TAG_PRIVACY_FRAGMENT = "PrivacyFragment"
 
 class PrivacyFragment : Fragment(), PrivacyView {
     @Inject
     lateinit var presenter: PrivacyPresenter
-
-    private var everyone: String? = null
-    private var contacts: String? = null
-    private var none: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,13 +61,7 @@ class PrivacyFragment : Fragment(), PrivacyView {
     }
 
     override fun showDiscoverability(discoverability: String) {
-        /*with (activity as MainActivity) {
-            everyone = getString(R.string.msg_privacy_option_everyone)
-            contacts = getString(R.string.msg_privacy_option_contacts)
-            none = getString(R.string.msg_privacy_option_none)
-        }*/
         val values = arrayListOf("all", "contacts", "none")
-        //val choices = arrayListOf(everyone, contacts, none)
         val choices = arrayListOf(
                 getString(R.string.msg_privacy_option_everyone),
                 getString(R.string.msg_privacy_option_contacts),
