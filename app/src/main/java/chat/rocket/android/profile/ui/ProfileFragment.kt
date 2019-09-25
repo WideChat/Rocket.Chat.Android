@@ -299,10 +299,12 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
 
         button_take_a_photo.setOnClickListener {
             context?.let {
-                if (AndroidPermissionsHelper.hasCameraPermission(it)) {
-                    dispatchTakePicture(REQUEST_CODE_FOR_PERFORM_CAMERA)
-                } else {
-                    AndroidPermissionsHelper.getCameraPermission(this)
+                if (AndroidPermissionsHelper.hasCameraFeature(it)) {
+                    if (AndroidPermissionsHelper.hasCameraPermission(it)) {
+                        dispatchTakePicture(REQUEST_CODE_FOR_PERFORM_CAMERA)
+                    } else {
+                        AndroidPermissionsHelper.getCameraPermission(this)
+                    }
                 }
             }
             hideUpdateAvatarOptions()
