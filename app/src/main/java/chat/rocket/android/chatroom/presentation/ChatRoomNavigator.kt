@@ -164,7 +164,7 @@ class ChatRoomNavigator(internal val activity: ChatRoomActivity) {
 
     fun toChatRooms() {
         activity.startActivity(Intent(activity, MainActivity::class.java).also {
-            it.flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            it.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK
         })
     }
 }
