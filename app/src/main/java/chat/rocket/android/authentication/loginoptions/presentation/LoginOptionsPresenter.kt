@@ -34,7 +34,6 @@ import chat.rocket.core.internal.rest.loginWithOauth
 import chat.rocket.core.internal.rest.loginWithSaml
 import chat.rocket.core.internal.rest.me
 import kotlinx.coroutines.delay
-import timber.log.Timber
 import javax.inject.Inject
 
 private const val TYPE_LOGIN_OAUTH = 1
