@@ -173,4 +173,10 @@ class AnalyticsManager @Inject constructor(
             analytics.forEach { it.logMessageActionDelete() }
         }
     }
+
+    fun logStorage(freeBytes: String, totalBytes: String) {
+        if (analyticsTrackingInteractor.get()) {
+            analytics.forEach { it.logStorage(freeBytes, totalBytes) }
+        }
+    }
 }
