@@ -41,7 +41,10 @@ import javax.inject.Inject
 
 // WIDECHAT
 import chat.rocket.android.helper.Constants
+import chat.rocket.android.main.presentation.MainView
 import com.google.android.material.snackbar.Snackbar
+import dagger.android.HasActivityInjector
+import dagger.android.support.HasSupportFragmentInjector
 import kotlinx.android.synthetic.main.app_bar.*
 import kotlinx.android.synthetic.main.fragment_profile_widechat.*
 
@@ -139,7 +142,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
         }
         super.onPrepareOptionsMenu(menu)
         if (Constants.WIDECHAT) {
-            menu.findItem(R.id.action_delete_account).isVisible = false
+            menu.findItem(R.id.action_log_out).isVisible = false
         }
     }
 
@@ -150,7 +153,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_delete_account -> showDeleteAccountDialog()
+            R.id.action_log_out -> showLogoutDialog()
         }
         return true
     }
@@ -286,7 +289,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
             }
             presenter.setUpdateUrl(getString(R.string.widechat_sso_profile_update_path), onClickCallback)
 
-            delete_account_button.setOnClickListener { showDeleteAccountDialog() }
+            log_out_button.setOnClickListener { showLogoutDialog() }
 
         } else {
             view_dim.setOnClickListener { hideUpdateAvatarOptions() }
@@ -414,32 +417,14 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
         }
     }
 
-    fun showDeleteAccountDialog() {
-        val verificationStringEditText = EditText(context)
-        if (Constants.WIDECHAT) {
-            verificationStringEditText.hint = getString(R.string.msg_username)
-        } else {
-            verificationStringEditText.hint = getString(R.string.msg_password)
-        }
-
+    fun showLogoutDialog() {
         context?.let {
             val builder = AlertDialog.Builder(it)
-            builder.setTitle(R.string.title_are_you_sure_delete)
-                .setView(verificationStringEditText)
-                .setPositiveButton(R.string.action_delete_account) { _, _ ->
-                    if (Constants.WIDECHAT) {
-                        var ssoDeleteCallback = { ->
-                            presenter.widechatDeleteSsoAccount(getString(R.string.widechat_sso_profile_delete_path))
-                        }
-                        presenter.deleteAccount(verificationStringEditText.text.toString(), ssoDeleteCallback)
-
-                    } else {
-                        presenter.deleteAccount(verificationStringEditText.text.toString())
-                    }
-                }
-                .setNegativeButton(android.R.string.no) { dialog, _ -> dialog.cancel() }
-                .create()
-                .show()
+            builder.setTitle(R.string.title_are_you_sure)
+                    .setPositiveButton(R.string.action_logout) { _, _ -> presenter.logout()}
+                    .setNegativeButton(android.R.string.no) { dialog, _ -> dialog.cancel() }
+                    .create()
+                    .show()
         }
     }
 }

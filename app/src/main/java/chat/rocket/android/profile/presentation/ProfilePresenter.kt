@@ -39,6 +39,8 @@ import chat.rocket.core.internal.rest.getAccessToken
 import chat.rocket.android.server.domain.GetSettingsInteractor
 import chat.rocket.android.server.domain.RefreshSettingsInteractor
 import chat.rocket.android.util.extensions.encodeToBase64
+import chat.rocket.core.model.Myself
+import kotlinx.coroutines.channels.Channel
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
@@ -75,6 +77,8 @@ class ProfilePresenter @Inject constructor(
     private val serverUrl = serverInteractor.get()!!
     private val client: RocketChatClient = factory.create(serverUrl)
     private val user = userHelper.user()
+    private val userDataChannel = Channel<Myself>()
+    private val currentServer = serverInteractor.get()!!
 
     // WIDECHAT
     private var currentAccessToken: String? = null
@@ -284,5 +288,10 @@ class ProfilePresenter @Inject constructor(
         // TODO: Implement validation check? What action upon failure?
         val response = ssoApiClient.build().newCall(request).execute()
 
+    }
+
+    fun logout() {
+        setupConnectionInfo(currentServer)
+        super.logout(userDataChannel)
     }
 }
