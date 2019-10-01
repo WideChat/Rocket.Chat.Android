@@ -68,6 +68,7 @@
     <string name="action_delete_account">Eliminar cuenta de usuario</string> <!-- TODO Add translation -->
     <string name="action_favorite">Favorite</string> <!-- TODO Add translation -->
     <string name="action_remove_favorite">Remove favorite</string> <!-- TODO Add translation -->
+    <string name="action_leave_chat">Dejar chat</string>
 
     <!-- Settings List -->
     <string-array name="settings_actions">
@@ -386,6 +387,8 @@
     <string name="new_group">Nuevo Grupo</string>
     <string name="new_chat">Nueva conversación</string>
     <string name="new_contact">Nuevo Contacto</string>
+    <string name="leave">Salir</string>
+    <string name="left_chat">Dejaste el chat</string>
 
     <!--WIDECHAT INVITES-->
     <string name="invitation_sms_success">La invitación fue enviada</string>
