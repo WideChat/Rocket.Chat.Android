@@ -11,5 +11,6 @@
     <item name="menu_action_settings" type="id"/>
     <item name="menu_action_admin_panel" type="id"/>
     <item name="menu_action_logout" type="id"/>
+    <item name="menu_action_delete_account" type="id"/>
 
 </resources>

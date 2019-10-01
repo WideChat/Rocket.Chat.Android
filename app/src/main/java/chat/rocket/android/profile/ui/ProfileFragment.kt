@@ -427,4 +427,5 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
                     .show()
         }
     }
+
 }

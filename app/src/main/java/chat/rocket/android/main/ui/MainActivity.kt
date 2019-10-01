@@ -30,10 +30,6 @@ import chat.rocket.android.push.refreshPushToken
 import chat.rocket.android.server.domain.PermissionsInteractor
 import chat.rocket.android.server.domain.model.Account
 import chat.rocket.android.server.ui.INTENT_CHAT_ROOM_ID
-import chat.rocket.android.util.extensions.fadeIn
-import chat.rocket.android.util.extensions.fadeOut
-import chat.rocket.android.util.extensions.rotateBy
-import chat.rocket.android.util.extensions.showToast
 import chat.rocket.android.util.invalidateFirebaseToken
 import chat.rocket.common.model.UserStatus
 import chat.rocket.common.util.ifNull
@@ -55,14 +51,19 @@ import android.os.Build
 import android.view.View
 import android.view.View.GONE
 import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
 import androidx.core.net.toUri
+import androidx.core.view.isVisible
 import androidx.lifecycle.MutableLiveData
 import androidx.work.*
 import chat.rocket.android.contacts.models.ContactsLoadingState
 import chat.rocket.android.helper.AndroidPermissionsHelper
 import chat.rocket.android.helper.Constants
 import chat.rocket.android.helper.SharedPreferenceHelper
+import chat.rocket.android.util.extensions.*
+import kotlinx.android.synthetic.main.fragment_profile.*
+import kotlinx.android.synthetic.main.fragment_profile_widechat.*
 import timber.log.Timber
 
 private const val CURRENT_STATE = "current_state"
@@ -327,15 +328,6 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
         toolbar.setNavigationOnClickListener { openDrawer() }
     }
 
-    fun showLogoutDialog() {
-        val builder = AlertDialog.Builder(this)
-        builder.setTitle(R.string.title_are_you_sure)
-            .setPositiveButton(R.string.action_logout) { _, _ -> presenter.logout()}
-            .setNegativeButton(android.R.string.no) { dialog, _ -> dialog.cancel() }
-            .create()
-            .show()
-    }
-
     fun setAvatar(avatarUrl: String) {
         headerLayout.image_avatar.setImageURI(avatarUrl)
     }
@@ -504,5 +496,40 @@ class MainActivity : AppCompatActivity(), MainView, HasActivityInjector,
             dialog.dismiss()
         })
         dialog.show()
+    }
+
+    override fun showLoading() {
+/*        if (Constants.WIDECHAT) {
+            ui { widechat_view_loading.isVisible = true }
+        } else {
+            enableUserInput(false)
+            ui { view_loading.isVisible = true }
+        }*/
+    }
+
+    override fun hideLoading() {
+/*        if (Constants.WIDECHAT) {
+            ui {
+                if (widechat_view_loading != null) {
+                    widechat_view_loading.isVisible = false
+                }
+            }
+        } else {
+            ui {
+                if (view_loading != null) {
+                    view_loading.isVisible = false
+                }
+            }
+            enableUserInput(true)
+        }*/
+    }
+
+    fun showLogoutDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setTitle(R.string.title_are_you_sure)
+                .setPositiveButton(R.string.action_logout) { _, _ -> presenter.logout()}
+                .setNegativeButton(android.R.string.no) { dialog, _ -> dialog.cancel() }
+                .create()
+                .show()
     }
 }

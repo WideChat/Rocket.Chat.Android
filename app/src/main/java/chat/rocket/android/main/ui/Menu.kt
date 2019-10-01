@@ -53,9 +53,9 @@ internal fun MainActivity.setupMenu(menu: Menu) {
 
         add(
             R.id.menu_section_three,
-            R.id.menu_action_logout,
+            R.id.menu_action_delete_account,
             Menu.NONE,
-            R.string.action_logout
+            R.string.action_delete_account
         ).setIcon(R.drawable.ic_logout_black_24dp)
 
         setGroupCheckable(R.id.menu_section_one, true, true)

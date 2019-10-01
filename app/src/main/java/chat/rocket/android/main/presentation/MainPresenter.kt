@@ -45,7 +45,13 @@ import javax.inject.Inject
 import androidx.core.net.toUri
 import com.facebook.drawee.backends.pipeline.Fresco
 import chat.rocket.android.infrastructure.username
+import chat.rocket.android.util.extension.gethash
+import chat.rocket.android.util.extension.toHex
 import chat.rocket.android.util.extensions.avatarUrl
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import okhttp3.*
+import java.util.*
 
 class MainPresenter @Inject constructor(
     private val view: MainView,
@@ -82,9 +88,11 @@ class MainPresenter @Inject constructor(
     private val client: RocketChatClient = factory.create(currentServer)
     private var settings: PublicSettings = getSettingsInteractor.get(serverInteractor.get()!!)
     private val userDataChannel = Channel<Myself>()
+    private val ssoApiClient = OkHttpClient().newBuilder().protocols(Arrays.asList(Protocol.HTTP_1_1))
 
     // WIDECHAT
     private val currentUsername = localRepository.username()
+    private var currentAccessToken: String? = null
 
     fun toChatList(chatRoomId: String? = null, deepLinkInfo: DeepLinkInfo? = null) = navigator.toChatList(chatRoomId, deepLinkInfo)
 
@@ -254,6 +262,76 @@ class MainPresenter @Inject constructor(
         groupedPush.hostToPushMessageList[currentServer]?.let { list ->
             list.removeAll { it.info.roomId == chatRoomId }
         }
+    }
+
+
+
+    fun deleteAccount(password: String) {
+        launchUI(strategy) {
+            view.showLoading()
+            try {
+                withContext(Dispatchers.Default) {
+                    // REMARK: Backend API is only working with a lowercase hash.
+                    // https://github.com/RocketChat/Rocket.Chat/issues/12573
+                    retryIO { client.deleteOwnAccount(password.gethash().toHex().toLowerCase()) }
+                    setupConnectionInfo(currentServer)
+                    logout(null)
+                }
+            } catch (exception: Exception) {
+                exception.message?.let {
+                    view.showMessage(it)
+                }.ifNull {
+                    view.showGenericErrorMessage()
+                }
+            } finally {
+                view.hideLoading()
+            }
+        }
+    }
+
+    // WIDECHAT
+    fun deleteAccount(username: String, ssoDeleteCallback: () -> Unit?) {
+        launchUI(strategy) {
+            view.showLoading()
+            try {
+                withContext(Dispatchers.Default) {
+                    retryIO { client.deleteOwnAccount(username) }
+                    ssoDeleteCallback()
+                    setupConnectionInfo(currentServer)
+                    logout(null)
+                }
+            } catch (exception: Exception) {
+                exception.message?.let {
+                    view.showMessage(it)
+                }.ifNull {
+                    view.showGenericErrorMessage()
+                }
+            } finally {
+                view.hideLoading()
+            }
+        }
+    }
+
+    // TODO: Is it neccessary to move this into the Kotlin SDK?
+    fun widechatDeleteSsoAccount(ssoProfileDeletePath: String?) {
+        val MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8")
+        val json = """{"profilemap":{"username":"userid"}}""".trimIndent()
+
+/*        retryIO {
+            currentAccessToken = client.getAccessToken(customOauthServiceName.toString())
+        }*/
+
+        var request: Request = Request.Builder()
+                .url("${customOauthHost}${ssoProfileDeletePath}")
+                .delete(RequestBody.create(MEDIA_TYPE_JSON, json))
+                .addHeader("Authorization", "Bearer ${currentAccessToken}")
+                .addHeader("Content-Type", "application/json")
+                .addHeader("cache-control", "no-cache")
+                .build()
+
+        // TODO: Implement validation check? What action upon failure?
+        val response = ssoApiClient.build().newCall(request).execute()
+
     }
 
 }
