@@ -11,7 +11,7 @@
     <string name="title_legal_terms">Términos legales</string>
     <string name="title_home">Casa</string>
     <string name="title_chats">Chats</string>
-    <string name="title_contacts">Nueva conversación</string>
+    <string name="title_contacts">Nueva Conversación</string>
     <string name="title_profile">Perfil</string>
     <string name="title_members">Miembros</string>
     <string name="title_counted_members">Miembros (%d)</string>
@@ -64,7 +64,7 @@
     <string name="action_connect_server">Conéctate con un servidor</string>
     <string name="action_join_community">Únete a la comunidad</string>
     <string name="action_create_server">Crea un nuevo servidor</string>
-    <string name="action_register">Registro</string>
+    <string name="action_register">Registrate</string>
     <string name="action_confirm">Confirmar</string>
     <string name="action_delete_account">Eliminar cuenta de usuario</string>
     <string name="action_favorite">Favorito</string>
@@ -75,7 +75,7 @@
     <!-- Settings List -->
     <string-array name="settings_actions">
         <item name="item_preferences">Preferencias</item>
-        <item name="item_password">Cambia la contraseña</item>
+        <item name="item_password">Cambiar la contraseña</item>
         <item name="change_language">Cambiar idioma</item>
         <item name="item_share_app">Compartir aplicación</item>
         <item name="item_rate_us">Nos califica</item>
@@ -405,10 +405,10 @@
     <string name="title_chat_details">Detalles del chat</string>
     <string name="share_via_another_app">Compartir a través de otra aplicación</string>
     <string name="new_group">Nuevo Grupo</string>
-    <string name="new_chat">Nueva conversación</string>
+    <string name="new_chat">Nueva Conversación</string>
     <string name="new_contact">Nuevo Contacto</string>
     <string name="close_button_description">Cerrar</string>
-    <string name="go_back_button_description">Regresa</string>
+    <string name="go_back_button_description">Regresar</string>
     <string name="menu_button_description">Menú</string>
 
     <!--WIDECHAT INVITES-->
