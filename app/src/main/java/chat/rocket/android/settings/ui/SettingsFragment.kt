@@ -189,15 +189,16 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
         }
 
     fun showDeleteAccountDialog() {
-        context?.let {
-        val verificationStringEditText = EditText(it)
+        val verificationStringEditText = EditText(context)
         if (Constants.WIDECHAT) {
             verificationStringEditText.hint = getString(R.string.msg_username)
         } else {
             verificationStringEditText.hint = getString(R.string.msg_password)
         }
 
-            val builder = AlertDialog.Builder(it)
+        context?.let {
+
+        val builder = AlertDialog.Builder(it)
             builder.setTitle(R.string.title_are_you_sure_delete)
                     .setView(verificationStringEditText)
                     .setPositiveButton(R.string.action_delete_account) { _, _ ->

@@ -317,9 +317,11 @@ class MainPresenter @Inject constructor(
         val MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8")
         val json = """{"profilemap":{"username":"userid"}}""".trimIndent()
 
-/*        retryIO {
-            currentAccessToken = client.getAccessToken(customOauthServiceName.toString())
-        }*/
+        launchUI(strategy) {
+            retryIO {
+                currentAccessToken = client.getAccessToken(customOauthServiceName.toString())
+            }
+        }
 
         var request: Request = Request.Builder()
                 .url("${customOauthHost}${ssoProfileDeletePath}")
