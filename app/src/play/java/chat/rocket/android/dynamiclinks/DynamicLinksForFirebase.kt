@@ -36,29 +36,34 @@ class DynamicLinksForFirebase @Inject constructor(
 
     override fun createDynamicLink(username: String, server: String, deepLinkCallback: (String?) -> Unit? ) {
 
-        FirebaseDynamicLinks.getInstance().createDynamicLink()
-            .setLink(Uri.parse("$server/direct/$username"))
-            .setDomainUriPrefix("https://" + context.getString(R.string.widechat_deeplink_host))
-            .setAndroidParameters(
-                    DynamicLink.AndroidParameters.Builder(context.getString(R.string.widechat_package_name)).build())
-            .setSocialMetaTagParameters(
-                    DynamicLink.SocialMetaTagParameters.Builder()
-                            .setTitle(username)
-                            .setDescription(String.format(context.getString(R.string.chat_with), username, " ") + context.getString(R.string.app_name))
-                            .build())
-            .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT)
-            .addOnSuccessListener { result ->
-                newDeepLink = result.shortLink.toString()
-                Timber.d("New deeplink created: ${newDeepLink}")
+        // Using static link for now so we can track clicks in the console
+        newDeepLink = context.getString(R.string.widechat_static_deeplink)
+        analyticsManager.logDeeplinkCreated(newDeepLink)
+        deepLinkCallback(newDeepLink)
 
-            }.addOnFailureListener {
-                // Error
-                Timber.d("Error creating dynamic link.")
-
-            }.addOnCompleteListener {
-                analyticsManager.logDeeplinkCreated(newDeepLink)
-                deepLinkCallback(newDeepLink)
-            }
+//        FirebaseDynamicLinks.getInstance().createDynamicLink()
+//            .setLink(Uri.parse("$server/direct/$username"))
+//            .setDomainUriPrefix("https://" + context.getString(R.string.widechat_deeplink_host))
+//            .setAndroidParameters(
+//                    DynamicLink.AndroidParameters.Builder(context.getString(R.string.widechat_package_name)).build())
+//            .setSocialMetaTagParameters(
+//                    DynamicLink.SocialMetaTagParameters.Builder()
+//                            .setTitle(username)
+//                            .setDescription(String.format(context.getString(R.string.chat_with), username, " ") + context.getString(R.string.app_name))
+//                            .build())
+//            .buildShortDynamicLink(ShortDynamicLink.Suffix.SHORT)
+//            .addOnSuccessListener { result ->
+//                newDeepLink = result.shortLink.toString()
+//                Timber.d("New deeplink created: ${newDeepLink}")
+//
+//            }.addOnFailureListener {
+//                // Error
+//                Timber.d("Error creating dynamic link.")
+//
+//            }.addOnCompleteListener {
+//                analyticsManager.logDeeplinkCreated(newDeepLink)
+//                deepLinkCallback(newDeepLink)
+//            }
     }
 }
 
