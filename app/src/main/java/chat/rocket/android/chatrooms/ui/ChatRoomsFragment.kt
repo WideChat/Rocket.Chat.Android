@@ -558,7 +558,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     currentUserStatusIcon?.setImageDrawable(drawable)
                 }
             } catch (e: Exception) {
-                throw e
+                Timber.e("Setting current status icon failed: ${e}")
             }
         }
     }
