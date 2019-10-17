@@ -206,9 +206,11 @@ class ChatRoomsPresenter @Inject constructor(
                 val wifiInfo = wifiManager.getConnectionInfo()
 
                 if (wifiInfo.getSupplicantState() == SupplicantState.COMPLETED) {
-                    var ssid = wifiInfo.getBSSID()
-                    SharedPreferenceHelper.putString(Constants.CURRENT_BSSID, ssid)
-                    Timber.d("Current bssid is: ${ssid}")
+                    val ssid: String? = wifiInfo.getBSSID()
+                    ssid?.let {
+                        SharedPreferenceHelper.putString(Constants.CURRENT_BSSID, it)
+                        Timber.d("Current bssid is: ${ssid}")
+                    }
                 } else {
                     SharedPreferenceHelper.putString(Constants.CURRENT_BSSID, "none")
                 }
