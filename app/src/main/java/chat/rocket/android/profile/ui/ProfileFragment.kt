@@ -139,7 +139,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
         }
         super.onPrepareOptionsMenu(menu)
         if (Constants.WIDECHAT) {
-            menu.findItem(R.id.action_delete_account).isVisible = false
+            menu.findItem(R.id.action_logout).isVisible = false
         }
     }
 
@@ -150,7 +150,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_delete_account -> showDeleteAccountDialog()
+            R.id.action_logout -> showDeleteAccountDialog()
         }
         return true
     }
@@ -286,7 +286,7 @@ class ProfileFragment : Fragment(), ProfileView, ActionMode.Callback {
             }
             presenter.setUpdateUrl(getString(R.string.widechat_sso_profile_update_path), onClickCallback)
 
-            delete_account_button.setOnClickListener { showDeleteAccountDialog() }
+            log_out_button.setOnClickListener { showDeleteAccountDialog() }
 
         } else {
             view_dim.setOnClickListener { hideUpdateAvatarOptions() }
