@@ -45,6 +45,17 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
+    <com.facebook.drawee.view.SimpleDraweeView
+        android:id="@+id/back_arrow"
+        android:visibility="gone"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_marginStart="12dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="12dp"
+        android:background="@drawable/ic_arrow_back_white_24dp" />
+
     <androidx.appcompat.widget.SearchView
        android:layout_width="wrap_content"
        android:layout_height="match_parent"

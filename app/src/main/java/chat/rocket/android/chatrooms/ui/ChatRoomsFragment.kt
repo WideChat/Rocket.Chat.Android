@@ -546,14 +546,25 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
 
             if (ShareHandler.hasShare()){
                 with((activity as AppCompatActivity?)){
-                    this?.toolbar?.title = getString(R.string.share_with)
-                    this?.toolbar?.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
-                    this?.toolbar?.navigationContentDescription = getString(R.string.go_back_button_description)
-                    this?.toolbar?.setNavigationOnClickListener {
+
+                    this?.supportActionBar?.setDisplayShowCustomEnabled(true)
+                    this?.supportActionBar?.setDisplayShowTitleEnabled(false)
+                    this?.supportActionBar?.setCustomView(R.layout.widechat_search_layout)
+
+                    this?.supportActionBar?.getCustomView()?.findViewById<View>(R.id.rl_image_avatar)?.visibility = View.GONE
+                    val backArrow = this?.supportActionBar?.getCustomView()?.findViewById<View>(R.id.back_arrow)
+
+                    backArrow?.visibility = View.VISIBLE
+                    backArrow?.setOnClickListener {
                         ShareHandler.clear()
                         setupToolbar()
-                        invalidateOptionsMenu()
+                        this?.invalidateOptionsMenu()
                     }
+
+                    searchView = this?.supportActionBar?.getCustomView()?.findViewById(R.id.action_widechat_search)
+                    searchView?.queryHint = getString(R.string.share_with)
+                    setupWidechatSearchView()
+                    clearSearch()
                 }
                 return
             }

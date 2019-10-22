@@ -29,29 +29,20 @@ object ShareHandler {
             type?.let {
                 when (action) {
                     Intent.ACTION_SEND -> {
-                        when {
-                            "text/plain" == type -> {
+                        when (type) {
+                            "text/plain" -> {
                                 // Handle text being sent
                                 handleSendText(intent)
                             }
-                            type.startsWith("image/") -> {
-                                // Handle single image being sent
-                                handleSend(intent, context)
-                            }
                             else -> {
-                                // Handle other files
+                                // Handle image or files being sent
                                 handleSend(intent, context)
                             }
                         }
                     }
                     Intent.ACTION_SEND_MULTIPLE -> {
-                        if (type.startsWith("image/")) {
-                            // Handle multiple images being sent
-                            handleSendMultiple(intent, context)
-                        } else {
-                            // Handle other multiple files
-                            handleSendMultiple(intent, context)
-                        }
+                        // Handle multiple images or files being sent
+                        handleSendMultiple(intent, context)
                     }
                 }
             }
