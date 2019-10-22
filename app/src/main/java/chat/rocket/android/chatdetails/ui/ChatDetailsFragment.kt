@@ -197,11 +197,12 @@ class ChatDetailsFragment : Fragment(), ChatDetailsView {
                     presenter.toPinned(chatRoomId!!)
                 }
             } else {
-                if (!disableMenu) {
-                    it.addOption(getString(R.string.title_files), R.drawable.ic_files_24dp) {
-                        presenter.toFiles(chatRoomId!!)
-                    }
-                }
+            // temporarily hide files until it is fixed
+            //    if (!disableMenu) {
+            //        it.addOption(getString(R.string.title_files), R.drawable.ic_files_24dp) {
+            //            presenter.toFiles(chatRoomId!!)
+            //        }
+            //    }
                 if (chatRoomType != RoomType.DIRECT_MESSAGE && !disableMenu) {
                     it.addOption(getString(R.string.msg_mentions), R.drawable.ic_at_black_20dp) {
                         presenter.toMentions(chatRoomId!!)

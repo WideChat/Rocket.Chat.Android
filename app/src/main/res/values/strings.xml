@@ -157,6 +157,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="msg_channel_name">Channel name</string>
     <string name="msg_group_name">Group name</string>
     <string name="msg_search">Search</string>
+    <string name="msg_search_hint">Search users</string>
     <string name="msg_unread_messages">Unread messages</string>
     <string name="msg_preview_video">Video</string>
     <string name="msg_preview_audio">Audio</string>
@@ -236,8 +237,8 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
 
     <!-- Preferences messages -->
     <string name="msg_analytics_tracking">Analytics tracking</string>
-    <string name="msg_send_analytics_tracking">Send anonymous statics to help improving this app</string>
-    <string name="msg_do_not_send_analytics_tracking">Do not send anonymous statics to help improving this app</string>
+    <string name="msg_send_analytics_tracking">Send anonymous statistics to help improve this app</string>
+    <string name="msg_do_not_send_analytics_tracking">Do not send anonymous statistics to help improve this app</string>
     <string name="msg_not_applicable_since_it_is_a_foss_version">Not applicable since it is a FOSS version</string>
     <string name="msg_public_account">Public Account</string>
     <string name="msg_public_account_description">Send anonymous statistics to help improve this app</string>
@@ -245,6 +246,10 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <!-- Privacy messages -->
     <string name="msg_privacy_spinner">Discoverability</string>
     <string name="msg_privacy_spinner_description">Who can discover my username through search.</string>
+    <string name="msg_privacy_option_everyone">Everyone</string>
+    <string name="msg_privacy_option_contacts">My contacts</string>
+    <string name="msg_privacy_option_none">None</string>
+
 
     <!-- System messages -->
     <string name="message_room_name_changed">Room name changed to: %1$s by %2$s</string>
@@ -423,7 +428,9 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="save">SAVE</string>
     <string name="no_thanks">NO THANKS</string>
     <string name="chat_with">Chat with %1$s on %2$s</string>
-    <string name="default_invitation_text">Viasat Connect is a new application that makes it easy for me to text with friends and family. Download the application here %1$s and connect with me.</string>
+    <string name="default_invitation_text_description">Viasat Connect is a new application that makes it easy for me to chat with friends and family.</string>
+    <string name="default_invitation_text_dynamic_link">Download the application here %1$s or search for Viasat Connect in the Google Play Store and connect with me.</string>
+    <string name="default_invitation_text_app_store">Download the application by searching for Viasat Connect in the Google Play Store to chat with me.</string>
     <string name="default_invitation_subject">Your friend %1$s has invited you to chat on Viasat Connect</string>
 
     <!--WIDECHAT PERMISSIONS-->

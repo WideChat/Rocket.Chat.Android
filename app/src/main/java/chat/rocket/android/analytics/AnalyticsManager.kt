@@ -102,6 +102,12 @@ class AnalyticsManager @Inject constructor(
         }
     }
 
+    fun logDeeplinkCreated(deepLink: String?) {
+        if (analyticsTrackingInteractor.get()) {
+            analytics.forEach { it.logDeeplinkCreated(deepLink) }
+        }
+    }
+
     fun logMessageActionAddReaction() {
         if (analyticsTrackingInteractor.get()) {
             analytics.forEach { it.logMessageActionAddReaction() }
@@ -165,6 +171,12 @@ class AnalyticsManager @Inject constructor(
     fun logMessageActionDelete() {
         if (analyticsTrackingInteractor.get()) {
             analytics.forEach { it.logMessageActionDelete() }
+        }
+    }
+
+    fun logStorage(freeBytes: String, totalBytes: String) {
+        if (analyticsTrackingInteractor.get()) {
+            analytics.forEach { it.logStorage(freeBytes, totalBytes) }
         }
     }
 }

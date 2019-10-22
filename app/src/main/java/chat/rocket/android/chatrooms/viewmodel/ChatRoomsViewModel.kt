@@ -20,6 +20,7 @@ import chat.rocket.core.model.SpotlightResult
 import com.shopify.livedataktx.distinct
 import com.shopify.livedataktx.map
 import com.shopify.livedataktx.nonNull
+import com.shopify.livedataktx.observe
 import kotlinx.coroutines.async
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -49,6 +50,12 @@ class ChatRoomsViewModel(
     private var loaded = false
     var showLastMessage = true
 
+    private var status: State? = null
+
+    init {
+        connectionManager.statusLiveData.observe { status = it }
+    }
+
     fun getChatRooms(): LiveData<RoomsModel> {
         return Transformations.switchMap(query) { query ->
 
@@ -62,12 +69,19 @@ class ChatRoomsViewModel(
                     if (!coroutineContext.isActive) return@wrap
 
                     val rooms = repository.search(string).let { mapper.map(it, showLastMessage = this.showLastMessage) }
+
+                    if (status !is State.Connected) {
+                        data.postValue(rooms.toMutableList())
+                        connectionManager.connect()
+                        return@wrap
+                    }
+
                     data.postValue(rooms.toMutableList() + LoadingItemHolder())
 
-                    var repoSearchRoomIds = ArrayList<String>()
+                    var repoSearchRoomNames = ArrayList<CharSequence>()
                     rooms.forEach { room ->
                         var thisRoom: RoomUiModel = room.data as RoomUiModel
-                        repoSearchRoomIds.add(thisRoom.id)
+                        repoSearchRoomNames.add(thisRoom.name)
                     }
                     if (!coroutineContext.isActive) return@wrap
 
@@ -75,7 +89,7 @@ class ChatRoomsViewModel(
                     val spotlightFiltered =  ArrayList<ItemHolder<*>>()
                     spotlight?.forEach { room ->
                         var thisRoom: RoomUiModel = room.data as RoomUiModel
-                        if (thisRoom.id !in repoSearchRoomIds) {
+                        if (thisRoom.name !in repoSearchRoomNames) {
                             spotlightFiltered.add(room)
                         }
                     }

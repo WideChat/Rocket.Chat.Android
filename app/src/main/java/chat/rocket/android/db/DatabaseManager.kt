@@ -74,6 +74,7 @@ class DatabaseManager(val context: Application, val serverUrl: String) {
     fun userDao(): UserDao = database.userDao()
     fun messageDao(): MessageDao = database.messageDao()
     fun contactsDao(): ContactDao = database.contactDao()
+    fun uploadFilesDao(): UploadFileDao = database.uploadFileDao()
 
     init {
         start()
@@ -599,7 +600,8 @@ class DatabaseManager(val context: Application, val serverUrl: String) {
                     chatRoomDao().cleanInsert(operation.chatRooms)
                 }
                 is Operation.CleanInsertContacts -> {
-                    contactsDao().cleanInsert(operation.contacts)
+                    contactsDao().
+                            cleanInsert(operation.contacts)
                 }
                 is Operation.InsertUsers -> {
                     val time = measureTimeMillis { userDao().upsert(operation.users) }

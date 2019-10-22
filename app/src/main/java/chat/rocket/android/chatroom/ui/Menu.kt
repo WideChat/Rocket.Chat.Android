@@ -9,12 +9,16 @@ import androidx.core.content.res.ResourcesCompat
 import chat.rocket.android.R
 import chat.rocket.android.util.extension.onQueryTextListener
 
+// WIDECHAT
+import android.graphics.Color
+import android.widget.*
+import chat.rocket.android.helper.Constants
+
 internal fun ChatRoomFragment.setupMenu(menu: Menu) {
     setupSearchMessageMenuItem(menu, requireContext())
 }
 
 private fun ChatRoomFragment.setupSearchMessageMenuItem(menu: Menu, context: Context) {
-
     var actionFlags: Int? = null
     actionFlags = MenuItem.SHOW_AS_ACTION_IF_ROOM or MenuItem.SHOW_AS_ACTION_COLLAPSE_ACTION_VIEW
 
@@ -43,14 +47,42 @@ private fun ChatRoomFragment.setupSearchMessageMenuItem(menu: Menu, context: Con
 
     (searchItem.actionView as? SearchView)?.let {
         // TODO: Check why we need to stylize the search text programmatically instead of by defining it in the styles.xml (ChatRoom.SearchView)
-        it.maxWidth = Integer.MAX_VALUE
-        stylizeSearchView(it, context)
+        if (Constants.WIDECHAT) {
+            stylizeWidechatSearchView(it)
+        } else {
+            it.maxWidth = Integer.MAX_VALUE
+            stylizeSearchView(it, context)
+        }
         setupSearchViewTextListener(it)
         if (it.isIconified) {
             isSearchTermQueried = false
         }
     }
 }
+
+private fun stylizeWidechatSearchView(search: SearchView) {
+    search.setBackgroundResource(R.drawable.widechat_search_white_background)
+
+    val searchIcon: ImageView? = search.findViewById(R.id.search_mag_icon)
+    searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
+
+    val searchText: TextView? = search.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)
+    searchText?.setTextColor(Color.GRAY)
+    searchText?.setHintTextColor(Color.GRAY)
+    searchText?.setHint( R.string.title_search_message)
+
+    val searchCloseButton: ImageView? = search.findViewById(R.id.search_close_btn)
+    searchText?.setOnFocusChangeListener { v, hasFocus ->
+        if (hasFocus)
+            searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
+    }
+    searchCloseButton?.setOnClickListener { v ->
+        search.clearFocus()
+        search.setQuery("", false)
+        searchCloseButton?.setImageResource(0)
+    }
+}
+
 
 private fun stylizeSearchView(searchView: SearchView, context: Context) {
     val searchText = searchView.findViewById<EditText>(androidx.appcompat.R.id.search_src_text)

@@ -76,9 +76,9 @@ class OauthWebViewActivity : AppCompatActivity() {
 
     private fun setupToolbar() {
         with(toolbar) {
-            title = getString(R.string.title_authentication)
-            setNavigationIcon(R.drawable.ic_close_white_24dp)
-            setNavigationContentDescription(R.string.close_button_description)
+            //title = getString(R.string.title_authentication)
+            setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
+            setNavigationContentDescription(R.string.go_back_button_description)
             setNavigationOnClickListener { closeView() }
         }
     }

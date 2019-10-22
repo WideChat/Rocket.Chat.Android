@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="MessageFlexLayout">
+        <attr name="viewPrimary" format="reference" />
+        <attr name="viewSecondary" format="reference" />
+        <attr name="maxWidth" format="dimension" />
+    </declare-styleable>
+</resources>

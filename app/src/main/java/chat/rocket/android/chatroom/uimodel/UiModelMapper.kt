@@ -278,7 +278,7 @@ class UiModelMapper @Inject constructor(
 
         return MessageReplyUiModel(
             messageId = message.id,
-            isTemporary = false,
+            synced = false,
             reactions = emptyList(),
             message = message,
             preview = mapMessagePreview(message),
@@ -337,7 +337,7 @@ class UiModelMapper @Inject constructor(
                 messageId = message.id,
                 reactions = getReactions(message),
                 preview = message.copy(message = content.message),
-                isTemporary = !message.synced,
+                synced = message.synced,
                 unread = message.unread,
                 currentDayMarkerText = dayMarkerText,
                 showDayMarker = false,
@@ -402,7 +402,7 @@ class UiModelMapper @Inject constructor(
     private fun attachmentUrl(url: String?): String? {
         if (url.isNullOrEmpty()) return null
         if (url!!.startsWith("http")) return url
-
+        if (url!!.startsWith("content")) return url
         val fullUrl = "$baseUrl$url"
         val httpUrl = HttpUrl.parse(fullUrl)
         httpUrl?.let {
@@ -458,7 +458,7 @@ class UiModelMapper @Inject constructor(
             messageId = message.id, avatar = avatar!!, time = time, senderName = sender,
             content = content, isPinned = message.pinned, currentDayMarkerText = dayMarkerText,
             showDayMarker = false, reactions = getReactions(message), isFirstUnread = false,
-            preview = preview, isTemporary = !synced, unread = unread, permalink = permalink,
+            preview = preview, synced = synced, unread = unread, permalink = permalink,
             subscriptionId = chatRoom.subscriptionId)
     }
 

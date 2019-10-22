@@ -25,6 +25,9 @@ import chat.rocket.core.model.attachment.actions.ButtonAction
 import chat.rocket.core.model.isSystemMessage
 import timber.log.Timber
 import java.security.InvalidParameterException
+import java.util.Calendar
+import kotlin.Comparator
+import kotlin.collections.ArrayList
 
 class ChatRoomAdapter(
     private val roomId: String? = null,
@@ -34,7 +37,8 @@ class ChatRoomAdapter(
     private val enableActions: Boolean = true,
     private val reactionListener: EmojiReactionListener? = null,
     private val navigator: ChatRoomNavigator? = null,
-    private val analyticsManager: AnalyticsManager? = null
+    private val analyticsManager: AnalyticsManager? = null,
+    private val messageGroupingPeriod: Int = 900
 ) : RecyclerView.Adapter<BaseViewHolder<*>>() {
     private val dataSet = ArrayList<BaseUiModel<*>>()
 
@@ -118,9 +122,24 @@ class ChatRoomAdapter(
             }
         }
 
+        var groupMessage = false
+
+        if (position + 1 < dataSet.size) {
+            val a = dataSet[position].message
+            val b = dataSet[position + 1].message
+
+            groupMessage = shouldGroupMessage(a, b)
+
+            a.attachments?.let {
+                if (it.any { a -> a.type != null }) { // check if message media attachment.
+                    groupMessage = false
+                }
+            }
+        }
+
         when (holder) {
             is MessageViewHolder ->
-                holder.bind(dataSet[position] as MessageUiModel)
+                holder.bind(dataSet[position] as MessageUiModel, groupMessage)
             is UrlPreviewViewHolder -> {
                 holder.bind(dataSet[position] as UrlPreviewUiModel)
             }
@@ -129,6 +148,15 @@ class ChatRoomAdapter(
             is AttachmentViewHolder ->
                 holder.bind(dataSet[position] as AttachmentUiModel)
         }
+    }
+
+    private fun shouldGroupMessage(a: Message, b: Message): Boolean {
+        if (a.senderAlias == b.senderAlias && a.sender?.id == b.sender?.id && !a.isSystemMessage() && !b.isSystemMessage()) {
+            val date1 = a.getDate()
+            val date2 = b.getDate()
+            return date1.isSameDay(date2) && date1.timeInMillis - date2.timeInMillis < messageGroupingPeriod * 1000
+        }
+        return false
     }
 
     override fun getItemId(position: Int): Long {
@@ -346,5 +374,17 @@ class ChatRoomAdapter(
         fun copyPermalink(id: String)
 
         fun reportMessage(id: String)
+    }
+
+    private fun Message.getDate(): Calendar {
+        return Calendar.getInstance().apply {
+            timeInMillis = this@getDate.timestamp
+        }
+    }
+
+    private fun Calendar.isSameDay(other: Calendar): Boolean {
+        return this.get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
+            this.get(Calendar.MONTH) == other.get(Calendar.MONTH) &&
+            this.get(Calendar.DAY_OF_MONTH) == other.get(Calendar.DAY_OF_MONTH)
     }
 }

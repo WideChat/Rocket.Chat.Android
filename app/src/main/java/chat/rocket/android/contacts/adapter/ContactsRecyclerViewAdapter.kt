@@ -12,6 +12,7 @@ import chat.rocket.android.chatrooms.adapter.*
 import chat.rocket.android.contacts.models.Contact
 import chat.rocket.android.contacts.presentation.ContactsPresenter
 import chat.rocket.android.contacts.ui.ContactsFragment
+import chat.rocket.android.helper.Constants
 import chat.rocket.android.main.ui.MainActivity
 import chat.rocket.android.util.extensions.inflate
 import chat.rocket.common.model.UserPresence
@@ -119,8 +120,12 @@ class ContactsRecyclerViewAdapter(
                 val inviteButton: Button = holder.itemView.findViewById(R.id.invite_contact)
                 inviteButton.setOnClickListener { view ->
                     run {
-                        inviteButton.setText(R.string.Invited)
-                        presenter.inviteWithRealNamePrompt(contact, frag.context)
+                        if (Constants.INVITE_VIA_SHARE_ONLY) {
+                            shareApp()
+                        } else {
+                            inviteButton.setText(R.string.Invited)
+                            presenter.inviteWithRealNamePrompt(contact, frag.context)
+                        }
                     }
                 }
                 // Clear any previous onClickListener when scrolling

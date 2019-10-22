@@ -9,6 +9,7 @@
     <string name="widechat_sso_profile_delete_path" translatable="false">/bogus_path/federation/custom/json/user</string>
     <string name="widechat_deeplink_host" translatable="false">viasatconnect.page.link</string>
     <string name="widechat_package_name" translatable="false">chat.veranda.android</string>
+    <string name="widechat_static_deeplink" translatable="false">https://viasatconnect.page.link/chatear</string>
 
     <!--WIDECHAT deal with these strings??-->
     <string name="community_server_url" translatable="false">open.rocket.chat</string>

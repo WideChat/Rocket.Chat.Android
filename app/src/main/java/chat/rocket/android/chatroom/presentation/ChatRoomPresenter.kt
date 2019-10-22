@@ -19,6 +19,7 @@ import chat.rocket.android.chatrooms.adapter.RoomUiModelMapper
 import chat.rocket.android.core.behaviours.showMessage
 import chat.rocket.android.core.lifecycle.CancelStrategy
 import chat.rocket.android.db.DatabaseManager
+import chat.rocket.android.db.model.UploadFileEntity
 import chat.rocket.android.emoji.EmojiRepository
 import chat.rocket.android.helper.MessageHelper
 import chat.rocket.android.helper.UserHelper
@@ -34,6 +35,7 @@ import chat.rocket.android.server.domain.hideTypeUserAdded
 import chat.rocket.android.server.domain.hideTypeUserJoined
 import chat.rocket.android.server.domain.hideTypeUserLeft
 import chat.rocket.android.server.domain.hideTypeUserRemoved
+import chat.rocket.android.server.domain.messageGroupingPeriod
 import chat.rocket.android.server.domain.uploadMaxFileSize
 import chat.rocket.android.server.domain.uploadMimeTypeFilter
 import chat.rocket.android.server.domain.useRealName
@@ -83,11 +85,9 @@ import chat.rocket.core.model.Message
 import chat.rocket.core.model.MessageType
 import chat.rocket.core.model.Room
 import chat.rocket.core.model.asString
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import chat.rocket.core.model.attachment.Attachment
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import org.threeten.bp.Instant
 import timber.log.Timber
 import java.io.InvalidObjectException
@@ -469,49 +469,81 @@ class ChatRoomPresenter @Inject constructor(
 
     fun uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap: Bitmap, msg: String) {
         launchUI(strategy) {
-            view.showLoading()
+            val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
+            val id = UUID.randomUUID().toString()
             try {
                 withContext(Dispatchers.Default) {
-                    val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
                     if (fileName.isEmpty()) {
                         view.showInvalidFileMessage()
                     } else {
                         val byteArray =
                             bitmap.getByteArray(mimeType, 60, settings.uploadMaxFileSize())
-                        retryIO("uploadFile($roomId, $fileName, $mimeType") {
-                            client.uploadFile(
-                                roomId,
-                                fileName,
-                                mimeType,
-                                msg,
-                                description = fileName
-                            ) {
-                                byteArray.inputStream()
-                            }
-                        }
+                        val username = userHelper.username()
+                        val user = userHelper.user()
+                        val attachment = Attachment(type="file", titleLink=uri.toString(), titleLinkDownload = true, imageUrl = uri.toString())
+                        val message = Message(
+                                id = id,
+                                message = msg,
+                                attachments = listOf(attachment),
+                                roomId=roomId,
+                                timestamp = Instant.now().toEpochMilli(),
+                                sender = SimpleUser(user?.id, user?.username ?: username, user?.name),
+                                avatar = currentServer.avatarUrl(username ?: ""),
+                                synced = false,
+                                unread = true
+                        )
+                        messagesRepository.save(message)
+                        view.showNewMessage(
+                                mapper.map(
+                                        message,
+                                        RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast)
+                                ), false
+                        )
 
+                        client.uploadFile(
+                                roomId=roomId,
+                                fileName = fileName,
+                                mimeType = mimeType,
+                                msg = msg,
+                                description = fileName,
+                                id = id
+                        ) {
+                            byteArray.inputStream()
+                        }
+                        messagesRepository.save(message.copy(synced = true))
                         logMediaUploaded(mimeType)
                     }
                 }
             } catch (ex: Exception) {
                 Timber.d(ex, "Error uploading image")
+
+                Timber.d("Error uploading image, adding to DB and scheduling service")
+                launch {
+                    val query = async(Dispatchers.IO) {
+                        val uploadEntity = UploadFileEntity(id=id, roomId = roomId, fileName = fileName, mimeType = mimeType, uri = uri.toString(), msg = msg)
+                        dbManager.uploadFilesDao().insert(uploadEntity)
+                    }
+                    query.await()
+                }
+                jobSchedulerInteractor.scheduleSendingMessages()
+
                 when (ex) {
                     is RocketChatException -> view.showMessage(ex)
                     is InvalidObjectException -> view.showInvalidFileSize(bitmap.getByteCount(), settings.uploadMaxFileSize())
                     else -> view.showGenericErrorMessage()
                 }
             } finally {
-                view.hideLoading()
+//                view.hideLoading()
             }
         }
     }
 
     fun uploadFile(roomId: String, mimeType: String, uri: Uri, msg: String) {
         launchUI(strategy) {
-            view.showLoading()
+            val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
+            val id = UUID.randomUUID().toString()
             try {
                 withContext(Dispatchers.Default) {
-                    val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
                     val fileSize = uriInteractor.getFileSize(uri)
                     val maxFileSizeAllowed = settings.uploadMaxFileSize()
 
@@ -520,29 +552,61 @@ class ChatRoomPresenter @Inject constructor(
                         fileSize > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0 ->
                             view.showInvalidFileSize(fileSize, maxFileSizeAllowed)
                         else -> {
-                            retryIO("uploadFile($roomId, $fileName, $mimeType") {
-                                client.uploadFile(
+                            val username = userHelper.username()
+                            val user = userHelper.user()
+                            val attachment = Attachment(type="file", titleLink=uri.toString(), titleLinkDownload = true)
+                            val message = Message(
+                                    id = id,
+                                    message = msg,
+                                    attachments = listOf(attachment),
+                                    roomId=roomId,
+                                    timestamp = Instant.now().toEpochMilli(),
+                                    sender = SimpleUser(user?.id, user?.username ?: username, user?.name),
+                                    avatar = currentServer.avatarUrl(username ?: ""),
+                                    synced = false,
+                                    unread = true
+                            )
+                            messagesRepository.save(message)
+                            view.showNewMessage(
+                                    mapper.map(
+                                            message,
+                                            RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast)
+                                    ), false
+                            )
+                            client.uploadFile(
                                     roomId,
                                     fileName,
                                     mimeType,
                                     msg,
-                                    description = fileName
-                                ) {
-                                    uriInteractor.getInputStream(uri)
-                                }
+                                    description = fileName,
+                                    id=id
+                            ) {
+                                uriInteractor.getInputStream(uri)
                             }
+
                             logMediaUploaded(mimeType)
                         }
                     }
                 }
             } catch (ex: Exception) {
                 Timber.d(ex, "Error uploading file")
+
+                Timber.d("Error uploading file, adding to DB and scheduling service")
+                launch {
+                    val query = async(Dispatchers.IO) {
+                        val uploadEntity = UploadFileEntity(id=id, roomId = roomId, fileName = fileName, mimeType = mimeType, uri = uri.toString(), msg = msg)
+                        dbManager.uploadFilesDao().insert(uploadEntity)
+                    }
+                    query.await()
+                }
+                jobSchedulerInteractor.scheduleSendingMessages()
+
                 when (ex) {
                     is RocketChatException -> view.showMessage(ex)
                     else -> view.showGenericErrorMessage()
                 }
             } finally {
-                view.hideLoading()
+//                view.hideLoading()
             }
         }
     }
@@ -1421,5 +1485,9 @@ class ChatRoomPresenter @Inject constructor(
      */
     fun getDraftUnfinishedMessage(): String? {
         return localRepository.get(draftKey)
+    }
+
+    fun getMessageGroupingPeriod(): Int {
+        return settings.messageGroupingPeriod() ?: 900 //Seconds
     }
 }

@@ -2,7 +2,6 @@ package chat.rocket.android.contacts.ui
 
 import android.Manifest
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.view.*
 import android.widget.ImageView
@@ -24,6 +23,7 @@ import android.view.LayoutInflater
 import android.view.View.VISIBLE
 import android.view.View.GONE
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
 import androidx.lifecycle.Observer
 import androidx.recyclerview.selection.ItemKeyProvider
@@ -53,7 +53,6 @@ import io.reactivex.rxkotlin.subscribeBy
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.app_bar.view.*
 import kotlinx.android.synthetic.main.fragment_contact_parent.*
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -99,11 +98,6 @@ class ContactsFragment : Fragment(), ContactsView {
     private var finalList: ArrayList<ItemHolder<*>> = ArrayList()
     private var contactsSelectionTracker: SelectionTracker<Long>? = null
     private var selectedContacts: ArrayList<Contact> = ArrayList()
-
-    private var searchView: SearchView? = null
-    private var searchIcon: ImageView? = null
-    private var searchText: TextView? = null
-    private var searchCloseButton: ImageView? = null
     private var loadedOnce: Boolean = false
     var enableGroups: Boolean = false
 
@@ -244,41 +238,10 @@ class ContactsFragment : Fragment(), ContactsView {
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.widechat_contacts, menu)
-
-        val searchItem = menu.findItem(R.id.action_search)
-        searchView = searchItem?.actionView as? SearchView
-        searchView?.onQueryTextListener { queryContacts(it) }
-
-        if (Constants.WIDECHAT) {
-            setupWidechatSearchView()
-        }
-
-        searchView?.maxWidth = Integer.MAX_VALUE
-        val expandListener = object : MenuItem.OnActionExpandListener {
-            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
-                // Simply setting sortView to visible won't work, so we invalidate the options
-                // to recreate the entire menu...
-                searchView?.setQuery("", false)
-                activity?.invalidateOptionsMenu()
-                queryContacts("")
-                if (!hasContactsPermissions()) {
-                    setupFrameLayout()
-                }
-                return true
-            }
-
-            override fun onMenuItemActionExpand(item: MenuItem): Boolean {
-                return true
-            }
-        }
-        searchItem?.setOnActionExpandListener(expandListener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.action_search -> {
-                hideSpinner()
-            }
             R.id.action_refresh -> {
                 (activity as MainActivity).syncContacts(true)
             }
@@ -286,39 +249,24 @@ class ContactsFragment : Fragment(), ContactsView {
         return super.onOptionsItemSelected(item)
     }
 
-    fun setupToolbar(){
+    fun setupToolbar() {
         (activity as MainActivity).toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp)
         (activity as MainActivity).toolbar.setNavigationContentDescription(R.string.go_back_button_description)
         (activity as MainActivity).toolbar.setNavigationOnClickListener {
             activity?.onBackPressed()
         }
-        with((activity as AppCompatActivity?)?.supportActionBar) {
-            this?.setDisplayShowTitleEnabled(true)
-            this?.title = getString(R.string.title_contacts)
-        }
 
         if (Constants.WIDECHAT) {
             with((activity as AppCompatActivity?)?.supportActionBar) {
-                this?.setDisplayShowCustomEnabled(false)
-                if(enableGroups)
-                    this?.title = getString(R.string.title_create_group)
+                val profileButtonLayout: ConstraintLayout? = this?.getCustomView()?.findViewById(R.id.rl_image_avatar)
+                profileButtonLayout?.visibility = GONE
+                val searchView: SearchView? = this?.getCustomView()?.findViewById(R.id.action_widechat_search)
+                searchView?.clearFocus()
+                val searchCloseButton: ImageView? = searchView?.findViewById(R.id.search_close_btn)
+                searchCloseButton?.setImageResource(0)
+                searchView?.onQueryTextListener { queryContacts(it) }
             }
         }
-    }
-
-    private fun setupWidechatSearchView() {
-        searchView?.setBackgroundResource(R.drawable.widechat_search_white_background)
-        searchView?.isIconified = true
-
-        searchIcon = searchView?.findViewById(R.id.search_mag_icon)
-        searchIcon?.setImageResource(R.drawable.ic_search_gray_24px)
-
-        searchText = searchView?.findViewById(R.id.search_src_text)
-        searchText?.setTextColor(Color.GRAY)
-        searchText?.setHintTextColor(Color.GRAY)
-
-        searchCloseButton = searchView?.findViewById(R.id.search_close_btn)
-        searchCloseButton?.setImageResource(R.drawable.ic_close_gray_24dp)
     }
 
     fun containsIgnoreCase(src: String, what: String): Boolean {
@@ -397,15 +345,15 @@ class ContactsFragment : Fragment(), ContactsView {
     }
 
     private fun getContactListWhenSynced() {
-        // Show loading while sync in progress
-        recyclerView.visibility = View.GONE
-        emptyTextView!!.visibility = View.GONE
-
         val serverUrl = serverInteractor.get()!!
         val dbManager = dbFactory.create(serverUrl)
         val contactList = dbManager.contactsDao().getAllSync()
 
         ui {
+            // Show loading while sync in progress
+            recyclerView.visibility = View.GONE
+            emptyTextView!!.visibility = View.GONE
+
             (activity as MainActivity).contactsLoadingState.observe(viewLifecycleOwner, Observer { state ->
                 when (state) {
                     is ContactsLoadingState.Loading -> {

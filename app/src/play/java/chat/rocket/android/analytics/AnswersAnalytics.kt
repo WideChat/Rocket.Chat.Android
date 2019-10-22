@@ -102,6 +102,14 @@ class AnswersAnalytics : Analytics {
                     .putCustomAttribute("server", serverUrl)
             )
 
+    override fun logStorage(freeBytes: String, totalBytes: String) =
+        Answers.getInstance()
+            .logCustom(
+                CustomEvent("log_storage")
+                    .putCustomAttribute("free_bytes", freeBytes)
+                    .putCustomAttribute("total_bytes", totalBytes)
+            )
+
     override fun logMessageActionAddReaction() = Answers.getInstance().logCustom(CustomEvent("message_action_add_reaction"))
 
     override fun logMessageActionReply() = Answers.getInstance().logCustom(CustomEvent("message_action_reply"))

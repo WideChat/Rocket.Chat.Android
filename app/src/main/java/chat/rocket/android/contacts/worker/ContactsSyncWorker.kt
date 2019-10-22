@@ -2,6 +2,7 @@ package chat.rocket.android.contacts.worker
 
 import android.content.Context
 import android.os.Build
+import android.os.SystemClock
 import android.provider.ContactsContract
 import android.telephony.PhoneNumberUtils
 import androidx.work.Worker
@@ -22,6 +23,8 @@ import timber.log.Timber
 import java.security.MessageDigest
 import java.util.ArrayList
 import javax.inject.Inject
+import chat.rocket.core.internal.realtime.socket.connect
+
 
 class ContactsSyncWorker(context : Context, params : WorkerParameters)
     : Worker(context, params) {
@@ -44,24 +47,41 @@ class ContactsSyncWorker(context : Context, params : WorkerParameters)
         if (currentServer == null){
             return Result.RETRY
         }
+
         val client: RocketChatClient = factory.create(currentServer)
-        if (!(client.state is State.Connected)){
-            return Result.RETRY
+
+        var counter = 0
+        while (client.state !is State.Connected){
+            if (client.state is State.Created || client.state is State.Disconnected) {
+                client.connect(false)
+            }
+
+
+            SystemClock.sleep(500);
+
+            // Fails for 15 seconds
+            counter = counter + 1
+            if (counter > 30){
+                return Result.RETRY
+            }
         }
 
         getContactList()
+
         val dbManager = dbFactory.create(serverInteractor.get()!!)
 
         val strongHashes: List<String> = (contactArrayList.map { contact -> hashString(contact.getDetail()!!) })
         val weakHashes: List<String> = strongHashes.map{ strongHash -> strongHash.substring(3,9) }
+
         var retryFlag = false
         runBlocking {
             try {
+
                 val apiResult: List<ContactHolder>? = client.queryContacts(weakHashes)
                 if (apiResult != null) {
                     val intersectionMap: HashMap<String, List<String>> = HashMap()
                     val intersection: List<String> = apiResult.mapIndexed { index, list ->
-                        run {
+                        run{
                             intersectionMap.put(list.h, listOf(list.id, list.u))
                             list.h
                         }

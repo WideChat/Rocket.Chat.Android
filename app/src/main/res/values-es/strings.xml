@@ -9,8 +9,9 @@
     <string name="title_sign_up">Regístrate</string>
     <string name="title_authentication">Autenticación</string>
     <string name="title_legal_terms">Términos legales</string>
+    <string name="title_home">Casa</string>
     <string name="title_chats">Chats</string>
-    <string name="title_contacts">Nueva conversación</string>
+    <string name="title_contacts">Nueva Conversación</string>
     <string name="title_profile">Perfil</string>
     <string name="title_members">Miembros</string>
     <string name="title_counted_members">Miembros (%d)</string>
@@ -44,9 +45,9 @@
     <string name="action_update">Actualizar</string>
     <string name="action_settings">Configuraciones</string>
     <string name="action_create_channel">Crear canal</string>
-    <string name="action_create">Create</string>
+    <string name="action_create">Crear</string>
     <string name="action_logout">Cerrar sesión</string>
-    <string name="action_attach_a_files">Attach a file</string> <!-- TODO Add translation -->
+    <string name="action_attach_a_files">Adjuntar un archivo</string>
     <string name="action_confirm_password">Confirmar cambio de contraseña</string>
     <string name="action_join_chat">Unirse al chat</string>
     <string name="action_add_account">Añadir cuenta</string>
@@ -57,28 +58,30 @@
     <string name="action_invite">invitación</string>
     <string name="action_drawing">Dibujo</string>
     <string name="action_save_to_gallery">Guardar en la galería</string>
-    <string name="action_select_photo_from_gallery">Select photo from gallery</string> <!-- TODO Add translation -->
-    <string name="action_take_a_photo">Take a photo</string> <!-- TODO Add translation -->
-    <string name="action_reset_avatar">Reset avatar</string> <!-- TODO Add translation -->
-    <string name="action_connect_server">Connect with a server</string> <!-- TODO Add translation -->
-    <string name="action_join_community">Join in the community</string> <!-- TODO Add translation -->
-    <string name="action_create_server">Create a new server</string> <!-- TODO Add translation -->
-    <string name="action_register">Register</string> <!-- TODO Add translation -->
-    <string name="action_confirm">Confirm</string> <!-- TODO Add translation -->
-    <string name="action_delete_account">Eliminar cuenta de usuario</string> <!-- TODO Add translation -->
-    <string name="action_favorite">Favorite</string> <!-- TODO Add translation -->
-    <string name="action_remove_favorite">Remove favorite</string> <!-- TODO Add translation -->
+    <string name="action_select_photo_from_gallery">Seleccionar una foto de la galería</string>
+    <string name="action_take_a_photo">Tomar una foto</string>
+    <string name="action_reset_avatar">Reiniciar avatar</string>
+    <string name="action_connect_server">Conéctate con un servidor</string>
+    <string name="action_join_community">Únete a la comunidad</string>
+    <string name="action_create_server">Crea un nuevo servidor</string>
+    <string name="action_register">Registrate</string>
+    <string name="action_confirm">Confirmar</string>
+    <string name="action_delete_account">Eliminar cuenta de usuario</string>
+    <string name="action_favorite">Favorito</string>
+    <string name="action_remove_favorite">Eliminar favorito</string>
+    <string name="action_remove_user">Eliminar usuario de la sala</string>
+    <string name="action_invite_users">Invitar usuarios</string>
 
     <!-- Settings List -->
     <string-array name="settings_actions">
-        <item name="item_preferences">Preferences</item> <!-- TODO Add translation -->
-        <item name="item_password">Change password</item> <!-- TODO Add translation -->
-        <item name="change_language">Change language</item> <!-- TODO Add translation -->
-        <item name="item_share_app">Share app</item> <!-- TODO Add translation -->
-        <item name="item_rate_us">Rate us</item> <!-- TODO Add translation -->
-        <item name="item_contact_us">Contact us</item> <!-- TODO Add translation -->
-        <item name="item_license">License</item> <!-- TODO Add translation -->
-        <item name="item_about">About</item> <!-- TODO Add translation -->
+        <item name="item_preferences">Preferencias</item>
+        <item name="item_password">Cambiar la contraseña</item>
+        <item name="change_language">Cambiar idioma</item>
+        <item name="item_share_app">Compartir aplicación</item>
+        <item name="item_rate_us">Nos califica</item>
+        <item name="item_contact_us">Contáctenos</item>
+        <item name="item_license">Licencia</item>
+        <item name="item_about">Acerca de</item>
     </string-array>
 
     <!--WIDECHAT Settings List-->
@@ -114,8 +117,8 @@
     <string name="msg_yesterday">Ayer</string>
     <string name="msg_today">Hoy</string>
     <string name="msg_message">Mensaje</string>
-    <string name="msg_video_call">Video call</string> <!-- TODO Add translation -->
-    <string name="msg_join_video_call">Join video call</string> <!-- TODO Add translation -->
+    <string name="msg_video_call">Videollamada</string>
+    <string name="msg_join_video_call">Unirse a la videollamada</string>
     <string name="msg_this_room_is_read_only">Esta sala es de solo lectura</string>
     <string name="msg_invalid_2fa_code">Código 2FA no válido</string>
     <string name="msg_invalid_file">Archivo inválido</string>
@@ -129,7 +132,7 @@
     <string name="msg_content_description_log_in_using_gitlab">Inicia sesión usando Gitlab</string>
     <string name="msg_content_description_log_in_using_wordpress">Inicia sesión usando WordPress</string>
     <string name="msg_content_description_send_message">Enviar mensaje</string>
-    <string name="msg_content_description_show_more_login_options">Show more login options</string> <!-- TODO Translate-->
+    <string name="msg_content_description_show_more_login_options">Mostrar más opciones de inicio de sesión</string>
     <string name="msg_content_description_show_attachment_options">Mostrar opciones de archivo adjunto</string>
     <string name="msg_you">Tú</string>
     <string name="msg_unknown">Desconocido</string>
@@ -143,7 +146,7 @@
     <string name="msg_preview_photo">Foto</string>
     <string name="msg_preview_file">Fichero</string>
     <string name="msg_no_messages_yet">Aún no hay mensajes</string>
-    <string name="msg_build">Build %1$d - %2$s - %3$s</string> <!-- TODO Add translation -->
+    <string name="msg_build">Build %1$d - %2$s - %3$s</string>
     <string name="msg_update_app_version_in_order_to_continue">Versión del servidor actualizada. Póngase en contacto con el administrador del servidor para actualizar la versión del servidor y continuar.</string>
     <string name="msg_ver_not_recommended">
         Parece que la versión de tu servidor está por debajo de la versión recomendada %1$s.\nAún puede iniciar sesión, pero puede experimentar comportamientos inesperados.</string>
@@ -165,22 +168,23 @@
     <string name="msg_channel_name">Nombre del Canal</string>
     <string name="msg_group_name">Nombre del Grupo</string>
     <string name="msg_search">Buscar</string>
+    <string name="msg_search_hint">Buscar usuarios</string>
     <string name="msg_message_copied">Mensaje copiado</string>
     <string name="msg_delete_message">Borrar mensaje</string>
     <string name="msg_delete_description">Seguro que quieres borrar este mensaje</string>
     <string name="msg_no_search_found">No se han encontrado resultados</string>
-    <string name="msg_welcome_to_rocket_chat">Welcome to Rocket.Chat</string> <!-- TODO Add translation -->
-    <string name="msg_team_communication">Team Communication</string> <!-- TODO Translate -->
-    <string name="msg_login_with_email">Login with <b>e-mail</b></string> <!-- TODO Add translation -->
-    <string name="msg_create_account">Create an account</string> <!-- TODO Add translation -->
-    <string name="msg_continue_with_facebook">Continue with <b>Facebook</b></string> <!-- TODO Add translation -->
-    <string name="msg_continue_with_github">Continue with <b>Github</b></string> <!-- TODO Add translation -->
-    <string name="msg_continue_with_google">Continue with <b>Google</b></string> <!-- TODO Add translation -->
-    <string name="msg_continue_with_linkedin">Continue with <b>Linkedin</b></string> <!-- TODO Add translation -->
-    <string name="msg_continue_with_gitlab">Continue with <b>GitLab</b></string> <!-- TODO Add translation -->
-    <string name="msg_continue_with_wordpress">Continue with <b>WordPress</b></string> <!-- TODO Add translation -->
-    <string name="msg_two_factor_authentication">Two-factor Authentication</string> <!-- TODO Add translation -->
-    <string name="msg__your_2fa_code">What’s your 2FA code?</string> <!-- TODO Add translation -->
+    <string name="msg_welcome_to_rocket_chat">Bienvenido a Rocket.Chat</string>
+    <string name="msg_team_communication">Comunicación del equipo</string>
+    <string name="msg_login_with_email">Inicie sesión con <b> correo electrónico </b></string>
+    <string name="msg_create_account">Crea una cuenta</string>
+    <string name="msg_continue_with_facebook">Continuar con <b> Facebook </b></string>
+    <string name="msg_continue_with_github">Continuar con <b>Github</b></string>
+    <string name="msg_continue_with_google">Continuar con <b>Google</b></string>
+    <string name="msg_continue_with_linkedin">Continuar con <b>Linkedin</b></string>
+    <string name="msg_continue_with_gitlab">Continuar con <b>GitLab</b></string>
+    <string name="msg_continue_with_wordpress">Continuar con <b>WordPress</b></string>
+    <string name="msg_two_factor_authentication">Autenticación de dos factores</string>
+    <string name="msg__your_2fa_code">¿Cuál es tu código 2FA?</string>
 
     <!-- Create channel messages -->
     <string name="msg_private_channel">Privado</string>
@@ -193,32 +197,39 @@
     <string name="msg_member_already_added">Ya has seleccionado este usuario</string>
     <string name="msg_member_not_found">Miembro no encontrado</string>
     <string name="msg_channel_created_successfully">Canal creado con éxito</string>
-    <string name="msg_view_more">view more</string> <!-- TODO - Add proper translation -->
-    <string name="msg_view_less">view less</string> <!-- TODO - Add proper translation -->
-    <string name="msg_permalink_copied">Permalink copied</string> <!-- TODO - Add proper translation -->
-    <string name="msg_send_email">Send email</string> <!-- TODO - Add proper translation -->
-    <string name="msg_android_app_support">Android app support</string> <!-- TODO - Add proper translation -->
-    <string name="msg_muted_on_this_channel">You are muted on this channel</string> <!-- TODO - Add proper translation -->
-    <string name="msg_no_topic">No topic</string> <!-- TODO Add translation -->
-    <string name="msg_no_announcement">No announcement</string> <!-- TODO Add translation -->
-    <string name="msg_no_description">No description</string> <!-- TODO Add translation -->
-    <string name="msg_unable_to_update_password">Unable to update password. Error message: %1$s</string> <!-- TODO - Add proper translation -->
-    <string name="msg_password_updated_successfully">Password updated successfully</string> <!-- TODO - Add proper translation -->
+    <string name="msg_view_more">ver más</string>
+    <string name="msg_view_less">ver menos</string>
+    <string name="msg_permalink_copied">Permalink copiado</string>
+    <string name="msg_send_email">Enviar correo electrónico</string>
+    <string name="msg_android_app_support">Soporte de aplicaciones de Android</string>
+    <string name="msg_muted_on_this_channel">Estás silenciado en este canal</string>
+    <string name="msg_no_topic">Sin tema</string>
+    <string name="msg_no_announcement">Sin anuncio</string>
+    <string name="msg_no_description">Sin descripción</string>
+    <string name="msg_unable_to_update_password">No se puede actualizar la contraseña. Mensaje de error: %1$s</string> 
+    <string name="msg_password_updated_successfully">Contraseña actualizada exitosamente</string> 
     <plurals name="msg_reacted_with_">
-        <item quantity="one">%1$s reacted with %2$s</item> <!-- TODO - Add proper translation -->
-        <item quantity="other">%1$s reacted with %2$s</item> <!-- TODO - Add proper translation -->
+        <item quantity="one">%1$s reaccionó con %2$s</item> 
+        <item quantity="other">%1$s reaccionó con %2$s</item> 
     </plurals>
     <string name="msg_credentials_saved_successfully">Credenciales guardadas con éxito</string>
-    <string name="msg_camera_permission_denied">Camera permission is needed to open camera.</string> <!-- TODO Add translation -->
-    <string name="msg_storage_permission_denied">Storage permission is needed to open Drawing.</string> <!-- TODO Add translation -->
+    <string name="msg_camera_permission_denied">Se necesita permiso de la cámara para abrir la cámara.</string>
+    <string name="msg_storage_permission_denied">Se necesita permiso de almacenamiento para abrir Drawing.</string>
 
     <!-- Preferences messages -->
-    <string name="msg_analytics_tracking">Analytics tracking</string> <!-- TODO Add translation -->
-    <string name="msg_send_analytics_tracking">Send anonymous statics to help improving this app</string> <!-- TODO Add translation -->
-    <string name="msg_do_not_send_analytics_tracking">Do not send anonymous statics to help improving this app</string> <!-- TODO Add translation -->
-    <string name="msg_not_applicable_since_it_is_a_foss_version">Not applicable since it is a FOSS version</string> <!-- TODO Add translation -->
+    <string name="msg_analytics_tracking">Seguimiento analítico</string>
+    <string name="msg_send_analytics_tracking">Envía estadísticas anónimas para ayudar a mejorar la aplicación</string>
+    <string name="msg_do_not_send_analytics_tracking">No envía estadísticas anónimas para ayudar a mejorar la aplicación</string>
+    <string name="msg_not_applicable_since_it_is_a_foss_version">No aplicable ya que es una versión FOSS</string>
     <string name="msg_public_account">Cuenta Publica</string>
-    <string name="msg_public_account_description">Envía estadísticas anónimas para ayudar a mejorar esta aplicación</string>
+    <string name="msg_public_account_description">Envía estadísticas anónimas para ayudar a mejorar la aplicación</string>
+
+    <!-- Privacy messages -->
+    <string name="msg_privacy_spinner">Descubrimiento</string>
+    <string name="msg_privacy_spinner_description">Quién puede descubrir mi nombre de usuario a través de la búsqueda.</string>
+    <string name="msg_privacy_option_everyone">Todos</string>
+    <string name="msg_privacy_option_contacts">Mis contactos</string>
+    <string name="msg_privacy_option_none">Ninguno</string>
 
     <!-- System messages -->
     <string name="message_room_name_changed">Nombre de la sala cambiado para: %1$s por %2$s</string>
@@ -233,38 +244,44 @@
     <string name="message_unmuted">Usuario %1$s no silenciado por %2$s</string>
     <string name="message_role_add">%1$s fue establecido %2$s por %3$s</string>
     <string name="message_role_removed">%1$s ya no es %2$s por %3$s</string>
-    <string name="message_video_call_started">Video call started by %1$s</string> <!-- TODO Add translation -->
+    <string name="message_video_call_started">Videollamada iniciada por %1$s</string>
 
     <!-- Message actions -->
     <string name="action_msg_reply">Respuesta</string>
-    <string name="action_info">Info</string> <!-- TODO Add translation -->
+    <string name="action_info">Informacion</string>
     <string name="action_msg_edit">Editar</string>
     <string name="action_msg_copy">Copiar</string>
     <string name="action_msg_quote">Citar</string>
     <string name="action_msg_delete">Borrar</string>
-    <string name="action_pin">Pin</string> <!-- TODO Add translation -->
-    <string name="action_unpin">Unpin</string> <!-- TODO Add translation -->
+    <string name="action_pin">Alfiler</string>
+    <string name="action_unpin">Desprender</string>
     <string name="action_star">Star</string> <!-- TODO Add translation -->
     <string name="action_unstar">Unstar</string> <!-- TODO Add translation -->
     <string name="action_msg_invite">Compartir</string>
     <string name="action_title_editing">Edición de mensaje</string>
     <string name="action_msg_add_reaction">Añadir una reacción</string>
     <string name="action_msg_permalink">Permalink</string> <!-- TODO Add translation -->
-    <!-- TODO - Add proper translation -->
     <string name="action_msg_report">Report</string>
 
     <!-- Permission messages -->
     <string name="permission_editing_not_allowed">La edición no és permitida</string>
     <string name="permission_deleting_not_allowed">Eliminar no és permitido</string>
     <string name="permission_pinning_not_allowed">Fijar no és permitido</string>
-    <!-- TODO Add translation -->
-    <string name="permission_starring_not_allowed">Starring is not allowed</string>
+    <string name="permission_starring_not_allowed">Starring no és permitido</string>
 
     <!-- Search message -->
     <string name="title_search_message">Búsqueda de mensajes</string>
 
     <!-- Members List -->
     <string name="title_members_list">Miembros</string>
+
+    <!-- Invite Users-->
+    <string name="title_invite_users">Invitar usuarios</string>
+    <string name="text_cancel">Cancelar</string>
+    <string name="text_invite_users">Invitar usuarios</string>
+
+    <!-- Remove User-->
+    <string name="msg_removed_user_successfully">Usuario eliminado con éxito</string>
 
     <!-- Mentions -->
     <string name="msg_mentions">Menciones</string>
@@ -345,7 +362,7 @@
     <string name="chatroom_header">Cabezazo</string>
 
     <!--ChatRooms Headers-->
-    <string name="header_favorite">Favorites</string><!-- TODO - Add proper translation -->
+    <string name="header_favorite">Favoritos</string>
     <string name="header_channel">Canales</string>
     <string name="header_private_groups">Grupos privados</string>
     <string name="header_direct_messages">Mensajes directos</string>
@@ -367,7 +384,12 @@
     <string name="message_room_changed_privacy">Room type changed to: %1$s by %2$s</string> <!--TODO - Add proper translation-->
 
     <!-- User Details -->
-    <string name="timezone">Timezone</string> <!-- TODO - Add proper translation -->
+    <string name="timezone">Zona horaria</string>
+
+    <!-- Report -->
+    <string name="submit">Enviar</string>
+    <string name="required">*necesario</string>
+    <string name="report_sent">¡Tu reporte ha sido enviado!</string>
 
     <!-- WIDECHAT -->
     <string name="msg_welcome_to_widechat">Bienvenido a Viasat Connect</string>
@@ -383,8 +405,11 @@
     <string name="title_chat_details">Detalles del chat</string>
     <string name="share_via_another_app">Compartir a través de otra aplicación</string>
     <string name="new_group">Nuevo Grupo</string>
-    <string name="new_chat">Nueva conversación</string>
+    <string name="new_chat">Nueva Conversación</string>
     <string name="new_contact">Nuevo Contacto</string>
+    <string name="close_button_description">Cerrar</string>
+    <string name="go_back_button_description">Regresar</string>
+    <string name="menu_button_description">Menú</string>
 
     <!--WIDECHAT INVITES-->
     <string name="invitation_sms_success">La invitación fue enviada</string>
@@ -395,7 +420,9 @@
     <string name="save">GUARDAR</string>
     <string name="no_thanks">NO GRACIAS</string>
     <string name="chat_with">Chat con %1$s en %2$s</string>
-    <string name="default_invitation_text">Viasat Connect es una aplicación nueva que me facilita mensajear con amigos y familiares. Descarga la aplicación aquí %1$s y conéctate conmigo.</string>
+    <string name="default_invitation_text_description">Viasat Connect es una nueva aplicación que me facilita chatear con amigos y familiares.</string>
+    <string name="default_invitation_text_dynamic_link">Descargue la aplicación aquí %1$s o busque Viasat Connect en Google Play Store y conéctese conmigo.</string>
+    <string name="default_invitation_text_app_store">Descargue la aplicación buscando Viasat Connect en Google Play Store para chatear conmigo.</string>
     <string name="default_invitation_subject">Tu amigo %1$s te ha invitado a chatear en Viasat Connect</string>
 
     <!--WIDECHAT PERMISSIONS-->
@@ -409,12 +436,6 @@
     <string name="permissions_item">¿Desea permitir que Viasat Connect acceda a sus contactos?</string>
     <string name="set_permissions_through_settings">Para permitir que Viasat Connect acceda a sus contactos, cambie los permisos en la configuración de la aplicación de su dispositivo</string>
     <string name="dismiss_button">DESPEDIR</string>
-
-
-    <!-- Report -->
-    <string name="submit">Submit</string> <!--TODO - Add proper translation-->
-    <string name="required">*required</string> <!--TODO - Add proper translation-->
-    <string name="report_sent">Your report has been sent!</string>
 
     <!-- Share -->
     <string name="share_with">Compartir con</string>

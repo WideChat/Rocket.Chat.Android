@@ -19,3 +19,9 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+-dontobfuscate
+
+-keepclassmembers class * extends androidx.work.Worker {
+    public <init>(android.content.Context,androidx.work.WorkerParameters);
+}

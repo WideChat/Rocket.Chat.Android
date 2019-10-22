@@ -109,6 +109,9 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
+// WIDECHAT
+import chat.rocket.android.helper.Constants
+
 fun newInstance(
     chatRoomId: String,
     chatRoomName: String,
@@ -299,7 +302,8 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
             actionSelectListener = this,
             reactionListener = this,
             navigator = navigator,
-            analyticsManager = analyticsManager
+            analyticsManager = analyticsManager,
+            messageGroupingPeriod = presenter.getMessageGroupingPeriod()
         )
     }
 
@@ -321,14 +325,18 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         setupActionSnackbar()
         with(activity as ChatRoomActivity) {
             setupToolbarTitle(chatRoomName)
-            setupExpandMoreForToolbar {
-                presenter.toChatDetails(
-                    chatRoomId,
-                    chatRoomType,
-                    isSubscribed,
-                    isFavorite,
-                    disableMenu
-                )
+            if (Constants.WIDECHAT && chatRoomType == "d") {
+                hideExpandMoreForToolbar()
+            } else {
+                setupExpandMoreForToolbar {
+                    presenter.toChatDetails(
+                            chatRoomId,
+                            chatRoomType,
+                            isSubscribed,
+                            isFavorite,
+                            disableMenu
+                    )
+                }
             }
         }
         getDraftMessage()
@@ -905,10 +913,12 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
 
             button_take_a_photo.setOnClickListener {
                 context?.let {
-                    if (AndroidPermissionsHelper.hasCameraPermission(it)) {
-                        dispatchTakePictureIntent()
-                    } else {
-                        AndroidPermissionsHelper.getCameraPermission(this)
+                    if (AndroidPermissionsHelper.hasCameraFeature(it)) {
+                        if (AndroidPermissionsHelper.hasCameraPermission(it)) {
+                            dispatchTakePictureIntent()
+                        } else {
+                            AndroidPermissionsHelper.getCameraPermission(this)
+                        }
                     }
                 }
                 handler.postDelayed({

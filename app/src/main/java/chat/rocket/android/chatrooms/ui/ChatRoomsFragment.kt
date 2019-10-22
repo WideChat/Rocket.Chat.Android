@@ -144,6 +144,8 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
         if (Constants.WIDECHAT) {
             widechat_welcome_to_app.isVisible = false
             widechat_text_no_data_to_display.isVisible = false
+            (activity as AppCompatActivity?)?.supportActionBar?.setDisplayShowTitleEnabled(false)
+            searchView?.onQueryTextListener { queryChatRoomsByName(it) }
             clearSearch()
         }
         setupToolbar()
@@ -607,7 +609,7 @@ class ChatRoomsFragment : Fragment(), ChatRoomsView {
                     currentUserStatusIcon?.setImageDrawable(drawable)
                 }
             } catch (e: Exception) {
-                throw e
+                Timber.e("Setting current status icon failed: ${e}")
             }
         }
     }
