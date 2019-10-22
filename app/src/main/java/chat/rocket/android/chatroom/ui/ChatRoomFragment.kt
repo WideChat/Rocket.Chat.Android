@@ -444,6 +444,12 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
         }
     }
 
+    // WIDECHAT
+    override fun notifyAdapter() {
+        endlessRecyclerViewScrollListener.incrementPage(recycler_view)
+//        adapter.notifyItemChanged(adapter.getItemCount())
+    }
+
     override fun showSearchedMessages(dataSet: List<BaseUiModel<*>>) {
         recycler_view.removeOnScrollListener(endlessRecyclerViewScrollListener)
         adapter.clearData()
