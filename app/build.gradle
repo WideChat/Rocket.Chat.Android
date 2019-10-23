@@ -186,6 +186,7 @@ dependencies {
     playImplementation libraries.firebaseCore
     playImplementation libraries.firebaseCrashlytics
     playImplementation libraries.firebasePerf
+    playImplementation libraries.firebaseiid
 
     testImplementation libraries.junit
     testImplementation libraries.truth
