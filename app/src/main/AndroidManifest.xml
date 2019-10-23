@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="chat.rocket.android">
 
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -27,9 +29,7 @@
 
         <activity
             android:name=".authentication.ui.AuthenticationActivity"
-            android:configChanges="orientation"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
             android:theme="@style/WidechatSplashTheme"
             android:windowSoftInputMode="adjustResize">
 
@@ -62,6 +62,17 @@
                     android:host="viasatconnect.com"
                     android:scheme="https" />
 
+            </intent-filter>
+
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+
+                <action android:name="android.intent.action.SEND" />
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+
+                <data android:mimeType="text/plain" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="*/*" />
             </intent-filter>
         </activity>
 

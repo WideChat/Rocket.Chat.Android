@@ -1,6 +1,7 @@
 package chat.rocket.android.chatroom.presentation
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import chat.rocket.android.R
 import chat.rocket.android.analytics.AnalyticsManager
@@ -41,6 +42,7 @@ import chat.rocket.android.server.domain.uploadMimeTypeFilter
 import chat.rocket.android.server.domain.useRealName
 import chat.rocket.android.server.infraestructure.ConnectionManagerFactory
 import chat.rocket.android.server.infraestructure.state
+import chat.rocket.android.sharehadler.ShareHandler
 import chat.rocket.android.util.extension.getByteArray
 import chat.rocket.android.util.extension.launchUI
 import chat.rocket.android.util.extensions.avatarUrl
@@ -466,9 +468,13 @@ class ChatRoomPresenter @Inject constructor(
         view.showFileSelection(settings.uploadMimeTypeFilter())
     }
 
-    fun uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap: Bitmap, msg: String) {
+    fun uploadImage(roomId: String, mimeType: String, uri: Uri, bitmap: Bitmap, msg: String, name: String = "") {
         launchUI(strategy) {
-            val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
+            val fileName = if (name.isNotEmpty()) {
+                name
+            } else {
+                uriInteractor.getFileName(uri) ?: uri.toString()
+            }
             val id = UUID.randomUUID().toString()
             try {
                 withContext(Dispatchers.Default) {
@@ -537,9 +543,13 @@ class ChatRoomPresenter @Inject constructor(
         }
     }
 
-    fun uploadFile(roomId: String, mimeType: String, uri: Uri, msg: String) {
+    fun uploadFile(roomId: String, mimeType: String, uri: Uri, msg: String, name: String = "") {
         launchUI(strategy) {
-            val fileName = uriInteractor.getFileName(uri) ?: uri.toString()
+            val fileName = if (name.isNotEmpty()) {
+                name
+            } else {
+                uriInteractor.getFileName(uri) ?: uri.toString()
+            }
             val id = UUID.randomUUID().toString()
             try {
                 withContext(Dispatchers.Default) {
@@ -644,6 +654,77 @@ class ChatRoomPresenter @Inject constructor(
                     view.showMessage(it)
                 }.ifNull {
                     view.showGenericErrorMessage()
+                }
+            } finally {
+                view.hideLoading()
+            }
+        }
+    }
+
+    fun uploadSharedFile(roomId: String, file: ShareHandler.SharedFile) {
+
+        if (file.mimeType.startsWith("image/")) {
+
+            val bitmap: Bitmap? = try {
+                BitmapFactory.decodeStream(file.fis)
+            } catch (e: Exception) {
+                null
+            }
+
+            bitmap?.let { bitmap ->
+                uploadImage(
+                        roomId,
+                        file.mimeType,
+                        file.uri,
+                        bitmap,
+                        "",
+                        file.name
+                )
+            }.ifNull {
+                uploadFile(
+                        roomId,
+                        file.mimeType,
+                        file.uri,
+                        "",
+                        file.name
+                )
+            }
+            return
+        }
+
+        launchUI(strategy) {
+            view.showLoading()
+            try {
+                withContext(Dispatchers.Default) {
+                    val fileName = file.name
+                    val fileSize = file.size
+                    val maxFileSizeAllowed = settings.uploadMaxFileSize()
+
+                    when {
+                        fileName.isEmpty() -> view.showInvalidFileMessage()
+                        fileSize > maxFileSizeAllowed && maxFileSizeAllowed !in -1..0 ->
+                            view.showInvalidFileSize(fileSize, maxFileSizeAllowed)
+                        else -> {
+                            retryIO("uploadFile($roomId, $fileName, ${file.mimeType}") {
+                                client.uploadFile(
+                                    roomId,
+                                    fileName,
+                                    file.mimeType,
+                                    fileName,
+                                    description = fileName
+                                ) {
+                                    file.fis
+                                }
+                            }
+                            logMediaUploaded(file.mimeType)
+                        }
+                    }
+                }
+            } catch (ex: Exception) {
+                Timber.d(ex, "Error uploading file")
+                when (ex) {
+                    is RocketChatException -> view.showMessage(ex)
+                    else -> view.showGenericErrorMessage()
                 }
             } finally {
                 view.hideLoading()

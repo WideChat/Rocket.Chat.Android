@@ -167,4 +167,12 @@ interface Analytics {
      * Logs the delete message action.
      */
     fun logMessageActionDelete() {}
+
+    /**
+     * Logs the free bytes and total bytes.
+     *
+     * @param freeBytes Number of free bytes
+     * @param totalBytes Number of total bytes
+     */
+    fun logStorage(freeBytes: String, totalBytes: String) {}
 }

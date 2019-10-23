@@ -1,5 +1,7 @@
 package chat.rocket.android.authentication.loginoptions.presentation
 
+import android.os.Environment
+import android.os.StatFs
 import chat.rocket.android.analytics.AnalyticsManager
 import chat.rocket.android.analytics.event.AuthenticationEvent
 import chat.rocket.android.authentication.domain.model.DeepLinkInfo
@@ -149,6 +151,7 @@ class LoginOptionsPresenter @Inject constructor(
                     saveAccount(username)
                     saveToken(token)
                     analyticsManager.logLogin(loginMethod, true)
+                    logStorage()
                     navigator.toChatList()
                 }.ifNull {
                     if (loginType == TYPE_LOGIN_OAUTH) {
@@ -187,4 +190,14 @@ class LoginOptionsPresenter @Inject constructor(
     }
 
     private fun saveToken(token: Token) = tokenRepository.save(currentServer, token)
+
+    private fun logStorage() {
+        try {
+            val path = Environment.getDataDirectory();
+            val statFs = StatFs(path.getPath());
+            analyticsManager.logStorage(statFs.freeBytes.toString(), statFs.totalBytes.toString())
+        } catch (ex: Exception) {
+            // ignore
+        }
+    }
 }

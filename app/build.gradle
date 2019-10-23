@@ -15,8 +15,8 @@ android {
         applicationId "chat.veranda.android"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 7060
-        versionName "0.7.6"
+        versionCode 8010
+        versionName "0.8.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
