@@ -315,7 +315,7 @@ class ChatRoomPresenter @Inject constructor(
         //Hide User Joined, User Left, User Added, User Removed messages based on settings
         val filtered: List<Message> = getFilteredMessages(messages)
 
-        // WIDECHAT - handle case when all messages were filetered but there are more messages to come
+        // WIDECHAT - handle case when all messages were filtered but there are more messages to come
         if (filtered.isEmpty() && messages.isNotEmpty()) {
             view.notifyAdapter()
         } else {
