@@ -24,7 +24,7 @@ ext {
             dagger                : '2.16',
             firebaseCloudMessage  : '20.0.0',
             firebaseAnalytics     : '16.0.6',
-            firebase-iid          : '20.0.0',
+            firebaseiid           : '20.0.0',
             dynamiclinks          : '16.1.5',
             playServices          : '16.0.1',
             playServicesAuth      : '16.0.1',
@@ -145,7 +145,7 @@ ext {
             firebaseCore          : "com.google.firebase:firebase-core:${versions.firebaseCore}",
             firebaseCrashlytics   : "com.crashlytics.sdk.android:crashlytics:${versions.firebaseCrashlytics}",
             firebasePerf          : "com.google.firebase:firebase-perf:${versions.firebasePerf}",
-            firebase-iid          : "com.google.firebase:firebase-iid:${versions.firebase-iid}"
+            firebaseiid           : "com.google.firebase:firebase-iid:${versions.firebaseiid}",
 
             // For testing
             junit                 : "junit:junit:${versions.junit}",
