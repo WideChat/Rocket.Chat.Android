@@ -138,4 +138,6 @@ interface ChatRoomView : LoadingView, MessageView {
 
     fun onRoomUpdated(roomUiModel: RoomUiModel)
 
+    fun notifyAdapter()
+
 }

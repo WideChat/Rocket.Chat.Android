@@ -317,13 +317,18 @@ class ChatRoomPresenter @Inject constructor(
         //Hide User Joined, User Left, User Added, User Removed messages based on settings
         val filtered: List<Message> = getFilteredMessages(messages)
 
-        view.showMessages(
-            mapper.map(
-                filtered,
-                RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast, isRoom = true)
-            ),
-            clearDataSet
-        )
+        // WIDECHAT - handle case when all messages were filtered but there are more messages to come
+        if (filtered.isEmpty() && messages.isNotEmpty()) {
+            view.notifyAdapter()
+        } else {
+            view.showMessages(
+                    mapper.map(
+                            filtered,
+                            RoomUiModel(roles = chatRoles, isBroadcast = chatIsBroadcast, isRoom = true)
+                    ),
+                    clearDataSet
+            )
+        }
     }
 
     private fun getFilteredMessages(messages: List<Message>): List<Message> {

@@ -105,6 +105,14 @@ abstract class EndlessRecyclerViewScrollListener : RecyclerView.OnScrollListener
         this.loading = true
     }
 
+    // WIDECHAT - Call this method when all results from the server have been filtered out but there are more to come
+    fun incrementPage(view: RecyclerView) {
+        val totalItemCount = layoutManager.itemCount
+        currentPage++
+        onLoadMore(currentPage, totalItemCount, view)
+        loading = true
+    }
+
     // Defines the process for actually loading more data based on page
     abstract fun onLoadMore(page: Int, totalItemsCount: Int, recyclerView: RecyclerView)
 }
