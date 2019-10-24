@@ -16,12 +16,12 @@ class ChatDetailsViewModel(private val chatRoomDao: ChatRoomDao): ViewModel() {
                 val data: MutableLiveData<ChatDetails> = MutableLiveData()
 
                 data.value = ChatDetails(
-                        entity.name,
-                        entity.fullname,
-                        entity.type,
-                        entity.topic,
-                        entity.announcement,
-                        entity.description
+                    entity.name,
+                    entity.fullname,
+                    entity.type,
+                    entity.topic,
+                    entity.announcement,
+                    entity.description
                 )
 
                 return@switchMap data
