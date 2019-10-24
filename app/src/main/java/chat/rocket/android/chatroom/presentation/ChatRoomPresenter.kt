@@ -239,6 +239,7 @@ class ChatRoomPresenter @Inject constructor(
         offset: Long = 0,
         clearDataSet: Boolean = false
     ) {
+        Timber.d("########  EAR> Inside loadMessages.")
         this.chatRoomId = chatRoomId
         this.chatRoomType = chatRoomType
         GlobalScope.launch(Dispatchers.IO + strategy.jobs) {
@@ -261,11 +262,14 @@ class ChatRoomPresenter @Inject constructor(
                     val lastSyncDate = messagesRepository.getLastSyncDate(chatRoomId)
                     if (oldMessages.isNotEmpty() && lastSyncDate != null) {
                         view.showMessages(oldMessages, clearDataSet)
+                        Timber.d("######  EAR>> inside loadMessage, (oldMessages.isNotEmpty() && lastSyncDate != null), offset is 0L and about to call loadMissingMessages.")
                         loadMissingMessages()
                     } else {
+                        Timber.d("########  EAR>> inside loadMessage and offset is 0L, and NOT this: (oldMessages.isNotEmpty() && lastSyncDate != null)")
                         loadAndShowMessages(chatRoomId, chatRoomType, offset, clearDataSet)
                     }
                 } else {
+                    Timber.d("#########  EAR>> inside loadMessage and offset is NOT 0L, about to call loadAndShowMessages.")
                     loadAndShowMessages(chatRoomId, chatRoomType, offset, clearDataSet)
                 }
 
@@ -294,31 +298,38 @@ class ChatRoomPresenter @Inject constructor(
         offset: Long = 0,
         clearDataSet: Boolean
     ) {
+        Timber.d("#####  EAR>> inside loadAndShowMessages.")
         val messages =
             retryIO("loadAndShowMessages($chatRoomId, $chatRoomType, $offset") {
                 client.messages(chatRoomId, roomTypeOf(chatRoomType), offset, 30).result
             }
-        messagesRepository.saveAll(messages)
-
-        //we are saving last sync date of latest synced chat room message
-        if (offset == 0L) {
-            //if success - saving last synced time
-            if (messages.isEmpty()) {
-                //chat history is empty - just saving current date
-                messagesRepository.saveLastSyncDate(chatRoomId, System.currentTimeMillis())
-            } else {
-                //assume that BE returns ordered messages, the first message is the latest one
-                messagesRepository.saveLastSyncDate(chatRoomId, messages.first().timestamp)
-            }
-        }
 
         //Hide User Joined, User Left, User Added, User Removed messages based on settings
         val filtered: List<Message> = getFilteredMessages(messages)
 
+        messagesRepository.saveAll(filtered)
+
+        //we are saving last sync date of latest synced chat room message
+        if (offset == 0L) {
+            Timber.d("#####  EAR>> inside loadAndShowMessages and offset is 0L.")
+            //if success - saving last synced time
+            if (filtered.isEmpty()) {
+                Timber.d("########  EAR>> offset 0L and filtered is empty, setting lastSyncDat to current date.")
+                //chat history is empty - just saving current date
+                messagesRepository.saveLastSyncDate(chatRoomId, System.currentTimeMillis())
+            } else {
+                Timber.d("######  EAR> offset 0L but filtered not empty, last sync date being set to: ${filtered.first().timestamp}")
+                //assume that BE returns ordered messages, the first message is the latest one
+                messagesRepository.saveLastSyncDate(chatRoomId, filtered.first().timestamp)
+            }
+        }
+
         // WIDECHAT - handle case when all messages were filtered but there are more messages to come
         if (filtered.isEmpty() && messages.isNotEmpty()) {
+            Timber.d("######  EAR>> filtered empty but messages not, calling notifyAdapter()")
             view.notifyAdapter()
         } else {
+            Timber.d("######  EAR>> filtered not empty, showing messages.")
             view.showMessages(
                     mapper.map(
                             filtered,
@@ -742,6 +753,7 @@ class ChatRoomPresenter @Inject constructor(
     }
 
     private fun loadMissingMessages() {
+        Timber.d("#######  EAR>> Inside loadMissingMessages.")
         GlobalScope.launch(strategy.jobs) {
             chatRoomId?.let { chatRoomId ->
                 val roomType = roomTypeOf(chatRoomType)
@@ -758,22 +770,25 @@ class ChatRoomPresenter @Inject constructor(
                                 oldest = instant
                             )
                         }
-                    Timber.d("History: $messages")
+
+                    //Hide User Joined, User Left, User Added, User Removed messages based on settings
+                    val filtered: List<Message> = getFilteredMessages(messages.result)
+
+                    Timber.d("History: $filtered")
 
                     if (messages.result.isNotEmpty()) {
-                        messagesRepository.saveAll(messages.result)
+                        messagesRepository.saveAll(filtered)
+
                         //if success - saving last synced time
                         //assume that BE returns ordered messages, the first message is the latest one
                         messagesRepository.saveLastSyncDate(chatRoomId, messages.result.first().timestamp)
 
-                        //Hide User Joined, User Left, User Added, User Removed messages based on settings
-                        val filtered: List<Message> = getFilteredMessages(messages.result)
 
                         val models = mapper.map(filtered, RoomUiModel(
-                            roles = chatRoles,
-                            isBroadcast = chatIsBroadcast,
-                            // FIXME: Why are we fixing isRoom attribute to true here?
-                            isRoom = true
+                                roles = chatRoles,
+                                isBroadcast = chatIsBroadcast,
+                                // FIXME: Why are we fixing isRoom attribute to true here?
+                                isRoom = true
                         ))
 
                         launchUI(strategy) {

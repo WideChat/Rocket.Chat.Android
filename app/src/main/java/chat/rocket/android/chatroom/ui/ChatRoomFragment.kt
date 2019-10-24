@@ -416,6 +416,9 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                     if (previousDayMarkerText != currentDayMarkerText) {
                         prevMsgModel.showDayMarker = true
                     }
+                    if (i == 0) {
+                        msgModel.showDayMarker = true
+                    }
 
                     if (!firstUnread && msgModel is MessageUiModel) {
                         val msg = msgModel.rawData
