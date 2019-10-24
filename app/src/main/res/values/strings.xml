@@ -83,6 +83,7 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="action_remove_favorite">Remove favorite</string>
     <string name="action_remove_user">Remove user from room</string> <!-- TODO Add translation -->
     <string name="action_invite_users">Invite Users</string> <!-- TODO Add translation -->
+    <string name="action_leave_chat">Leave Chat</string> <!-- TODO Add translation -->
 
     <!-- Settings List -->
     <string-array name="settings_actions">
@@ -418,6 +419,8 @@ https://github.com/RocketChat/java-code-styles/blob/master/CODING_STYLE.md#strin
     <string name="close_button_description">Close</string>
     <string name="go_back_button_description">Go back</string>
     <string name="menu_button_description">Menu</string>
+    <string name="leave">Leave</string> <!-- TODO Add translation -->
+    <string name="left_chat">You left the chat</string> <!-- TODO Add translation -->
 
     <!--WIDECHAT INVITES-->
     <string name="invitation_sms_success">The invitation was sent</string>

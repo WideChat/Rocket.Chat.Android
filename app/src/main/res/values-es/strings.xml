@@ -61,6 +61,7 @@
     <string name="action_select_photo_from_gallery">Seleccionar una foto de la galería</string>
     <string name="action_take_a_photo">Tomar una foto</string>
     <string name="action_reset_avatar">Reiniciar avatar</string>
+
     <string name="action_connect_server">Conéctate con un servidor</string>
     <string name="action_join_community">Únete a la comunidad</string>
     <string name="action_create_server">Crea un nuevo servidor</string>
@@ -71,6 +72,7 @@
     <string name="action_remove_favorite">Eliminar favorito</string>
     <string name="action_remove_user">Eliminar usuario de la sala</string>
     <string name="action_invite_users">Invitar usuarios</string>
+    <string name="action_leave_chat">Dejar chat</string>
 
     <!-- Settings List -->
     <string-array name="settings_actions">
@@ -407,9 +409,12 @@
     <string name="new_group">Nuevo Grupo</string>
     <string name="new_chat">Nueva Conversación</string>
     <string name="new_contact">Nuevo Contacto</string>
+
     <string name="close_button_description">Cerrar</string>
     <string name="go_back_button_description">Regresar</string>
     <string name="menu_button_description">Menú</string>
+    <string name="leave">Salir</string>
+    <string name="left_chat">Dejaste el chat</string>
 
     <!--WIDECHAT INVITES-->
     <string name="invitation_sms_success">La invitación fue enviada</string>

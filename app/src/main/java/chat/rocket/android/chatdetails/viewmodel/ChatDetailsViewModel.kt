@@ -11,19 +11,21 @@ class ChatDetailsViewModel(private val chatRoomDao: ChatRoomDao): ViewModel() {
 
     fun getDetails(chatRoomId: String): LiveData<ChatDetails> {
         return Transformations.switchMap(chatRoomDao.get(chatRoomId)) { room ->
-            val entity = room.chatRoom
-            val data: MutableLiveData<ChatDetails> = MutableLiveData()
+            room?.let {
+                val entity = room.chatRoom
+                val data: MutableLiveData<ChatDetails> = MutableLiveData()
 
-            data.value = ChatDetails(
-                entity.name,
-                entity.fullname,
-                entity.type,
-                entity.topic,
-                entity.announcement,
-                entity.description
-            )
+                data.value = ChatDetails(
+                    entity.name,
+                    entity.fullname,
+                    entity.type,
+                    entity.topic,
+                    entity.announcement,
+                    entity.description
+                )
 
-            return@switchMap data
+                return@switchMap data
+            }
         }
     }
 }
