@@ -241,7 +241,6 @@ class ChatRoomPresenter @Inject constructor(
         offset: Long = 0,
         clearDataSet: Boolean = false
     ) {
-        Timber.d("########  EAR> Inside loadMessages.")
         this.chatRoomId = chatRoomId
         this.chatRoomType = chatRoomType
         GlobalScope.launch(Dispatchers.IO + strategy.jobs) {
@@ -253,8 +252,6 @@ class ChatRoomPresenter @Inject constructor(
 
                     //Hide User Joined, User Left, User Added, User Removed messages based on settings
                     val filtered: List<Message> = getFilteredMessages(localMessages)
-                    // EAR sanity test
-//                    val filtered: List<Message> = localMessages
 
                     val oldMessages = mapper.map(
                         filtered, RoomUiModel(
@@ -267,14 +264,11 @@ class ChatRoomPresenter @Inject constructor(
 //                    if (oldMessages.isNotEmpty() && lastSyncDate != null) {
                     if (localMessages.isNotEmpty() && lastSyncDate != null) {
                         view.showMessages(oldMessages, clearDataSet)
-                        Timber.d("######  EAR>> inside loadMessage, (oldMessages.isNotEmpty() && lastSyncDate != null), offset is 0L and about to call loadMissingMessages.")
                         loadMissingMessages()
                     } else {
-                        Timber.d("########  EAR>> inside loadMessage and offset is 0L, and NOT this: (oldMessages.isNotEmpty() && lastSyncDate != null)")
                         loadAndShowMessages(chatRoomId, chatRoomType, offset, clearDataSet)
                     }
                 } else {
-                    Timber.d("#########  EAR>> inside loadMessage and offset is NOT 0L, about to call loadAndShowMessages.")
                     loadAndShowMessages(chatRoomId, chatRoomType, offset, clearDataSet)
                 }
 
@@ -303,7 +297,6 @@ class ChatRoomPresenter @Inject constructor(
         offset: Long = 0,
         clearDataSet: Boolean
     ) {
-        Timber.d("#####  EAR>> inside loadAndShowMessages.")
         val messages =
             retryIO("loadAndShowMessages($chatRoomId, $chatRoomType, $offset") {
                 client.messages(chatRoomId, roomTypeOf(chatRoomType), offset, 30).result
@@ -311,22 +304,16 @@ class ChatRoomPresenter @Inject constructor(
 
         //Hide User Joined, User Left, User Added, User Removed messages based on settings
         val filtered: List<Message> = getFilteredMessages(messages)
-        // EAR sanity test
-//        val filtered: List<Message> = messages
-
 
         messagesRepository.saveAll(filtered)
 
         //we are saving last sync date of latest synced chat room message
         if (offset == 0L) {
-            Timber.d("#####  EAR>> inside loadAndShowMessages and offset is 0L.")
             //if success - saving last synced time
             if (messages.isEmpty()) {
-                Timber.d("########  EAR>> offset 0L and filtered is empty, setting lastSyncDat to current date.")
                 //chat history is empty - just saving current date
                 messagesRepository.saveLastSyncDate(chatRoomId, System.currentTimeMillis())
             } else {
-                Timber.d("######  EAR> offset 0L but filtered not empty, last sync date being set to: ${filtered.first().timestamp}")
                 //assume that BE returns ordered messages, the first message is the latest one
                 messagesRepository.saveLastSyncDate(chatRoomId, messages.first().timestamp)
             }
@@ -334,10 +321,8 @@ class ChatRoomPresenter @Inject constructor(
 
         // WIDECHAT - handle case when all messages were filtered but there are more messages to come
         if (filtered.isEmpty() && messages.isNotEmpty()) {
-            Timber.d("######  EAR>> filtered empty but messages not, calling notifyAdapter()")
             view.notifyAdapter()
         } else {
-            Timber.d("######  EAR>> filtered not empty, showing messages.")
             view.showMessages(
                     mapper.map(
                             filtered,
@@ -840,7 +825,6 @@ class ChatRoomPresenter @Inject constructor(
     }
 
     private fun loadMissingMessages() {
-        Timber.d("#######  EAR>> Inside loadMissingMessages.")
         GlobalScope.launch(strategy.jobs) {
             chatRoomId?.let { chatRoomId ->
                 val roomType = roomTypeOf(chatRoomType)
@@ -848,7 +832,6 @@ class ChatRoomPresenter @Inject constructor(
                 // lastSyncDate or 0. LastSyncDate could be in case when we sent some messages offline(and saved them locally),
                 // but never has obtained chatMessages(or history) from remote. In this case we should sync all chat history from beginning
                 val instant = Instant.ofEpochMilli(lastSyncDate ?: 0).toString()
-                Timber.d("#########  EAR>> inside lMM and instant is: ${instant}")
                 //
                 try {
                     val messages =

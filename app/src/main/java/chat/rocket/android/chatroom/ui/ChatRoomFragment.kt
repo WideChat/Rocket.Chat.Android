@@ -437,7 +437,6 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                         prevMessageUiModel = msgModel
                     }
                 }
-                // EAR test
                 val lastMsgModel = dataSet[dataSet.lastIndex]
                 lastMsgModel.showDayMarker = true
             }
