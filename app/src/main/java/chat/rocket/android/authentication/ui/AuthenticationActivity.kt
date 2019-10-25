@@ -16,6 +16,7 @@ import chat.rocket.android.authentication.domain.model.isSupportedLink
 import chat.rocket.android.authentication.presentation.AuthenticationPresenter
 import chat.rocket.android.dynamiclinks.DynamicLinksForFirebase
 import chat.rocket.android.helper.Constants
+import chat.rocket.android.sharehadler.ShareHandler
 import chat.rocket.common.util.ifNull
 import dagger.android.AndroidInjection
 import dagger.android.AndroidInjector
@@ -62,9 +63,16 @@ class AuthenticationActivity : AppCompatActivity(), HasSupportFragmentInjector {
                     routeNoLink()
                 }
             }
+        } else if (isShareIntent(intent)) {
+            ShareHandler.handle(intent, this)
+            routeNoLink()
         } else {
             routeNoLink()
         }
+    }
+
+    private fun isShareIntent(intent: Intent): Boolean {
+        return Intent.ACTION_SEND == intent.action || Intent.ACTION_SEND_MULTIPLE == intent.action
     }
 
     private fun resolveDynamicLink(intent: Intent) {

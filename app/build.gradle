@@ -15,8 +15,8 @@ android {
         applicationId "chat.veranda.android"
         minSdkVersion versions.minSdk
         targetSdkVersion versions.targetSdk
-        versionCode 8010
-        versionName "0.8.1"
+        versionCode 8020
+        versionName "0.8.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
 
@@ -186,6 +186,7 @@ dependencies {
     playImplementation libraries.firebaseCore
     playImplementation libraries.firebaseCrashlytics
     playImplementation libraries.firebasePerf
+    playImplementation libraries.firebaseiid
 
     testImplementation libraries.junit
     testImplementation libraries.truth

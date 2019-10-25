@@ -41,6 +41,7 @@ import chat.rocket.android.helper.AndroidPermissionsHelper
 import chat.rocket.android.helper.Constants
 import chat.rocket.android.helper.SharedPreferenceHelper
 import chat.rocket.android.main.ui.MainActivity
+import chat.rocket.android.sharehadler.ShareHandler
 
 class ChatRoomsPresenter @Inject constructor(
     private val view: ChatRoomsView,
@@ -119,6 +120,14 @@ class ChatRoomsPresenter @Inject constructor(
             if (myself?.username == null) {
                 view.showMessage(R.string.msg_generic_error)
             } else {
+
+                // todo CHECK
+                if (ShareHandler.hasShare() && (readonly != null && readonly!!)) {
+                    view.showMessage("You cannot send message to readonly channel")
+
+                    return@with
+                }
+
                 val id = if (isDirectMessage && !open) {
                     // If from local database, we already have the roomId, no need to concatenate
                     if (local) {
@@ -194,6 +203,22 @@ class ChatRoomsPresenter @Inject constructor(
     private suspend fun createDirectMessage(name: String): Boolean = suspendCoroutine { cont ->
         client.createDirectMessage(name) { success, _ ->
             cont.resume(success)
+        }
+    }
+
+    fun canShareToRoom(room: RoomUiModel, onAllowed: () -> Unit, onDisallowed: () -> Unit) {
+        launchUI(strategy) {
+            dbManager.getRoom(room.id)?.apply {
+                val isReadonly = this.chatRoom.readonly
+
+                isReadonly?.let { isReadOnly ->
+                    if (isReadOnly) {
+                        onDisallowed()
+                    } else {
+                        onAllowed()
+                    }
+                }
+            }
         }
     }
 

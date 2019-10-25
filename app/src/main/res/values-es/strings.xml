@@ -436,4 +436,10 @@
     <string name="permissions_item">¿Desea permitir que Viasat Connect acceda a sus contactos?</string>
     <string name="set_permissions_through_settings">Para permitir que Viasat Connect acceda a sus contactos, cambie los permisos en la configuración de la aplicación de su dispositivo</string>
     <string name="dismiss_button">DESPEDIR</string>
+
+    <!-- Share -->
+    <string name="share_with">Compartir con</string>
+    <string name="confirm_to_send">¿Compartir con %1$s?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="you_cant_send_here_readonly">No puedes enviar aquí, solo leer canal</string>
 </resources>
