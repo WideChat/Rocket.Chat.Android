@@ -262,7 +262,8 @@ class ChatRoomPresenter @Inject constructor(
                     )
                     )
                     val lastSyncDate = messagesRepository.getLastSyncDate(chatRoomId)
-                    if (oldMessages.isNotEmpty() && lastSyncDate != null) {
+//                    if (oldMessages.isNotEmpty() && lastSyncDate != null) {
+                    if (localMessages.isNotEmpty() && lastSyncDate != null) {
                         view.showMessages(oldMessages, clearDataSet)
                         Timber.d("######  EAR>> inside loadMessage, (oldMessages.isNotEmpty() && lastSyncDate != null), offset is 0L and about to call loadMissingMessages.")
                         loadMissingMessages()
@@ -315,14 +316,14 @@ class ChatRoomPresenter @Inject constructor(
         if (offset == 0L) {
             Timber.d("#####  EAR>> inside loadAndShowMessages and offset is 0L.")
             //if success - saving last synced time
-            if (filtered.isEmpty()) {
+            if (messages.isEmpty()) {
                 Timber.d("########  EAR>> offset 0L and filtered is empty, setting lastSyncDat to current date.")
                 //chat history is empty - just saving current date
                 messagesRepository.saveLastSyncDate(chatRoomId, System.currentTimeMillis())
             } else {
                 Timber.d("######  EAR> offset 0L but filtered not empty, last sync date being set to: ${filtered.first().timestamp}")
                 //assume that BE returns ordered messages, the first message is the latest one
-                messagesRepository.saveLastSyncDate(chatRoomId, filtered.first().timestamp)
+                messagesRepository.saveLastSyncDate(chatRoomId, messages.first().timestamp)
             }
         }
 
