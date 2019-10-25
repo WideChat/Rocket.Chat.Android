@@ -253,6 +253,8 @@ class ChatRoomPresenter @Inject constructor(
 
                     //Hide User Joined, User Left, User Added, User Removed messages based on settings
                     val filtered: List<Message> = getFilteredMessages(localMessages)
+                    // EAR sanity test
+//                    val filtered: List<Message> = localMessages
 
                     val oldMessages = mapper.map(
                         filtered, RoomUiModel(
@@ -309,6 +311,9 @@ class ChatRoomPresenter @Inject constructor(
 
         //Hide User Joined, User Left, User Added, User Removed messages based on settings
         val filtered: List<Message> = getFilteredMessages(messages)
+        // EAR sanity test
+//        val filtered: List<Message> = messages
+
 
         messagesRepository.saveAll(filtered)
 
@@ -843,6 +848,7 @@ class ChatRoomPresenter @Inject constructor(
                 // lastSyncDate or 0. LastSyncDate could be in case when we sent some messages offline(and saved them locally),
                 // but never has obtained chatMessages(or history) from remote. In this case we should sync all chat history from beginning
                 val instant = Instant.ofEpochMilli(lastSyncDate ?: 0).toString()
+                Timber.d("#########  EAR>> inside lMM and instant is: ${instant}")
                 //
                 try {
                     val messages =

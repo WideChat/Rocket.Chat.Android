@@ -422,9 +422,6 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                     if (previousDayMarkerText != currentDayMarkerText) {
                         prevMsgModel.showDayMarker = true
                     }
-                    if (i == 0) {
-                        msgModel.showDayMarker = true
-                    }
 
                     if (!firstUnread && msgModel is MessageUiModel) {
                         val msg = msgModel.rawData
@@ -440,6 +437,9 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                         prevMessageUiModel = msgModel
                     }
                 }
+                // EAR test
+                val lastMsgModel = dataSet[dataSet.lastIndex]
+                lastMsgModel.showDayMarker = true
             }
 
             val oldMessagesCount = adapter.itemCount
