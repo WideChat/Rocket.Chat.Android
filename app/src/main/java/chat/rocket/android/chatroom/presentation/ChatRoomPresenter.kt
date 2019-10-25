@@ -261,7 +261,6 @@ class ChatRoomPresenter @Inject constructor(
                     )
                     )
                     val lastSyncDate = messagesRepository.getLastSyncDate(chatRoomId)
-//                    if (oldMessages.isNotEmpty() && lastSyncDate != null) {
                     if (localMessages.isNotEmpty() && lastSyncDate != null) {
                         view.showMessages(oldMessages, clearDataSet)
                         loadMissingMessages()
