@@ -437,6 +437,8 @@ class ChatRoomFragment : Fragment(), ChatRoomView, EmojiKeyboardListener, EmojiR
                         prevMessageUiModel = msgModel
                     }
                 }
+                val lastMsgModel = dataSet[dataSet.lastIndex]
+                lastMsgModel.showDayMarker = true
             }
 
             val oldMessagesCount = adapter.itemCount
