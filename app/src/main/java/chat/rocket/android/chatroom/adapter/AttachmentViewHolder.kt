@@ -23,6 +23,8 @@ import chat.rocket.core.model.attachment.actions.Action
 import com.facebook.drawee.backends.pipeline.Fresco
 import kotlinx.android.synthetic.main.item_message_attachment.view.*
 import timber.log.Timber
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 
 class AttachmentViewHolder(
     itemView: View,
@@ -39,6 +41,7 @@ class AttachmentViewHolder(
     )
     private val audioVideoViews = listOf<View>(
         itemView.audio_video_attachment,
+        itemView.preview_image,
         itemView.play_button
     )
 
@@ -159,6 +162,13 @@ class AttachmentViewHolder(
                 }
             }
 
+            url?.let {
+                Glide.with(context)
+                    .asBitmap()
+                    .load(it)
+                    .apply(RequestOptions().frame(1000))
+                    .into(preview_image)
+            }
         }
     }
 

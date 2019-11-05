@@ -60,7 +60,7 @@
         android:id="@+id/audio_video_attachment"
         android:layout_width="0dp"
         android:layout_height="150dp"
-        android:background="@color/colorBlack"
+        android:background="@color/colorLightGrey"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
@@ -68,6 +68,22 @@
         app:layout_constraintStart_toStartOf="@id/guideline"
         app:layout_constraintTop_toBottomOf="@id/image_attachment"
         tools:visibility="gone">
+
+        <ImageView
+            android:id="@+id/preview_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:alpha="0.6"
+            android:src="@color/colorLightGrey" />
+
+        <ImageView
+            android:id="@+id/play_button_background"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:layout_gravity="center"
+            android:alpha="0.4"
+            android:src="@drawable/circle_black" />
 
         <ImageView
             android:id="@+id/play_button"
