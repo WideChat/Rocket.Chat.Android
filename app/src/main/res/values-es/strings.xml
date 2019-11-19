@@ -91,7 +91,7 @@
         <item name="item_privacy">Privacidad</item>
         <item name="item_about">Acerca de</item>
         <item name="item_license">Licencia</item>
-        <item name="item_logout">Cerrar sesión</item>
+        <item name="item_delete_account">Borrar mi cuenta</item>
     </string-array>
 
     <!-- Regular information messages -->
