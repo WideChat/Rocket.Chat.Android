@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
+import android.widget.EditText
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -182,7 +183,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
             )
 
             resources.getStringArray(R.array.widechat_settings_actions)[5] -> {
-                    showLogoutDialog()
+                showDeleteAccountDialog()
                 }
             }
         }
@@ -197,6 +198,36 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
                         }
                     }
                     .setNegativeButton(resources.getString(android.R.string.no)) { dialog, _ -> dialog.cancel() }
+                    .show()
+        }
+    }
+
+    fun showDeleteAccountDialog() {
+        val verificationStringEditText = EditText(context)
+        if (Constants.WIDECHAT) {
+            verificationStringEditText.hint = getString(R.string.msg_username)
+        } else {
+            verificationStringEditText.hint = getString(R.string.msg_password)
+        }
+
+        context?.let {
+            val mainPresenter = (activity as MainActivity).presenter
+            val builder = AlertDialog.Builder(it)
+            builder.setTitle(R.string.title_are_you_sure_delete)
+                    .setView(verificationStringEditText)
+                    .setPositiveButton(R.string.action_delete_account) { _, _ ->
+                        if (Constants.WIDECHAT) {
+                            var ssoDeleteCallback = { ->
+                                mainPresenter.widechatDeleteSsoAccount(getString(R.string.widechat_sso_profile_delete_path))
+                            }
+                            mainPresenter.widechatDeleteAccount(verificationStringEditText.text.toString(), ssoDeleteCallback)
+
+                        } else {
+                            mainPresenter.deleteAccount(verificationStringEditText.text.toString())
+                        }
+                    }
+                    .setNegativeButton(android.R.string.no) { dialog, _ -> dialog.cancel() }
+                    .create()
                     .show()
         }
     }

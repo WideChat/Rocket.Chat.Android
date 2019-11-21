@@ -78,7 +78,6 @@ class ProfilePresenter @Inject constructor(
 
     // WIDECHAT
     private var currentAccessToken: String? = null
-    private val ssoApiClient = OkHttpClient().newBuilder().protocols(Arrays.asList(Protocol.HTTP_1_1))
 
     fun loadUserProfile() {
         launchUI(strategy) {
@@ -222,67 +221,5 @@ class ProfilePresenter @Inject constructor(
         }
     }
 
-    fun deleteAccount(password: String) {
-        launchUI(strategy) {
-            view.showLoading()
-            try {
-                withContext(Dispatchers.Default) {
-                    // REMARK: Backend API is only working with a lowercase hash.
-                    // https://github.com/RocketChat/Rocket.Chat/issues/12573
-                    retryIO { client.deleteOwnAccount(password.gethash().toHex().toLowerCase()) }
-                    setupConnectionInfo(serverUrl)
-                    logout(null)
-                }
-            } catch (exception: Exception) {
-                exception.message?.let {
-                    view.showMessage(it)
-                }.ifNull {
-                    view.showGenericErrorMessage()
-                }
-            } finally {
-                view.hideLoading()
-            }
-        }
-    }
 
-    // WIDECHAT
-    fun deleteAccount(username: String, ssoDeleteCallback: () -> Unit?) {
-        launchUI(strategy) {
-            view.showLoading()
-            try {
-                withContext(Dispatchers.Default) {
-                    retryIO { client.deleteOwnAccount(username) }
-                    ssoDeleteCallback()
-                    setupConnectionInfo(serverUrl)
-                    logout(null)
-                }
-            } catch (exception: Exception) {
-                exception.message?.let {
-                    view.showMessage(it)
-                }.ifNull {
-                    view.showGenericErrorMessage()
-                }
-            } finally {
-                view.hideLoading()
-            }
-        }
-    }
-
-    // TODO: Is it neccessary to move this into the Kotlin SDK?
-    fun widechatDeleteSsoAccount(ssoProfileDeletePath: String?) {
-        val MEDIA_TYPE_JSON = MediaType.parse("application/json; charset=utf-8")
-        val json = """{"profilemap":{"username":"userid"}}""".trimIndent()
-
-        var request: Request = Request.Builder()
-                .url("${customOauthHost}${ssoProfileDeletePath}")
-                .delete(RequestBody.create(MEDIA_TYPE_JSON, json))
-                .addHeader("Authorization", "Bearer ${currentAccessToken}")
-                .addHeader("Content-Type", "application/json")
-                .addHeader("cache-control", "no-cache")
-                .build()
-
-        // TODO: Implement validation check? What action upon failure?
-        val response = ssoApiClient.build().newCall(request).execute()
-
-    }
 }
