@@ -53,6 +53,8 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
 
     private var settingsFragment: Int = R.layout.fragment_settings_widechat
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)

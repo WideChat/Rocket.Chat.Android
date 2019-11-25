@@ -270,7 +270,9 @@ class MainPresenter @Inject constructor(
             try {
                 withContext(Dispatchers.Default) {
                     retryIO { client.deleteOwnAccount(username) }
-                    ssoDeleteCallback()
+                    //commented out the line below because delete account functionality does not work
+                    //this requires a discussion about if we want the user to be able to delete their SSO account or just VC account
+                    //ssoDeleteCallback()
                     setupConnectionInfo(currentServer)
                     logout(null)
                 }
