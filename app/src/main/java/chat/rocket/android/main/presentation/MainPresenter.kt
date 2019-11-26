@@ -88,7 +88,8 @@ class MainPresenter @Inject constructor(
     private val client: RocketChatClient = factory.create(currentServer)
     private var settings: PublicSettings = getSettingsInteractor.get(serverInteractor.get()!!)
     private val userDataChannel = Channel<Myself>()
-    private val ssoApiClient = OkHttpClient().newBuilder().protocols(Arrays.asList(Protocol.HTTP_1_1))
+    //commented out because we are not using the sso api call because the delete account button only deletes the account from the RC server rather than the SSO account
+    //private val ssoApiClient = OkHttpClient().newBuilder().protocols(Arrays.asList(Protocol.HTTP_1_1))
 
     // WIDECHAT
     private val currentUsername = localRepository.username()
@@ -288,6 +289,7 @@ class MainPresenter @Inject constructor(
         }
     }
 
+    //this function is broken because the currentAccessToken is not being accessed properly
     // TODO: Is it neccessary to move this into the Kotlin SDK?
     fun widechatDeleteSsoAccount(ssoProfileDeletePath: String?) {
         var currentAccessToken: String? = null
@@ -307,7 +309,8 @@ class MainPresenter @Inject constructor(
                     .build()
 
             // TODO: Implement validation check? What action upon failure?
-            val response = ssoApiClient.build().newCall(request).execute()
+            //commented out because we are not using the sso api call because the delete account button only deletes the account from the RC server rather than the SSO account
+            //val response = ssoApiClient.build().newCall(request).execute()
         }
     }
 

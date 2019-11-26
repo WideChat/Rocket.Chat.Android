@@ -53,8 +53,6 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
 
     private var settingsFragment: Int = R.layout.fragment_settings_widechat
 
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AndroidSupportInjection.inject(this)
@@ -189,20 +187,6 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
                 }
             }
         }
-
-    private fun showLogoutDialog() {
-        context?.let {
-            AlertDialog.Builder(it)
-                    .setTitle(R.string.title_are_you_sure)
-                    .setPositiveButton(resources.getString(R.string.action_logout)) { _, _ ->
-                        with((activity as MainActivity).presenter) {
-                            logout()
-                        }
-                    }
-                    .setNegativeButton(resources.getString(android.R.string.no)) { dialog, _ -> dialog.cancel() }
-                    .show()
-        }
-    }
 
     fun showDeleteAccountDialog() {
         val verificationStringEditText = EditText(context)
