@@ -188,7 +188,7 @@ class SettingsFragment : Fragment(), SettingsView, AdapterView.OnItemClickListen
             }
         }
 
-    fun showDeleteAccountDialog() {
+    private fun showDeleteAccountDialog() {
         val verificationStringEditText = EditText(context)
         if (Constants.WIDECHAT) {
             verificationStringEditText.hint = getString(R.string.msg_username)
